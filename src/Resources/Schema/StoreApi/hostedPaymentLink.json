@@ -1,0 +1,51 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/bluesnap/hosted-pages-link": {
+      "post": {
+        "tags": [
+          "BlueSnap"
+        ],
+        "summary": "BlueSnap create hosted payment link",
+        "description": "Returns hosted payment link",
+        "operationId": "bluesnapCreateHostedPaymentLink",
+        "responses": {
+          "200": {
+            "description": "Returns hosted payment link"
+          }
+        },
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "order_id": {
+                    "type": "string"
+                  },
+                  "successUrl": {
+                    "type": "string"
+                  },
+                  "failedUrl": {
+                    "type": "string"
+                  },
+                  "paymentMethod": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextToken": [],
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

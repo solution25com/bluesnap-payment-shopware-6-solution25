@@ -1,0 +1,19 @@
+<div id="bluesnap-apple-pay" data-bluesnap-apple-pay="true"
+     data-merchant-id="{{ page.extensions.bluesnap.merchantId }}"
+     data-pf-token="{{ page.extensions.bluesnap.pfToken }}"
+     data-total-price="{{ page.cart.price.totalPrice }}"
+{#     data-domain-name="{{ app.request.getSchemeAndHttpHost() }}#}
+     data-domain-name="bluesnap.c-2741.maxcluster.net">
+
+  <button id="apple-pay-button" class="visually-hidden"></button>
+
+  <div class="alert alert-danger d-none" id="apple-pay-support-error" role="alert">
+      <div class="apple-alert">
+          <div class="svg-icon">
+              {% sw_icon 'alert' style {'pack':'customsvg'} %}
+          </div>
+      <p>{{ 'Bluesnap.apple-pay.alert-message'|trans }}</p>
+      </div>
+  </div>
+
+</div>

@@ -1,0 +1,27 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/bluesnap/get-config": {
+      "get": {
+        "tags": [
+          "BlueSnap"
+        ],
+        "summary": "BlueSnap get plugin configuration",
+        "description": "Returns plugin configuration values",
+        "operationId": "bluesnapGetPluginConfig",
+        "responses": {
+          "200": {
+            "description": "Returns plugin configuration values"
+          }
+        },
+        "security": [
+          {
+            "ContextToken": [],
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

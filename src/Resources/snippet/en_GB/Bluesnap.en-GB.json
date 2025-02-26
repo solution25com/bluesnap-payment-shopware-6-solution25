@@ -1,0 +1,28 @@
+{
+  "Bluesnap": {
+    "apple-pay": {
+      "alert-message": "Apple Pay is not supported in your current browser or device. Please try using Safari on an Apple device to complete your purchase with Apple Pay."
+    },
+    "credit-card": {
+      "fields": {
+        "saved-card-text": "Use Saved Card",
+        "helper-text": "16 digits on your card, <span>e.g., 1234 5678 9123 4567</span>",
+        "secure-payments": "Secure payments",
+        "save-card-info": "Save card for future payment"
+      }
+    },
+    "button": {
+    "debit-card-btn-text": "Submit order"
+    },
+    "paymentFail": {
+      "paymentFail-text": "Unfortunately you payment did not go through",
+      "order-number": "Your order number:",
+      "order-confirmation": "Order confirmation email has been sent."
+    },
+    "paymentSuccess": {
+      "paymentSuccess-text": "Thank you for your order with Blue Snap!",
+      "order-number": "Your order number:",
+      "order-confirmation": "Order confirmation email has been sent."
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/bluesnap/capture": {
+      "post": {
+        "tags": [
+          "BlueSnap"
+        ],
+        "summary": "BlueSnap Capture with credit card",
+        "description": "Returns capture information",
+        "operationId": "bluesnapCreditCardCapture",
+        "responses": {
+          "200": {
+            "description": "Returns capture information"
+          }
+        },
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "pfToken": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "string"
+                  },
+                  "saveCard": {
+                    "type": "boolean"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextToken": [],
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

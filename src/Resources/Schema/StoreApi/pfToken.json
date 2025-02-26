@@ -1,0 +1,27 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/bluesnap/get-pf-token": {
+      "get": {
+        "tags": [
+          "BlueSnap"
+        ],
+        "summary": "BlueSnap get pf token",
+        "description": "Returns bluesnap pf token",
+        "operationId": "bluesnapGetPfToken",
+        "responses": {
+          "200": {
+            "description": "Returns bluesnap pf token"
+          }
+        },
+        "security": [
+          {
+            "ContextToken": [],
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

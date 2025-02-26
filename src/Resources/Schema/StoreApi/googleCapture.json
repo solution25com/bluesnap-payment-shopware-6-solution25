@@ -1,0 +1,45 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/bluesnap/google-capture": {
+      "post": {
+        "tags": [
+          "BlueSnap"
+        ],
+        "summary": "BlueSnap Google Capture",
+        "description": "Returns capture information",
+        "operationId": "bluesnapGoogleCapture",
+        "responses": {
+          "200": {
+            "description": "Returns capture information"
+          }
+        },
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "gToken": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextToken": [],
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}
