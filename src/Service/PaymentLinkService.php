@@ -90,6 +90,7 @@ class PaymentLinkService
     }
 
     $request = $this->requestStack->getCurrentRequest();
+
     if (!$api) {
       $baseUrl = '';
       if ($request) {
@@ -97,6 +98,12 @@ class PaymentLinkService
       }
       $successUrl = "$baseUrl/" . $successUrl;
       $cancelUrl = "$baseUrl/" . $cancelUrl;
+
+      $enableFeLink = $this->blueSnapConfig->getConfig('adminFeLinks', $salesChannelId);
+      if($enableFeLink){
+        $successUrl = $this->blueSnapConfig->getConfig('successUrl', $salesChannelId);
+        $cancelUrl = $this->blueSnapConfig->getConfig('failedUrl', $salesChannelId);
+      }
     }
 
     $response = $this->blueSnapApiClient->hostedCheckout([

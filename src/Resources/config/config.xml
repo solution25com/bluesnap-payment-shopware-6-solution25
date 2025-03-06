@@ -76,4 +76,23 @@
     </input-field>
   </card>
 
+  <card>
+    <input-field type="checkbox">
+      <name>adminFeLinks</name>
+      <label>Enable Admin FE Link</label>
+      <helpText>Enable Admin Payment Links result to be sent to custom links</helpText>
+      <default>false</default>
+    </input-field>
+    <title>Admin Payment Link</title>
+    <input-field type="text">
+      <name>successUrl</name>
+      <label>Composable FE Success link</label>
+    </input-field>
+
+    <input-field type="text">
+      <name>failedUrl</name>
+      <label>Composable FE Failed link</label>
+    </input-field>
+  </card>
+
 </config>
