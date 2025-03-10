@@ -5,6 +5,7 @@ namespace BlueSnap\EventSubscriber;
 use BlueSnap\Gateways\ApplePay;
 use BlueSnap\Gateways\CreditCard;
 use BlueSnap\Gateways\GooglePay;
+use BlueSnap\Gateways\LinkPayment;
 use BlueSnap\Service\BlueSnapApiClient;
 use BlueSnap\Service\BlueSnapConfig;
 use BlueSnap\Service\VaultedShopperService;
