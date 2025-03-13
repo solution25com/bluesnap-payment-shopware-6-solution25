@@ -53,6 +53,7 @@ class WebhookController
     $threeD = $params['3DStatus'] ?? '';
     $transactionType = $params['transactionType'] ?? '';
     $transactionId = $params['merchantTransactionId'] ?? ''; // Same as orderID
+    $captureReferenceNumber = $params['captureReferenceNumber'] ?? '';
 
     if ($threeD !== 'AUTHENTICATION_SUCCEEDED') {
       return new JsonResponse(['status' => false]);
@@ -76,7 +77,7 @@ class WebhookController
 
     $this->transactionStateHandler->paid($transaction->getId(), $context);
 
-    $this->blueSnapTransactionService->updateTransactionStatus($order->getId(),  TransactionStatuses::PAID->value, $context);
+    $this->blueSnapTransactionService->updateTransactionStatus($order->getId(),  TransactionStatuses::PAID->value, $context, $captureReferenceNumber);
     return new JsonResponse(['status' => true]);
   }
 

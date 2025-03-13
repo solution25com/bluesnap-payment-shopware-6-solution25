@@ -21,7 +21,7 @@ class BlueSnapTransactionService
     $this->orderRepository = $orderRepository;
   }
 
-  public function updateTransactionStatus($orderId, $status, $context)
+  public function updateTransactionStatus($orderId, $status, $context, $captureReferenceNumber = '')
   {
     $transaction = $this->getTransactionByOrderId($orderId, $context);
 
@@ -29,6 +29,7 @@ class BlueSnapTransactionService
       [
         'id' => $transaction->getId(),
         'status' => $status,
+        'transactionId' =>  $captureReferenceNumber != '' ? $captureReferenceNumber : $transaction->getTransactionId(),
         'updatedAt' => (new \DateTime())->format('Y-m-d H:i:s')
       ]
     ], $context);
@@ -38,7 +39,7 @@ class BlueSnapTransactionService
       'bluesnapTransaction' => [
         'data' => [
           'id' => $transaction->getId(),
-          'blueSnapTransactionId' => $transaction->getId(),
+          'blueSnapTransactionId' => $captureReferenceNumber != '' ? $captureReferenceNumber : $transaction->getTransactionId(),
           'paymentMethodName' => $transaction->getPaymentMethodName(),
           'status' => $status,
         ]
