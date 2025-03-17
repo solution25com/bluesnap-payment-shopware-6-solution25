@@ -398,4 +398,23 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
 
     return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $link));
   }
+
+  #[Route(path: '/store-api/bluesnap/create-transaction', name: 'store-api.bluesnap.createTransaction', methods: ['POST'])]
+  public function createTransaction(Request $request, SalesChannelContext $context): BlueSnapApiResponse
+  {
+    $data = $request->request->all();
+    $constraints = new Assert\Collection([
+      'orderId' => [new Assert\NotBlank(), new Assert\Type('string')],
+      'transactionId' => [new Assert\NotBlank(), new Assert\Type('string')],
+      'paymentMethod' => [new Assert\NotBlank(), new Assert\Type('string')],
+    ]);
+
+    $errors = $this->validator->validateFields($data, $constraints);
+    if (count($errors) > 0) {
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
+    }
+    $this->blueSnapTransactionService->addTransaction($data['orderId'], $data['paymentMethod'], $data['transactionId'], TransactionStatuses::PAID->value, $context);
+
+    return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, 'Transaction created!'));
+  }
 }

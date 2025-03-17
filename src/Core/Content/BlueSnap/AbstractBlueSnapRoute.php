@@ -28,4 +28,7 @@ abstract class AbstractBlueSnapRoute
   abstract public function updateVaultedShopper(string $vaultedShopperId, Request $request, SalesChannelContext $context): BlueSnapApiResponse;
 
   abstract public function hostedPagesLink(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+
+  abstract public function createTransaction(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+
 }
