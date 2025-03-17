@@ -413,7 +413,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     if (count($errors) > 0) {
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
     }
-    $this->blueSnapTransactionService->addTransaction($data['orderId'], $data['paymentMethod'], $data['transactionId'], TransactionStatuses::PAID->value, $context);
+    $this->blueSnapTransactionService->addTransaction($data['orderId'], $data['paymentMethod'], $data['transactionId'], TransactionStatuses::PAID->value, $context->getContext());
 
     return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, 'Transaction created!'));
   }
