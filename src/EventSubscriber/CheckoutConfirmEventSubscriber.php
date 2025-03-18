@@ -6,6 +6,7 @@ use BlueSnap\Gateways\ApplePay;
 use BlueSnap\Gateways\CreditCard;
 use BlueSnap\Gateways\GooglePay;
 use BlueSnap\Gateways\LinkPayment;
+use BlueSnap\Library\Constants\EnvironmentUrl;
 use BlueSnap\Service\BlueSnapApiClient;
 use BlueSnap\Service\BlueSnapConfig;
 use BlueSnap\Service\VaultedShopperService;
@@ -95,6 +96,7 @@ class CheckoutConfirmEventSubscriber implements EventSubscriberInterface
         'shopperLast4Digits' => $shopperLast4Digits,
         'shopperCardType' => $shopperCardType,
         'threeDS' => $threeDS,
+        'js_link' => $this->blueSnapConfig->getConfig('mode', $salesChannelId) === 'live' ? EnvironmentUrl::BLUESNAP_JS_LIVE->value : EnvironmentUrl::BLUESNAP_JS_SANDBOX->value,
       ]);
 
       $pageObject->addExtension(

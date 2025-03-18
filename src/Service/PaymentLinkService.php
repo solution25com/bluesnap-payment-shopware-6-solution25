@@ -75,12 +75,12 @@ class PaymentLinkService
         "quantity" => $quantity,
         "label" => $productName,
         "description" => $productDescription,
-        "amount" =>  $unitPrice * $quantity,
+        "amount" => $unitPrice * $quantity,
       ];
     }
 
     $shippingCost = $order->getShippingCosts()->getTotalPrice();
-    if($shippingCost){
+    if ($shippingCost) {
       $lineItems[] = [
         "id" => Uuid::randomHex(),
         "quantity" => 1,
@@ -100,7 +100,7 @@ class PaymentLinkService
       $cancelUrl = "$baseUrl/" . $cancelUrl;
 
       $enableFeLink = $this->blueSnapConfig->getConfig('adminFeLinks', $salesChannelId);
-      if($enableFeLink){
+      if ($enableFeLink) {
         $successUrl = $this->blueSnapConfig->getConfig('successUrl', $salesChannelId);
         $cancelUrl = $this->blueSnapConfig->getConfig('failedUrl', $salesChannelId);
       }
@@ -119,7 +119,8 @@ class PaymentLinkService
 
     $responseData = json_decode($response, true);
 
-    return EnvironmentUrl::CHECKOUT_LINK->value . '/checkout/?jwt=' . $responseData['jwt'];
+    $checkoutLink = $this->blueSnapConfig->getConfig('mode', $salesChannelId) === 'live' ? EnvironmentUrl::CHECKOUT_LINK_SANDBOX->value : EnvironmentUrl::CHECKOUT_LINK_LIVE->value;
+    return $checkoutLink . '/checkout/?jwt=' . $responseData['jwt'];
   }
 
   public function sendEmail(string $link, Entity $order, string $salesChannelId, Context $context): void
