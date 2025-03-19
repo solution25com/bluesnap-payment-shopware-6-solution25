@@ -75,7 +75,7 @@ class PaymentLinkService
         "quantity" => $quantity,
         "label" => $productName,
         "description" => $productDescription,
-        "amount" => $unitPrice * $quantity,
+        "amount" => round($unitPrice * $quantity, 2),
       ];
     }
 
@@ -85,7 +85,7 @@ class PaymentLinkService
         "id" => Uuid::randomHex(),
         "quantity" => 1,
         "label" => 'Shipping Cost',
-        "amount" => $shippingCost,
+        "amount" => round($shippingCost, 2),
       ];
     }
 

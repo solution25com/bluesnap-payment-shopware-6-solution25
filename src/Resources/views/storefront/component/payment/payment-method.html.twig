@@ -59,7 +59,7 @@
                             </div>
                         {% endblock %}
                     </label>
-                    {% if payment.name == 'BlueSnap Credit Card' and context.paymentMethod.name == 'BlueSnap Credit Card' %}
+                   {% if payment.formattedHandlerIdentifier == "handler_bluesnap_creditcard" and context.paymentMethod.formattedHandlerIdentifier == "handler_bluesnap_creditcard" %}
                         {% sw_include page.extensions.bluesnap.template %}
                     {% endif %}
 
