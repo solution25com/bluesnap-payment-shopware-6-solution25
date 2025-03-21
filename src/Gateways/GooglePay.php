@@ -13,27 +13,27 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class GooglePay implements SynchronousPaymentHandlerInterface
 {
-  private OrderTransactionStateHandler $transactionStateHandler;
-  private BlueSnapTransactionService $blueSnapTransactionService;
-  private LoggerInterface $logger;
+    private OrderTransactionStateHandler $transactionStateHandler;
+    private BlueSnapTransactionService $blueSnapTransactionService;
+    private LoggerInterface $logger;
 
-  public function __construct(
-    OrderTransactionStateHandler $transactionStateHandler,
-    BlueSnapTransactionService   $blueSnapTransactionService,
-    LoggerInterface              $logger)
-  {
-    $this->transactionStateHandler = $transactionStateHandler;
-    $this->blueSnapTransactionService = $blueSnapTransactionService;
-    $this->logger = $logger;
-  }
+    public function __construct(
+        OrderTransactionStateHandler $transactionStateHandler,
+        BlueSnapTransactionService $blueSnapTransactionService,
+        LoggerInterface $logger
+    ) {
+        $this->transactionStateHandler    = $transactionStateHandler;
+        $this->blueSnapTransactionService = $blueSnapTransactionService;
+        $this->logger                     = $logger;
+    }
 
-  public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
-  {
-    $context = $salesChannelContext->getContext();
-    $bluesnapTransactionId = $dataBag->get('bluesnap_transaction_id');
-    $paymentMethodName = $salesChannelContext->getPaymentMethod()->getName();
-    $orderId = $transaction->getOrder()->getId();
-    $this->transactionStateHandler->paid($transaction->getOrderTransaction()->getId(), $context);
-    $this->blueSnapTransactionService->addTransaction($orderId, $paymentMethodName, $bluesnapTransactionId, TransactionStatuses::PAID->value, $context);
-  }
+    public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
+    {
+        $context               = $salesChannelContext->getContext();
+        $bluesnapTransactionId = $dataBag->get('bluesnap_transaction_id');
+        $paymentMethodName     = $salesChannelContext->getPaymentMethod()->getName();
+        $orderId               = $transaction->getOrder()->getId();
+        $this->transactionStateHandler->paid($transaction->getOrderTransaction()->getId(), $context);
+        $this->blueSnapTransactionService->addTransaction($orderId, $paymentMethodName, $bluesnapTransactionId, TransactionStatuses::PAID->value, $context);
+    }
 }

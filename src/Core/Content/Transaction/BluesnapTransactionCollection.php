@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace BlueSnap\Core\Content\Transaction;
 
@@ -15,8 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
  */
 class BluesnapTransactionCollection extends EntityCollection
 {
-  protected function getExpectedClass(): string
-  {
-    return BluesnapTransactionEntity::class;
-  }
+    protected function getExpectedClass(): string
+    {
+        return BluesnapTransactionEntity::class;
+    }
 }

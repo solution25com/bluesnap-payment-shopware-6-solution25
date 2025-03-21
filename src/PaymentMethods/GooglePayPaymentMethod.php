@@ -7,28 +7,27 @@ use BlueSnap\PaymentMethods\PaymentMethodInterface;
 
 class GooglePayPaymentMethod implements PaymentMethodInterface
 {
+    /**
+     * @inheritDoc
+     */
+    public function getName(): string
+    {
+        return 'BlueSnap Google Pay';
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function getName(): string
-  {
-    return 'BlueSnap Google Pay';
-  }
+    /**
+     * @inheritDoc
+     */
+    public function getDescription(): string
+    {
+        return 'BlueSnap Payment';
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function getDescription(): string
-  {
-    return 'BlueSnap Payment';
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getPaymentHandler(): string
-  {
-    return GooglePay::class;
-  }
+    /**
+     * @inheritDoc
+     */
+    public function getPaymentHandler(): string
+    {
+        return GooglePay::class;
+    }
 }

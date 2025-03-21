@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace BlueSnap\Migration;
 
@@ -12,15 +14,15 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('core')]
 class Migration1730108038VaultedShopper extends MigrationStep
 {
-  public function getCreationTimestamp(): int
-  {
-    return 1730108038;
-  }
+    public function getCreationTimestamp(): int
+    {
+        return 1730108038;
+    }
 
-  public function update(Connection $connection): void
-  {
-    $sql = /** @lang text */
-      <<<SQL
+    public function update(Connection $connection): void
+    {
+        $sql = /** @lang text */
+          <<<SQL
         CREATE TABLE IF NOT EXISTS `bluesnap_vaulted_shopper` (
             `id` BINARY(16) NOT NULL,
             `customer_id` Binary(16) NOT NULL,
@@ -37,6 +39,6 @@ class Migration1730108038VaultedShopper extends MigrationStep
             COLLATE = utf8mb4_unicode_ci;
         SQL;
 
-    $connection->executeStatement($sql);
-  }
+        $connection->executeStatement($sql);
+    }
 }
