@@ -58,9 +58,7 @@ The Bluesnap Shopware 6 Plugin is a reliable payment solution that connects Blue
 - Locate Bluesnap and click the three dots (...) icon or the plugin name to open its settings.
 
 2. **General Settings**
-
-### Plugin Configuration
-Before using the plugin, configure the API keys and payment settings:
+<br>Before using the plugin, configure the API keys and payment settings:
 - **API Key for Live**: Required for live transactions.  
 - **API Public Key Live**: Public key for authentication in the live environment.  
 ![Group 8001 (1)](https://github.com/user-attachments/assets/42aed29b-9907-4943-ad3e-041509de8b2c)
