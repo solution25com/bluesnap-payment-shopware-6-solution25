@@ -119,7 +119,7 @@ class PaymentLinkService
 
     $responseData = json_decode($response, true);
 
-    $checkoutLink = $this->blueSnapConfig->getConfig('mode', $salesChannelId) === 'live' ? EnvironmentUrl::CHECKOUT_LINK_SANDBOX->value : EnvironmentUrl::CHECKOUT_LINK_LIVE->value;
+    $checkoutLink = $this->blueSnapConfig->getConfig('mode', $salesChannelId) === 'live' ? EnvironmentUrl::CHECKOUT_LINK_LIVE->value : EnvironmentUrl::CHECKOUT_LINK_SANDBOX->value ;
     return $checkoutLink . '/checkout/?jwt=' . $responseData['jwt'];
   }
 
