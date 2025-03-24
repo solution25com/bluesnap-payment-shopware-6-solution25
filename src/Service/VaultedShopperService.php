@@ -12,65 +12,66 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class VaultedShopperService
 {
-  private EntityRepository $vaultedShopperRepository;
-  private LoggerInterface $logger;
-  public function __construct(EntityRepository $vaultedShopperRepository, LoggerInterface $logger)
-  {
-    $this->vaultedShopperRepository = $vaultedShopperRepository;
-    $this->logger = $logger;
-  }
-  public function store(SalesChannelContext $salesChannelContext, string $vaultedShopperId, string $cardType): void
-  {
-
-    $context = $salesChannelContext->getContext();
-    $salesChannelCustomerId = $salesChannelContext->getCustomer()->getId();
-
-    try {
-      $existingShopper = $this->vaultedShopperRepository->search(
-        (new Criteria())->addFilter(new EqualsFilter('customerId', $salesChannelCustomerId)), $context)->first();
-      if ($existingShopper) {
-        $this->vaultedShopperRepository->upsert(
-          [
-            [
-              'id' => $existingShopper->getId(),
-              'customerId' => $salesChannelCustomerId,
-              'vaultedShopperId' => $vaultedShopperId,
-              'cardType' => $cardType,
-              'updatedAt' => (new \DateTime())->format('Y-m-d H:i:s'),
-            ]
-          ],
-          $context
-        );
-      } else {
-        $this->vaultedShopperRepository->upsert(
-          [
-            [
-              'id' => Uuid::randomHex(),
-              'customerId' => $salesChannelCustomerId,
-              'vaultedShopperId' => $vaultedShopperId,
-              'cardType' => $cardType,
-              'createdAt' => (new \DateTime())->format('Y-m-d H:i:s'),
-            ]
-          ],
-          $context
-        );
-      }
-    } catch (\Exception $e) {
-      $this->logger->error('Error storing vaulted shopper data: ' . $e->getMessage());
+    private EntityRepository $vaultedShopperRepository;
+    private LoggerInterface $logger;
+    public function __construct(EntityRepository $vaultedShopperRepository, LoggerInterface $logger)
+    {
+        $this->vaultedShopperRepository = $vaultedShopperRepository;
+        $this->logger                   = $logger;
     }
-  }
-  public function getVaultedShopperIdByCustomerId(Context $context, string $customerId): ?string
-  {
-    $criteria = new Criteria();
-    $criteria->addFilter(new EqualsFilter('customerId', $customerId));
-    $res = $this->vaultedShopperRepository->search($criteria, $context)->first();
-    return $res ? $res->getVaultedShopperId() : null;
-  }
-  public function vaultedShopperExist(Context $context, String $customerId): bool
-  {
-    $criteria = new Criteria();
-    $criteria->addFilter(new EqualsFilter('customerId', $customerId));
-    $vaultedShopper = $this->vaultedShopperRepository->search($criteria, $context)->first();
-    return $vaultedShopper !== null;
-  }
+    public function store(SalesChannelContext $salesChannelContext, string $vaultedShopperId, string $cardType): void
+    {
+        $context                = $salesChannelContext->getContext();
+        $salesChannelCustomerId = $salesChannelContext->getCustomer()->getId();
+
+        try {
+            $existingShopper = $this->vaultedShopperRepository->search(
+                (new Criteria())->addFilter(new EqualsFilter('customerId', $salesChannelCustomerId)),
+                $context
+            )->first();
+            if ($existingShopper) {
+                $this->vaultedShopperRepository->upsert(
+                    [
+                      [
+                        'id'               => $existingShopper->getId(),
+                        'customerId'       => $salesChannelCustomerId,
+                        'vaultedShopperId' => $vaultedShopperId,
+                        'cardType'         => $cardType,
+                        'updatedAt'        => (new \DateTime())->format('Y-m-d H:i:s'),
+                      ]
+                    ],
+                    $context
+                );
+            } else {
+                $this->vaultedShopperRepository->upsert(
+                    [
+                      [
+                        'id'               => Uuid::randomHex(),
+                        'customerId'       => $salesChannelCustomerId,
+                        'vaultedShopperId' => $vaultedShopperId,
+                        'cardType'         => $cardType,
+                        'createdAt'        => (new \DateTime())->format('Y-m-d H:i:s'),
+                      ]
+                    ],
+                    $context
+                );
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('Error storing vaulted shopper data: ' . $e->getMessage());
+        }
+    }
+    public function getVaultedShopperIdByCustomerId(Context $context, string $customerId): ?string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('customerId', $customerId));
+        $res = $this->vaultedShopperRepository->search($criteria, $context)->first();
+        return $res ? $res->getVaultedShopperId() : null;
+    }
+    public function vaultedShopperExist(Context $context, string $customerId): bool
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('customerId', $customerId));
+        $vaultedShopper = $this->vaultedShopperRepository->search($criteria, $context)->first();
+        return $vaultedShopper !== null;
+    }
 }

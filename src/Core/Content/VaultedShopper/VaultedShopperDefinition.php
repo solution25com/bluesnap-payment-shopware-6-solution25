@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace BlueSnap\Core\Content\VaultedShopper;
 
@@ -16,31 +18,31 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 
 class VaultedShopperDefinition extends EntityDefinition
 {
-  public const ENTITY_NAME = 'bluesnap_vaulted_shopper';
+    public const ENTITY_NAME = 'bluesnap_vaulted_shopper';
 
-  public function getEntityName(): string
-  {
-    return self::ENTITY_NAME;
-  }
+    public function getEntityName(): string
+    {
+        return self::ENTITY_NAME;
+    }
 
-  public function getEntityClass(): string
-  {
-    return VaultedShopperEntity::class;
-  }
+    public function getEntityClass(): string
+    {
+        return VaultedShopperEntity::class;
+    }
 
-  public function getCollectionClass(): string
-  {
-    return VaultedShopperCollection::class;
-  }
+    public function getCollectionClass(): string
+    {
+        return VaultedShopperCollection::class;
+    }
 
-  protected function defineFields(): FieldCollection
-  {
-    return new FieldCollection([
-      (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-      (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new Required()),
-      (new StringField('vaulted_shopper_id', 'vaultedShopperId'))->addFlags(new Required()),
-      (new StringField('card_type', 'cardType')),
-      new OneToOneAssociationField('customer', 'customer_id', 'id', CustomerDefinition::class, false)
-    ]);
-  }
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+          (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+          (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new Required()),
+          (new StringField('vaulted_shopper_id', 'vaultedShopperId'))->addFlags(new Required()),
+          (new StringField('card_type', 'cardType')),
+          new OneToOneAssociationField('customer', 'customer_id', 'id', CustomerDefinition::class, false)
+        ]);
+    }
 }

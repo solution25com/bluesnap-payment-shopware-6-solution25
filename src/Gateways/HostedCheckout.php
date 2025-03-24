@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace BlueSnap\Gateways;
 
@@ -20,45 +22,44 @@ use Symfony\Component\HttpFoundation\Request;
 
 class HostedCheckout implements AsynchronousPaymentHandlerInterface
 {
-  private OrderService $orderService;
-  private PaymentLinkService $paymentLinkService;
+    private OrderService $orderService;
+    private PaymentLinkService $paymentLinkService;
 
-  private BlueSnapTransactionService $blueSnapTransactionService;
-  private LoggerInterface $logger;
+    private BlueSnapTransactionService $blueSnapTransactionService;
+    private LoggerInterface $logger;
 
 
-  public function __construct(
-    OrderService               $orderService,
-    PaymentLinkService         $paymentLinkService,
-    BlueSnapTransactionService $blueSnapTransactionService,
-    LoggerInterface            $logger,
-  )
-  {
-    $this->orderService = $orderService;
-    $this->paymentLinkService = $paymentLinkService;
-    $this->blueSnapTransactionService = $blueSnapTransactionService;
-    $this->logger = $logger;
-  }
+    public function __construct(
+        OrderService $orderService,
+        PaymentLinkService $paymentLinkService,
+        BlueSnapTransactionService $blueSnapTransactionService,
+        LoggerInterface $logger,
+    ) {
+        $this->orderService               = $orderService;
+        $this->paymentLinkService         = $paymentLinkService;
+        $this->blueSnapTransactionService = $blueSnapTransactionService;
+        $this->logger                     = $logger;
+    }
 
-  public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
-  {
-    $redirectUrl = $this->sendReturnUrlToExternalGateway($transaction, $salesChannelContext);
-    return new RedirectResponse($redirectUrl);
-  }
+    public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
+    {
+        $redirectUrl = $this->sendReturnUrlToExternalGateway($transaction, $salesChannelContext);
+        return new RedirectResponse($redirectUrl);
+    }
 
-  public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, SalesChannelContext $salesChannelContext): void
-  {
-    // Nothing here
-  }
+    public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, SalesChannelContext $salesChannelContext): void
+    {
+        // Nothing here
+    }
 
-  private function sendReturnUrlToExternalGateway(AsyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): string
-  {
-    $orderId = $transaction->getOrder()->getId();
-    $orderDetail = $this->orderService->getOrderDetailsById($orderId, $salesChannelContext->getContext());
-    $successUrl = 'checkout/finish?orderId=' . $orderId;
-    $failedUrl = 'checkout/confirm?redirected=0';
-    $paymentMethodName = $salesChannelContext->getPaymentMethod()->getName();
-    $this->blueSnapTransactionService->addTransaction($orderId, $paymentMethodName, $orderId, TransactionStatuses::PENDING->value, $salesChannelContext->getContext());
-    return $this->paymentLinkService->generatePaymentLink($orderDetail, $successUrl, $failedUrl, false, $salesChannelContext->getSalesChannelId());
-  }
+    private function sendReturnUrlToExternalGateway(AsyncPaymentTransactionStruct $transaction, SalesChannelContext $salesChannelContext): string
+    {
+        $orderId           = $transaction->getOrder()->getId();
+        $orderDetail       = $this->orderService->getOrderDetailsById($orderId, $salesChannelContext->getContext());
+        $successUrl        = 'checkout/finish?orderId=' . $orderId;
+        $failedUrl         = 'checkout/confirm?redirected=0';
+        $paymentMethodName = $salesChannelContext->getPaymentMethod()->getName();
+        $this->blueSnapTransactionService->addTransaction($orderId, $paymentMethodName, $orderId, TransactionStatuses::PENDING->value, $salesChannelContext->getContext());
+        return $this->paymentLinkService->generatePaymentLink($orderDetail, $successUrl, $failedUrl, false, $salesChannelContext->getSalesChannelId());
+    }
 }

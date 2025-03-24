@@ -13,30 +13,30 @@ use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
 class ApplePay implements SynchronousPaymentHandlerInterface
 {
-  private OrderTransactionStateHandler $transactionStateHandler;
-  private BlueSnapTransactionService $blueSnapTransactionService;
-  private LoggerInterface $logger;
+    private OrderTransactionStateHandler $transactionStateHandler;
+    private BlueSnapTransactionService $blueSnapTransactionService;
+    private LoggerInterface $logger;
 
-  public function __construct(
-    OrderTransactionStateHandler $transactionStateHandler,
-    BlueSnapTransactionService   $blueSnapTransactionService,
-    LoggerInterface              $logger)
-  {
-    $this->transactionStateHandler = $transactionStateHandler;
-    $this->blueSnapTransactionService = $blueSnapTransactionService;
-    $this->logger = $logger;
-  }
+    public function __construct(
+        OrderTransactionStateHandler $transactionStateHandler,
+        BlueSnapTransactionService $blueSnapTransactionService,
+        LoggerInterface $logger
+    ) {
+        $this->transactionStateHandler    = $transactionStateHandler;
+        $this->blueSnapTransactionService = $blueSnapTransactionService;
+        $this->logger                     = $logger;
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
-  {
-    $context = $salesChannelContext->getContext();
-    $bluesnapTransactionId = $dataBag->get('bluesnap_transaction_id');
-    $paymentMethodName = $salesChannelContext->getPaymentMethod()->getName();
-    $orderId = $transaction->getOrder()->getId();
-    $this->transactionStateHandler->paid($transaction->getOrderTransaction()->getId(), $context);
-    $this->blueSnapTransactionService->addTransaction($orderId, $paymentMethodName, $bluesnapTransactionId, TransactionStatuses::PAID->value ,$context);
-  }
+    /**
+     * @inheritDoc
+     */
+    public function pay(SyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): void
+    {
+        $context               = $salesChannelContext->getContext();
+        $bluesnapTransactionId = $dataBag->get('bluesnap_transaction_id');
+        $paymentMethodName     = $salesChannelContext->getPaymentMethod()->getName();
+        $orderId               = $transaction->getOrder()->getId();
+        $this->transactionStateHandler->paid($transaction->getOrderTransaction()->getId(), $context);
+        $this->blueSnapTransactionService->addTransaction($orderId, $paymentMethodName, $bluesnapTransactionId, TransactionStatuses::PAID->value, $context);
+    }
 }

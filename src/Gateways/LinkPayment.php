@@ -12,17 +12,15 @@ use Symfony\Component\HttpFoundation\Request;
 
 class LinkPayment implements AsynchronousPaymentHandlerInterface
 {
-  public function __construct()
-  {
-  }
-  public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
-  {
-    return new RedirectResponse('/');
-  }
-  public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, SalesChannelContext $salesChannelContext): void
-  {
-    // Nothing here
-  }
+    public function __construct()
+    {
+    }
+    public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
+    {
+        return new RedirectResponse('/');
+    }
+    public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, SalesChannelContext $salesChannelContext): void
+    {
+        // Nothing here
+    }
 }
-
-

@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace BlueSnap\Migration;
 
@@ -12,14 +14,14 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 #[Package('core')]
 class Migration1731282481BlueSnapPaymentLinkTable extends MigrationStep
 {
-  public function getCreationTimestamp(): int
-  {
-    return 1731282481;
-  }
+    public function getCreationTimestamp(): int
+    {
+        return 1731282481;
+    }
 
-  public function update(Connection $connection): void
-  {
-    $query = <<<SQL
+    public function update(Connection $connection): void
+    {
+        $query = <<<SQL
         CREATE TABLE IF NOT EXISTS `bluesnap_payment_link` (
                 `id` BINARY(16) NOT NULL,
                 `order_id` VARCHAR(255) NOT NULL,
@@ -33,12 +35,11 @@ class Migration1731282481BlueSnapPaymentLinkTable extends MigrationStep
             COLLATE = utf8mb4_unicode_ci;
         SQL;
 
-    $connection->executeStatement($query);
-  }
+        $connection->executeStatement($query);
+    }
 
-  public function updateDestructive(Connection $connection): void
-  {
-    $connection->executeStatement('DROP TABLE IF EXISTS `bluesnap_payment_link`');
-  }
-
+    public function updateDestructive(Connection $connection): void
+    {
+        $connection->executeStatement('DROP TABLE IF EXISTS `bluesnap_payment_link`');
+    }
 }
