@@ -1,27 +1,24 @@
 <?php
 
-namespace BlueSnap\EventSubscriber;
+namespace BlueSnap\Service;
 
 use BlueSnap\Library\Constants\TransactionStatuses;
-use BlueSnap\Service\BlueSnapApiClient;
-use BlueSnap\Service\BlueSnapTransactionService;
 use Psr\Log\LoggerInterface;
-use Shopware\Core\Checkout\Order\Event\OrderStateMachineStateChangeEvent;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 
-class RefundEventSubscriber implements EventSubscriberInterface
+class RefundService
 {
     private BlueSnapTransactionService $blueSnapTransactionService;
 
     private BlueSnapApiClient $blueSnapApiClient;
-
     private EntityRepository $orderTransactionRepository;
     private OrderTransactionStateHandler $transactionStateHandler;
-
+    private EntityRepository $orderReturnRepository;
     private LoggerInterface $logger;
 
     public function __construct(
@@ -40,56 +37,36 @@ class RefundEventSubscriber implements EventSubscriberInterface
         $this->logger                     = $logger;
     }
 
-    public static function getSubscribedEvents()
-    {
-        return [
-          'state_enter.order_return.state.in_progress' => 'onProgressRefund'
-        ];
-    }
 
-    public function onProgressRefund(OrderStateMachineStateChangeEvent $event): void
+    public function handelRefunds($data, Context $context)
     {
-        $context = $event->getContext();
-        $order   = $event->getOrder();
 
         $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('orderId', $order->getId()));
+        $criteria->addFilter(new EqualsFilter('id', $data['returnId']));
         $orderReturn        = $this->orderReturnRepository->search($criteria, $context)->first();
-        $orderTransactionId = $this->getOrderTransactionIdByOrderId($order->getId(), $context);
-        $orderTotalAmount   = $order->getAmountTotal();
+        $orderTransactionId = $this->getOrderTransactionIdByOrderId($data['orderId'], $context);
 
         $body = [
-          'reason'              => 'Refund for orderNumber ' . $order->getOrderNumber(),
-          'cancelSubscriptions' => false,
-          'transactionMetaData' => [
-            'metaData' => [
-              [
-                'metaValue'       => $orderReturn->getAmountTotal(),
-                'metaKey'         => 'refundedItems',
-                'metaDescription' => 'Refund Selected Items',
-              ]
-            ]
-          ]
+          "cancelSubscriptions" => false,
+          'amount' => $orderReturn->getAmountTotal(),
         ];
 
-        $transaction = $this->blueSnapTransactionService->getTransactionByOrderId($order->getId(), $context);
+        $transaction = $this->blueSnapTransactionService->getTransactionByOrderId($data['orderId'], $context);
 
-        if ($transaction && $transaction->getStatus() == TransactionStatuses::PAID->value) {
-            $response       = $this->blueSnapApiClient->refund($transaction->getTransactionId(), $body, $event->getSalesChannelId());
+        if ($transaction) {
+            $response       = $this->blueSnapApiClient->refund($transaction->getTransactionId(), $body);
             $parsedResponse = json_decode($response, true);
             if ($parsedResponse['refundStatus'] == 'SUCCESS') {
-                if ($orderReturn->getAmountTotal() == $orderTotalAmount) {
-                    $this->transactionStateHandler->refund($orderTransactionId, $context);
-                } else {
-                    $this->transactionStateHandler->refundPartially($orderTransactionId, $context);
-                }
+                $this->transactionStateHandler->refundPartially($orderTransactionId, $context);
                 $this->blueSnapTransactionService->updateTransactionStatus(
-                    $order->getId(),
+                    $data['orderId'],
                     TransactionStatuses::REFUND->value,
                     $context
                 );
             }
+            return $parsedResponse;
         }
+        return null;
     }
 
     private function getOrderTransactionIdByOrderId($orderId, $context)
