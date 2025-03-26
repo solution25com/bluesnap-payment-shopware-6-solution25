@@ -11,8 +11,10 @@ use BlueSnap\Service\BlueSnapConfig;
 use BlueSnap\Service\BlueSnapTransactionService;
 use BlueSnap\Service\OrderService;
 use BlueSnap\Service\PaymentLinkService;
+use BlueSnap\Service\RefundService;
 use BlueSnap\Service\VaultedShopperService;
 use Psr\Log\LoggerInterface;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
@@ -41,6 +43,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
         OrderService $orderService,
         PaymentLinkService $paymentLinkService,
         BlueSnapTransactionService $blueSnapTransactionService,
+        RefundService $refundService,
         LoggerInterface $logger
     ) {
         $this->blueSnapClient             = $client;
@@ -50,6 +53,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
         $this->orderService               = $orderService;
         $this->paymentLinkService         = $paymentLinkService;
         $this->blueSnapTransactionService = $blueSnapTransactionService;
+        $this->refundService              = $refundService;
         $this->logger                     = $logger;
     }
 
@@ -58,12 +62,29 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
         throw new DecorationPatternException(self::class);
     }
 
-    #[
-        Route(path: '/store-api/bluesnap/get-pf-token', name: 'store-api.bluesnap.getPfToken', methods: ['GET'])]
+    #[Route(path: '/store-api/bluesnap/get-pf-token', name: 'store-api.bluesnap.getPfToken', methods: ['GET'])]
     public function getPfToken(Request $request, SalesChannelContext $context): BlueSnapApiResponse
     {
         $response = $this->blueSnapClient->makeTokenRequest([], $context->getSalesChannelId());
         return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $response));
+    }
+
+    #[Route(path: '/store-api/bluesnap/refund', name: 'store-api.bluesnap.refund', methods: ['POST'])]
+    public function refund(Request $request, Context $context): BlueSnapApiResponse
+    {
+
+      $data = $request->request->all();
+      $constraints = new Assert\Collection([
+        'orderId'    => [new Assert\NotBlank(), new Assert\Type('string')],
+        'returnId'  =>[new Assert\NotBlank(), new Assert\Type('string')],
+      ]);
+
+      $errors = $this->validator->validateFields($data, $constraints);
+      if (count($errors) > 0) {
+        return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
+      }
+      $response = $this->refundService->handelRefunds($data, $context);
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $response));
     }
 
     #[Route(path: '/store-api/bluesnap/capture', name: 'store-api.bluesnap.capture', methods: ['POST'])]

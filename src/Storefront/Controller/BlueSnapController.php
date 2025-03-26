@@ -6,6 +6,7 @@ namespace BlueSnap\Storefront\Controller;
 
 use BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapApiResponse;
 use BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute;
+use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Checkout\Cart\Cart;
 
-#[Route(defaults: ['_routeScope' => ['storefront']])]
+#[Route(defaults: ['_routeScope' => ['storefront', 'api']])]
 class BlueSnapController extends StorefrontController
 {
     private BlueSnapRoute $route;
@@ -43,6 +44,11 @@ class BlueSnapController extends StorefrontController
         $price = $cart->getPrice()->getTotalPrice();
         $request->request->set('amount', (string)$price);
         return $this->route->capture($request, $context);
+    }
+    #[Route(path: '/api/refund', name: 'frontend.bluesnap.refund', methods: ['POST'])]
+    public function refund(Request $request, Context $context): BlueSnapApiResponse
+    {
+      return $this->route->refund($request, $context);
     }
 
     #[Route(path: '/google-capture', name: 'frontend.bluesnap.googleCapture', methods: ['POST'])]

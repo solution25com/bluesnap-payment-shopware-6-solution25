@@ -82,6 +82,15 @@
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
+    <service id="BlueSnap\Service\RefundService">
+      <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
+      <argument type="service" id="order_return.repository" on-invalid="null"/>
+      <argument type="service" id="order_transaction.repository"/>
+      <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+      <argument type="service" id="Bluesnap.logger"/>
+    </service>
+
     <service id="BlueSnap\Library\ValidatorUtility">
       <argument type="service" id="validator"/>
       <argument type="service" id="Bluesnap.logger"/>
@@ -116,6 +125,7 @@
       <argument type="service" id="BlueSnap\Service\OrderService"/>
       <argument type="service" id="BlueSnap\Service\PaymentLinkService"/>
       <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
+      <argument type="service" id="BlueSnap\Service\RefundService"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
     <!-- End Store Api Routes -->
@@ -162,16 +172,6 @@
       <argument type="service" id="BlueSnap\Service\BlueSnapConfig"/>
       <argument type="service" id="BlueSnap\Service\VaultedShopperService"/>
 
-      <tag name="kernel.event_subscriber"/>
-    </service>
-
-    <service id="BlueSnap\EventSubscriber\RefundEventSubscriber">
-      <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
-      <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
-      <argument type="service" id="order_return.repository" on-invalid="null"/>
-      <argument type="service" id="order_transaction.repository"/>
-      <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
-      <argument type="service" id="Bluesnap.logger"/>
       <tag name="kernel.event_subscriber"/>
     </service>
 
