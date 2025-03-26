@@ -4,7 +4,7 @@
 
 ## Introduction
 
-The Bluesnap Shopware 6 Plugin is a reliable payment solution that connects Bluesnap’s gateway with your Shopware store. It supports a variety of payment methods such as credit cards, Apple Pay, Google Pay, hosted checkout, and pay-by-link. Merchants can manage full or partial refunds, enable 3D Secure for added safety, and offer customers the option to save, update, or delete their card details. With a clear setup process and secure transactions, the plugin helps businesses offer a smooth and flexible payment experience.
+The Bluesnap Shopware 6 Plugin is a reliable payment solution that connects Bluesnap’s gateway with your Shopware store. It supports a variety of payment methods such as credit cards , Apple Pay, Google Pay, hosted checkout, and pay-by-link. Merchants can manage full or partial refunds, enable 3D Secure for added safety, and offer customers the option to save, update, or delete their card details. With a clear setup process and secure transactions, the plugin helps businesses offer a smooth and flexible payment experience.
 
 ### Key Features
 
