@@ -141,6 +141,16 @@
       </call>
     </service>
 
+    <service id="BlueSnap\Storefront\Controller\BlueSnapApiController" public="true">
+      <argument type="service" id="BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute"/>
+      <call method="setContainer">
+        <argument type="service" id="service_container"/>
+      </call>
+      <call method="setTwig">
+        <argument type="service" id="twig"/>
+      </call>
+    </service>
+
     <service id="BlueSnap\Storefront\Controller\WebhookController" public="true">
       <argument type="service" id="BlueSnap\Service\OrderService"/>
       <argument type="service"
