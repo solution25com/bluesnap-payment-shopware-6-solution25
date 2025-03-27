@@ -69,6 +69,7 @@ class PaymentLinkService
       $unitPrice = $lineItem->getPrice()->getUnitPrice();
       $productName = $lineItem->getLabel();
       $productDescription = $lineItem->getDescription() ?? 'No description available';
+      $calculatedTax = $lineItem->getPrice()->getCalculatedTaxes()->getAmount();
 
       $lineItems[] = [
         "id" => (string)$product,
@@ -76,6 +77,14 @@ class PaymentLinkService
         "label" => $productName,
         "description" => $productDescription,
         "amount" => round($unitPrice * $quantity, 2),
+      ];
+    }
+    if($calculatedTax != 0){
+      $lineItems[] = [
+        "id" => Uuid::randomHex(),
+        "quantity" => 1,
+        "label" => 'Tax',
+        "amount" => round($calculatedTax, 2),
       ];
     }
 

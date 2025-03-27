@@ -14,7 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Shopware\Core\Checkout\Cart\Cart;
 
-#[Route(defaults: ['_routeScope' => ['storefront', 'api']])]
+#[Route(defaults: ['_routeScope' => ['storefront']])]
 class BlueSnapController extends StorefrontController
 {
     private BlueSnapRoute $route;
