@@ -1,4 +1,4 @@
-![BlueSnap Payment SC](https://github.com/user-attachments/assets/01d94c75-9354-489e-b1d6-9c3502d4a427)
+![426098293-01d94c75-9354-489e-b1d6-9c3502d4a427](https://github.com/user-attachments/assets/9b74c3ea-89e1-4421-82e4-4b3e9673f9fc)
 
 # Bluesnap Payment
 
@@ -48,7 +48,9 @@ The Bluesnap Shopware 6 Plugin is a reliable payment solution that connects Blue
 
 - After activation, you will see Bluesnap in the list of installed plugins.
 - The plugin name, version, and installation date should appear as shown in the screenshot below.
-![Group 7997](https://github.com/user-attachments/assets/a1b7c065-c0dd-4fd7-9f82-1df99090ac50)
+
+![426098419-a1b7c065-c0dd-4fd7-9f82-1df99090ac50](https://github.com/user-attachments/assets/a0ee3171-6b69-44ba-b715-9b67039cc8b7)
+
 
 ## Plugin Configuration
 
@@ -61,25 +63,27 @@ The Bluesnap Shopware 6 Plugin is a reliable payment solution that connects Blue
 <br>Before using the plugin, configure the API keys and payment settings:
 - **API Key for Live**: Required for live transactions.  
 - **API Public Key Live**: Public key for authentication in the live environment.  
-![Group 8001 (1)](https://github.com/user-attachments/assets/42aed29b-9907-4943-ad3e-041509de8b2c)
+![426098746-42aed29b-9907-4943-ad3e-041509de8b2c](https://github.com/user-attachments/assets/692fc1eb-dac5-4dd0-ad0b-333fb36e1dfb)
+
+
 
 - **API Key for Sandbox**: Required for testing transactions in the sandbox environment.  
 - **API Public Key Sandbox**: Public key for authentication in sandbox mode.
-  ![Group 8000](https://github.com/user-attachments/assets/222b9bc2-3c00-4da2-93ca-35438e9fd085)
+![426098648-222b9bc2-3c00-4da2-93ca-35438e9fd085](https://github.com/user-attachments/assets/be0bac98-51fd-4046-998e-c9f02227144f)
 
 - **3D Secure (Activate/Deactivate)**: When enabled, 3D Secure authentication will be required for all credit card transactions.  
-![Group 8001](https://github.com/user-attachments/assets/750186db-9201-4938-8cce-c883e6a610eb)
+![426098839-750186db-9201-4938-8cce-c883e6a610eb](https://github.com/user-attachments/assets/2f6c861b-b657-4403-bcd8-9e5cc3f79762)
 
 - **Vaulted Customer**  
 
 > Ensure you configure these settings before enabling payment methods in your store.
-![Group 8002](https://github.com/user-attachments/assets/743f94dc-307b-449f-8607-389db4dac60d)
+![426099035-743f94dc-307b-449f-8607-389db4dac60d](https://github.com/user-attachments/assets/afdb80d8-ce1c-413e-9658-42d31d2e567c)
 
 
 3. **Save Configuration**
 
 - Click Save in the top-right corner to store your settings.
-![Group 8002 (1)](https://github.com/user-attachments/assets/903fbcf6-1776-448f-a10f-a6e219af5ce4)
+![426099116-903fbcf6-1776-448f-a10f-a6e219af5ce4](https://github.com/user-attachments/assets/6353045e-481a-4131-a2ba-67df74fcb6ae)
 
 
 ## Features & Usage
@@ -95,7 +99,7 @@ The payment is processed via Bluesnap’s gateway.
 1. Select **"Bluesnap Credit Card"** as the payment method.  
 2. Enter the customer’s credit card details into the Bluesnap form.  
 3. Submit payment.
-![Group 8003](https://github.com/user-attachments/assets/a14f0c80-bdfe-4643-b02b-fa6d962176a3)
+![426099916-a14f0c80-bdfe-4643-b02b-fa6d962176a3](https://github.com/user-attachments/assets/0595f91d-a526-483c-9e57-dbe6917170f5)
 
 ### 2. Hosted Checkout
 
@@ -122,7 +126,7 @@ Customers use their Apple device to authenticate the transaction via Face ID, To
 **Steps**:  
 1. Select **"Apple Pay"** as the payment method.  
 2. Confirm payment through Face ID, Touch ID, or an Apple Watch.
-![Group 8006](https://github.com/user-attachments/assets/e1fa5fd4-d397-407f-a0a2-3c1a0d55d890)
+![426100163-e1fa5fd4-d397-407f-a0a2-3c1a0d55d890](https://github.com/user-attachments/assets/920dd304-7faf-448f-b003-176d1c440999)
 
 ### 4. Google Pay Integration
 
@@ -134,7 +138,7 @@ Customers authenticate the payment using their Google Pay account.
 **Steps**:  
 1. Select **"Google Pay"** as the payment method.  
 2. Authenticate the payment via the customer’s Google Pay account.
-![Group 8007](https://github.com/user-attachments/assets/04de736b-cb0f-4241-a7f1-c822ef3f29c5)
+![426100221-04de736b-cb0f-4241-a7f1-c822ef3f29c5](https://github.com/user-attachments/assets/92a85870-d314-4914-950d-3432f7bb2098)
 
 
 ### 5. Refunds (Full & Partial)
@@ -150,10 +154,10 @@ The Bluesnap plugin supports both full and partial refunds for transactions.
 2. Select the order to be refunded.  
 3. Click **"Create Refund."**  
 4. Change the status to **"In Progress."**
-![Group 8008](https://github.com/user-attachments/assets/dea74cff-6d10-44b0-aa27-c2e1945f1515)
-![Group 8009](https://github.com/user-attachments/assets/4a5684b4-edba-4c69-88e3-e6a0891ee864)
-![Group 8011](https://github.com/user-attachments/assets/cbc954e6-1e28-4294-8d7a-b63d4f412a0e)
-![Group 8010](https://github.com/user-attachments/assets/8b664858-a523-4e7e-8d7a-f04179868d9a)
+![426100313-dea74cff-6d10-44b0-aa27-c2e1945f1515](https://github.com/user-attachments/assets/71ec6d5a-3512-4053-87fa-163563bfefc0)
+![426100367-4a5684b4-edba-4c69-88e3-e6a0891ee864](https://github.com/user-attachments/assets/b0b25bf0-62de-43ca-b7e8-6c9e4815684b)
+![426100476-8b664858-a523-4e7e-8d7a-f04179868d9a](https://github.com/user-attachments/assets/7f1f2d9a-5f8f-48c9-a5c6-04ecd9e1ccff)
+![426100516-cbc954e6-1e28-4294-8d7a-b63d4f412a0e](https://github.com/user-attachments/assets/6b34e4ec-033e-4702-bbab-535638b4c9dd)
 
 **Steps for Partial Refund**:  
 1. Navigate to the **Orders** section.  
@@ -161,8 +165,9 @@ The Bluesnap plugin supports both full and partial refunds for transactions.
 3. Specify the refund amount.  
 4. Click **"Create Refund."**  
 5. Change the status to **"In Progress."**
-![Group 8012](https://github.com/user-attachments/assets/e4f5af35-8a30-48c9-a960-adae028e3817)
-![Group 8014](https://github.com/user-attachments/assets/acd8ca06-76f6-420e-ae36-92c0da240a48)
+![426101045-e4f5af35-8a30-48c9-a960-adae028e3817](https://github.com/user-attachments/assets/950caa9f-2d62-453a-991a-147de9953666)
+![426101118-acd8ca06-76f6-420e-ae36-92c0da240a48](https://github.com/user-attachments/assets/47498af4-ed2e-4863-a997-dbc4e5281032)
+
 
 ### 6. Save Card Feature
 
