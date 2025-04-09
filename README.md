@@ -76,7 +76,7 @@ The Bluesnap Shopware 6 Plugin is a reliable payment solution that connects Blue
 
 - **Vaulted Customer**  
 
-> Ensure you configure these settings before enabling payment methods in your store.
+- **Ensure you configure these settings before enabling payment methods in your store.**
 ![426099035-743f94dc-307b-449f-8607-389db4dac60d](https://github.com/user-attachments/assets/afdb80d8-ce1c-413e-9658-42d31d2e567c)
 
 
