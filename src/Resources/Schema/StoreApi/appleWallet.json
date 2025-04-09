@@ -1,0 +1,48 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/bluesnap/apple-create-wallet": {
+      "post": {
+        "tags": [
+          "BlueSnap"
+        ],
+        "summary": "BlueSnap - Create apple wallet",
+        "description": "Returns apple wallet token",
+        "operationId": "bluesnapCreateAppleWallet",
+        "responses": {
+          "200": {
+            "description": "Returns apple wallet token"
+          }
+        },
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "validationUrl": {
+                    "type": "string"
+                  },
+                  "domainName": {
+                    "type": "string"
+                  },
+                  "displayName": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextToken": [],
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

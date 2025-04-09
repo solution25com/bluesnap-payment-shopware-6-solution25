@@ -1,0 +1,54 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/bluesnap/vaulted-shopper": {
+      "post": {
+        "tags": [
+          "BlueSnap"
+        ],
+        "summary": "BlueSnap Capture with credit card as vaulted shopper",
+        "description": "Returns capture information",
+        "operationId": "bluesnapVaultedShopperCapture",
+        "responses": {
+          "200": {
+            "description": "Returns capture information"
+          }
+        },
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "pfToken": {
+                    "type": "string"
+                  },
+                  "vaultedId": {
+                    "type": "string"
+                  },
+                  "amount": {
+                    "type": "string"
+                  },
+                  "authResult": {
+                    "type": "string"
+                  },
+                  "threeDSecureReferenceId": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ContextToken": [],
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

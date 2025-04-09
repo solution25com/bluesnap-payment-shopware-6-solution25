@@ -1,0 +1,66 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/bluesnap/update-vaulted-shopper/{vaultedShopperId}": {
+      "put": {
+        "tags": [
+          "BlueSnap"
+        ],
+        "summary": "BlueSnap delete vaulted shopper card",
+        "description": "Returns bluesnap vaulted shopper updated information",
+        "operationId": "bluesnapUpdateVaultedShopperInformation",
+        "parameters": [
+          {
+            "name": "vaultedShopperId",
+            "in": "path",
+            "description": "Identifier of the vaulted shopper to be fetched",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "properties": {
+                  "pfToken": {
+                    "type": "string"
+                  },
+                  "firstName": {
+                    "type": "string"
+                  },
+                  "lastName": {
+                    "type": "string"
+                  },
+                  "cardType": {
+                    "type": "string"
+                  },
+                  "cardLastFourDigits": {
+                    "type": "string"
+                  }
+                },
+                "type": "object"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns bluesnap vaulted shopper updated information"
+          }
+        },
+        "security": [
+          {
+            "ContextToken": [],
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

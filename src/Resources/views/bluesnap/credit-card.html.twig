@@ -1,0 +1,104 @@
+<div id="bluesnap-credit-card" class="panel panel-default bootstrap-basic" data-bluesnap-credit-card="true"
+     data-pf-token="{{ page.extensions.bluesnap.pfToken is iterable ? '' : page.extensions.bluesnap.pfToken }}"
+     data-saved-card="{{ page.extensions.bluesnap.isSavedCard }}"
+     data-change-card="{{ page.extensions.bluesnap.isCardChanged }}"
+     data-vaulted-shopper-id="{{ page.extensions.bluesnap.vaultedShopperId }}"
+     data-secured-firstName="{{ page.extensions.bluesnap.securedFirstName }}"
+     data-secured-lastName="{{ page.extensions.bluesnap.securedLastName }}"
+     data-secured-amount="{{ page.extensions.bluesnap.securedAmount }}"
+     data-secured-currency="{{ page.extensions.bluesnap.securedCurrency }}"
+     data-shopper-name="{{ page.extensions.bluesnap.shopperName }}"
+     data-shopper-lastName="{{ page.extensions.bluesnap.shopperLastName }}"
+     data-shopper-last-digits="{{ page.extensions.bluesnap.shopperLast4Digits }}"
+     data-shopper-card-type="{{ page.extensions.bluesnap.shopperCardType }}"
+     data-three-d-secure="{{ page.extensions.bluesnap.threeDS }}"
+>
+  <div class="form-saved-card {{ page.extensions.bluesnap.isSavedCard ? '' : 'd-none' }}">
+    <form>
+      <label for="bluesnap-is-save-card">{{ 'Bluesnap.credit-card.fields.saved-card-text'|trans }}</label>
+      <input id="bluesnap-is-save-card" type="checkbox" {{ page.extensions.bluesnap.isSavedCard ? 'checked' : '' }} />
+    </form>
+  </div>
+
+
+  <div class="bluesnap-loader d-none text-center w-60 h-60" id="bluesnap-loader"></div>
+  <div id="bluesnap-saved-card-form" class="container mt-5 d-none">
+    <form class="saved-card-form" id="bluesnap-saved-card-form" action="#">
+      <div class="form-group">
+        <p id="bluesnap-card-number"></p>
+        {% set cardImages = {
+          'AMEX': 'https://files.readme.io/97e7acc-Amex.png',
+          'DINERS': 'https://files.readme.io/8c73810-Diners_Club.png',
+          'DISCOVER': 'https://files.readme.io/caea86d-Discover.png',
+          'JCB': 'https://files.readme.io/e076aed-JCB.png',
+          'MASTERCARD': 'https://files.readme.io/5b7b3de-Mastercard.png',
+          'VISA': 'https://files.readme.io/9018c4f-Visa.png'
+        } %}
+
+        {% if page.extensions.bluesnap.shopperCardType is defined and cardImages[page.extensions.bluesnap.shopperCardType] is defined %}
+          <img src="{{ cardImages[page.extensions.bluesnap.shopperCardType] }}"
+               alt="{{ page.extensions.bluesnap.shopperCardType }} Logo">
+        {% endif %}
+
+      </div>
+
+      <div class="form-group name-surname">
+        <p id="bluesnap-card-holder"></p>
+        <p id="bluesnap-card-holder-lastname"></p>
+      </div>
+    </form>
+  </div>
+
+  <form class="panel-body d-none" id="bluesnap-checkout-form" action="#">
+
+    <!-- Error Message -->
+    {#    <div id="error-message" class="alert alert-danger p-3 m-3 text-center text-white font-weight-bold rounded-3 d-none" role="alert"></div> #}
+    <div class="alert alert-danger d-none" id="error-message" role="alert">
+      <div class="error-alert">
+        <div class="svg-icon">
+          {% sw_icon 'alert' style {'pack':'customsvg'} %}
+        </div>
+        <p></p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-md-6">
+        <input type="text" class="form-control" id="bluesnap-first-name" placeholder="First Name*" required>
+      </div>
+
+      <div class="form-group col-md-6">
+        <input type="text" class="form-control" id="bluesnap-last-name" placeholder="Last Name*" required>
+      </div>
+      <!--Hosted Field for CC number-->
+      <div class="form-group col-md-12">
+        <div class="input-group">
+          <div class="form-control" id="card-number" data-bluesnap="ccn"></div>
+        </div>
+        <p class="helper-text-ccn">{{ 'Bluesnap.credit-card.fields.helper-text'|trans|raw }}</p>
+      </div>
+      <!--Hosted Field for CC EXP-->
+      <div class="form-group col-md-4">
+        <div class="form-control" id="exp-date" data-bluesnap="exp"></div>
+      </div>
+      <!--Hosted Field for CC CVV-->
+      <div class="form-group col-md-4">
+        <div class="form-control" id="cvv" data-bluesnap="cvv"></div>
+      </div>
+      <div class="secure-payments col-md-4 col-12">
+        {% sw_icon 'lock' style {'pack':'customsvg'} %}
+        <p>{{ 'Bluesnap.credit-card.fields.secure-payments'|trans }}</p>
+      </div>
+    </div>
+
+    {% if not page.extensions.bluesnap.isGuestLogin and page.extensions.bluesnap.vaultedShopperEnable %}
+      <div class="saved-infos">
+        <input type="checkbox" id="bluesnap-save-card">
+        <p class="bluesnap-save-card">{{ 'Bluesnap.credit-card.fields.save-card-info'|trans }}</p>
+
+      </div>
+    {% endif %}
+  </form>
+</div>
+<script type="text/javascript" src="{{ page.extensions.bluesnap.js_link }}"></script>
+

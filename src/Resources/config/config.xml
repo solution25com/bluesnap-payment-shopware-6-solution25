@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/shopware/shopware/trunk/src/Core/System/SystemConfig/Schema/config.xsd">
+
+  <card>
+    <title>BlueSnap Settings</title>
+    <title lang="de-DE">BlueSnap Settings</title>
+    <input-field type="single-select">
+      <name>mode</name>
+      <label>Mode</label>
+      <options>
+        <option>
+          <id>sandbox</id>
+          <name>Sandbox</name>
+        </option>
+        <option>
+          <id>live</id>
+          <name>Live</name>
+        </option>
+      </options>
+      <defaultValue>sandbox</defaultValue>
+    </input-field>
+
+    <input-field type="text">
+      <name>apiKeySandbox</name>
+      <label>Api Key Sandbox</label>
+    </input-field>
+
+    <input-field type="text">
+      <name>apiPasswordSandbox</name>
+      <label>Api Password Sandbox</label>
+    </input-field>
+
+    <input-field type="text">
+      <name>apiKeyLive</name>
+      <label>Api Key Live</label>
+    </input-field>
+
+    <input-field type="password">
+      <name>apiPasswordLive</name>
+      <label>Api Password Live</label>
+    </input-field>
+
+    <input-field type="text">
+      <name>merchantId</name>
+      <label>Merchant ID</label>
+    </input-field>
+  </card>
+
+  <card>
+    <title>3D Secure</title>
+    <input-field type="checkbox">
+      <name>threeDS</name>
+      <label>3DS</label>
+      <helpText>Customers can only make a purchase if their card supports 3D Secure. This applies to the hosted payment fields payment method</helpText>
+      <default>false</default>
+    </input-field>
+  </card>
+
+  <card>
+    <title>Vaulted Shopper</title>
+    <input-field type="checkbox">
+      <name>vaultedShopper</name>
+      <label>Save card</label>
+      <helpText>Allow customers to save card information for future use. Only applicable on hosted payment fields payment method</helpText>
+      <default>false</default>
+    </input-field>
+  </card>
+
+  <card>
+    <title>Google Pay</title>
+    <input-field type="text">
+      <name>merchantGoogleId</name>
+      <label>Merchant google ID</label>
+    </input-field>
+  </card>
+
+  <card>
+    <input-field type="checkbox">
+      <name>adminFeLinks</name>
+      <label>Enable Admin FE Link</label>
+      <helpText>Enable Admin Payment Links result to be sent to custom links</helpText>
+      <default>false</default>
+    </input-field>
+    <title>Admin Payment Link</title>
+    <input-field type="text">
+      <name>successUrl</name>
+      <label>Composable FE Success link</label>
+    </input-field>
+
+    <input-field type="text">
+      <name>failedUrl</name>
+      <label>Composable FE Failed link</label>
+    </input-field>
+  </card>
+
+</config>

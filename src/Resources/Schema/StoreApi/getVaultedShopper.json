@@ -1,0 +1,39 @@
+{
+  "openapi": "3.0.0",
+  "info": [],
+  "paths": {
+    "/bluesnap/vaulted-shopper-data/{vaultedShopperId}": {
+      "get": {
+        "tags": [
+          "BlueSnap"
+        ],
+        "summary": "BlueSnap get vaulted shopper",
+        "description": "Returns bluesnap vaulted shopper information",
+        "operationId": "bluesnapGetVaultedShopperInformation",
+        "parameters": [
+          {
+            "name": "vaultedShopperId",
+            "in": "path",
+            "description": "Identifier of the vaulted shopper to be fetched",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{32}$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns bluesnap vaulted shopper information"
+          }
+        },
+        "security": [
+          {
+            "ContextToken": [],
+            "ApiKey": []
+          }
+        ]
+      }
+    }
+  }
+}

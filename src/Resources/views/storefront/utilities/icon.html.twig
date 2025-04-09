@@ -1,0 +1,17 @@
+{% sw_extends '@Storefront/storefront/utilities/icon.html.twig' %}
+
+{% block utilities_icon %}
+    {% set styles = [ size, color, rotation, flip, class ] %}
+
+    {% if pack is not defined %}
+        {% set pack = 'default' %}
+    {% endif %}
+
+    <span class="icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">
+        {% if pack == 'customsvg' %}
+            {{ source('@BlueSnap/assets/icon/default/' ~ name ~ '.svg', ignore_missing = true) }}
+        {% else %}
+            {{ source('@Storefront/assets/icon/' ~ pack ~ '/' ~ name ~ '.svg', ignore_missing = true) }}
+        {% endif %}
+    </span>
+{% endblock %}
