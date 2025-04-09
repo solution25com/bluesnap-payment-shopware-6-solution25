@@ -113,7 +113,7 @@ Payments are securely processed through Bluesnap.
 1. Select **"Bluesnap Hosted Checkout"** as the payment method.  
 2. The customer is redirected to the hosted checkout page.  
 3. The customer completes the transaction on the hosted page.
-![Group 8005](https://github.com/user-attachments/assets/e0295970-8b00-4b76-a4b1-11e1a3945335)
+![BlueSnap Payment SC5](https://github.com/user-attachments/assets/d498e033-1121-4871-bd6e-78d031f2a748)
 
 
 ### 3. Apple Pay Integration
