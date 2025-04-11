@@ -1,0 +1,1 @@
+import './module/sw-order/view/sw-order-detail-general';
