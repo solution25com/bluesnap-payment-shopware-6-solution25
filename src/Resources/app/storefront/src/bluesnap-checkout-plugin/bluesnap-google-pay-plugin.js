@@ -87,6 +87,8 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
         const paymentsClient = getGooglePaymentsClient();
         paymentsClient.isReadyToPay(getGoogleIsReadyToPayRequest())
           .then(function (response) {
+            console.log('on GooglePayLoaded', response )
+
             if (response.result) {
               addGooglePayButton();
               // @todo prefetch payment data to improve performance after confirming site functionality
@@ -115,8 +117,7 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
           countryCode: "US",
           currencyCode: document.getElementById('bluesnap-google-pay').getAttribute('data-currency-code'),
           totalPriceStatus: 'FINAL',
-          // set to cart total
-          totalPrice: document.getElementById('bluesnap-google-pay').getAttribute('data-total-price')
+          totalPrice: document.getElementById('bluesnap-google-pay').getAttribute('data-total-price'),
         };
       }
 
@@ -138,6 +139,7 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
 
         const paymentDataRequest = getGooglePaymentDataRequest();
         paymentDataRequest.transactionInfo = getGoogleTransactionInfo();
+        console.log('pInfo',paymentDataRequest.transactionInfo)
 
         const paymentsClient = getGooglePaymentsClient();
         paymentsClient.loadPaymentData(paymentDataRequest)
@@ -150,18 +152,43 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
       }
 
       async function processPayment(paymentData) {
-        console.log(paymentData)
-        const paymentToken = b64EncodeUnicode(JSON.stringify(paymentData));
-        const body = {
-          "gToken": paymentToken,
+        const paymentMethodData = paymentData.paymentMethodData;
+        const cardInfo = paymentMethodData.info || {};
+
+        const structuredPayload = {
+          paymentMethodData: {
+            description: paymentMethodData.description || '',
+            tokenizationData: {
+              type: paymentMethodData.tokenizationData.type,
+              token: paymentMethodData.tokenizationData.token
+            },
+            info: {
+              cardNetwork: cardInfo.cardNetwork,
+              cardDetails: cardInfo.cardDetails,
+            }
+          },
+          email: paymentData.email || null,
+          googleTransactionId: paymentData.googleTransactionId || null,
+          shippingAddress: paymentData.shippingAddress || null
         };
-        const result = await BlueSnapApi.googleCapture(body)
-        console.log(result)
+
+        Object.keys(structuredPayload).forEach(key => {
+          if (structuredPayload[key] === null) delete structuredPayload[key];
+        });
+
+        const jsonString = JSON.stringify(structuredPayload);
+        const gToken = b64EncodeUnicode(jsonString);
+
+        const result = await BlueSnapApi.googleCapture({
+          gToken,
+          email: paymentData.email
+        });
         if (result && result.success) {
           document.getElementById('bluesnap-transaction-id').value = JSON.parse(result.message).transactionId;
-          document.getElementById('confirmOrderForm').submit()
+          document.getElementById('confirmOrderForm').submit();
         }
       }
+
 
       function b64EncodeUnicode(str) {
         // first we use encodeURIComponent to get percent-encoded UTF-8,
@@ -176,19 +203,6 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
       onGooglePayLoaded()
     });
 
-
-    // paymentsClient.isReadyToPay(getGoogleIsReadyToPayRequest())
-    //   .then(function (response) {
-    //     if (response.result) {
-    //       addGooglePayButton();
-    //       // @todo prefetch payment data to improve performance after confirming site functionality
-    //       prefetchGooglePaymentData();
-    //     }
-    //   })
-    //   .catch(function (err) {
-    //     // show error in developer console for debugging
-    //     console.error(err);
-    //   });
   }
 
 

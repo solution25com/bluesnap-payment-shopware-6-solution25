@@ -69,6 +69,7 @@
 
     <service id="BlueSnap\Service\OrderService">
       <argument type="service" id="order.repository"/>
+      <argument type="service" id="order_transaction.repository"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
@@ -86,10 +87,12 @@
       <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
       <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
       <argument type="service" id="order_return.repository" on-invalid="null"/>
-      <argument type="service" id="order_transaction.repository"/>
-      <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+      <argument type="service"
+                id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
       <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
-      <argument type="service" id="Shopware\Commercial\ReturnManagement\Domain\StateHandler\PositionStateHandler" on-invalid="null"/>
+      <argument type="service" id="Shopware\Commercial\ReturnManagement\Domain\StateHandler\PositionStateHandler"
+                on-invalid="null"/>
+      <argument type="service" id="BlueSnap\Service\OrderService"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
@@ -128,6 +131,8 @@
       <argument type="service" id="BlueSnap\Service\PaymentLinkService"/>
       <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
       <argument type="service" id="BlueSnap\Service\RefundService"/>
+      <argument type="service"
+                id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
     <!-- End Store Api Routes -->
