@@ -93,13 +93,13 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
   }
 
   _displayButton() {
-    if (!window.ApplePaySession || !ApplePaySession.canMakePayments()) {
+    if (!window.ApplePaySession || !window.ApplePaySession.canMakePayments()) {
       this.errorWrapper.classList.remove('d-none')
       console.log('cannotMakePayments')
       return
     }
 
-    // const promise = ApplePaySession.applePayCapabilities(
+    // const promise = window.ApplePaySession.applePayCapabilities(
     //   this.merchantID + '-' + this.options.domain
     // );
     //
@@ -124,11 +124,13 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
     //       break;
     //   }
     // })
-    const promise = ApplePaySession.canMakePaymentsWithActiveCard(
+
+    const promise2 = window.ApplePaySession.canMakePaymentsWithActiveCard(
       this.merchantID + '-' + this.domain
     );
 
-    promise.then((canMakePaymentsWithActiveCard) => {
+    promise2.then((canMakePaymentsWithActiveCard) => {
+      console.log(canMakePaymentsWithActiveCard)
       if (!canMakePaymentsWithActiveCard) {
         this.errorWrapper.classList.remove('d-none')
         console.log('cardNotActive')

@@ -19,31 +19,31 @@ class RefundService
 {
   private BlueSnapTransactionService $blueSnapTransactionService;
   private BlueSnapApiClient $blueSnapApiClient;
-  private EntityRepository $orderTransactionRepository;
   private OrderTransactionStateHandler $transactionStateHandler;
   private EntityRepository $orderReturnRepository;
   private StateMachineRegistry $stateMachineRegistry;
   private PositionStateHandler $positionStateHandler;
+  private OrderService          $orderService;
   private LoggerInterface $logger;
 
   public function __construct(
     BlueSnapTransactionService   $blueSnapTransactionService,
     BlueSnapApiClient            $blueSnapApiClient,
     EntityRepository             $orderReturnRepository,
-    EntityRepository             $orderTransactionRepository,
     OrderTransactionStateHandler $transactionStateHandler,
     StateMachineRegistry         $stateMachineRegistry,
     PositionStateHandler         $positionStateHandler,
+    OrderService                 $orderService,
     LoggerInterface              $logger
   )
   {
     $this->blueSnapTransactionService = $blueSnapTransactionService;
     $this->blueSnapApiClient = $blueSnapApiClient;
     $this->orderReturnRepository = $orderReturnRepository;
-    $this->orderTransactionRepository = $orderTransactionRepository;
     $this->transactionStateHandler = $transactionStateHandler;
     $this->stateMachineRegistry = $stateMachineRegistry;
     $this->positionStateHandler = $positionStateHandler;
+    $this->orderService = $orderService;
     $this->logger = $logger;
   }
 
@@ -55,7 +55,7 @@ class RefundService
     $criteria->addAssociation('lineItems');
     $criteria->addFilter(new EqualsFilter('id', $data['returnId']));
     $orderReturn = $this->orderReturnRepository->search($criteria, $context)->first();
-    $orderTransactionId = $this->getOrderTransactionIdByOrderId($data['orderId'], $context);
+    $orderTransactionId = $this->orderService->getOrderTransactionIdByOrderId($data['orderId'], $context);
 
     $this->stateMachineRegistry->transition(
       new Transition(
@@ -113,14 +113,4 @@ class RefundService
     return null;
   }
 
-  private function getOrderTransactionIdByOrderId($orderId, $context)
-  {
-    $criteria = new Criteria();
-    $criteria->addFilter(new EqualsFilter('orderId', $orderId));
-    $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->first();
-    if ($orderTransaction) {
-      return $orderTransaction->getId();
-    }
-    return null;
-  }
 }
