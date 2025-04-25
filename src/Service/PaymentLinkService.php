@@ -64,6 +64,13 @@ class PaymentLinkService
     $lineItems = [];
 
     foreach ($order->getLineItems() as $lineItem) {
+      $payload = $lineItem->getPayload();
+
+      // fix for bundle product plugin (ignore line items)
+      if (isset($payload['zeobvCustomLineItemType']) && $payload['zeobvCustomLineItemType'] === 'bundle_product_item') {
+        continue;
+      }
+
       $product = $lineItem->getReferencedId();
       $quantity = $lineItem->getQuantity();
       $unitPrice = $lineItem->getPrice()->getUnitPrice();
@@ -73,6 +80,7 @@ class PaymentLinkService
       $shippingTax = $order->getShippingCosts()->getCalculatedTaxes()->getAmount();
 
       $lineItems[] = [
+        "payload" => $payload,
         "id" => (string)$product,
         "quantity" => $quantity,
         "label" => $productName,
@@ -80,6 +88,7 @@ class PaymentLinkService
         "amount" => round($unitPrice * $quantity, 2),
       ];
     }
+
     if($shippingTax && $calculatedTax){
       $lineItems[] = [
         "id" => Uuid::randomHex(),
