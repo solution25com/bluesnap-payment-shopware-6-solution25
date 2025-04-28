@@ -177,77 +177,76 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $response));
   }
 
+  #[Route(path: '/store-api/bluesnap/google-capture', name: 'store-api.bluesnap.googleCapture', methods: ['POST'])]
+  public function googleCapture(Request $request, SalesChannelContext $context): BlueSnapApiResponse
+  {
+    $data = $request->request->all();
+    $constraints = new Assert\Collection([
+      'gToken' => [new Assert\NotBlank(), new Assert\Type('string')],
+      'amount' => [new Assert\NotBlank(), new Assert\Type('string')],
+      'email' => [new Assert\NotBlank(), new Assert\Type('string')],
 
-    #[Route(path: '/store-api/bluesnap/google-capture', name: 'store-api.bluesnap.googleCapture', methods: ['POST'])]
-    public function googleCapture(Request $request, SalesChannelContext $context): BlueSnapApiResponse
-    {
-        $data        = $request->request->all();
-        $constraints = new Assert\Collection([
-          'gToken' => [new Assert\NotBlank(), new Assert\Type('string')],
-          'amount' => [new Assert\NotBlank(), new Assert\Type('string')],
-          'email' => [new Assert\NotBlank(), new Assert\Type('string')],
+    ]);
 
-        ]);
+    $errors = $this->validator->validateFields($data, $constraints);
 
-        $errors = $this->validator->validateFields($data, $constraints);
-
-        if (count($errors) > 0) {
-            return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
-        }
-
-      $response = $this->blueSnapClient->capture([
-        "amount"              => round((float)$data['amount'], 2),
-        "softDescriptor"      => "Google Pay",
-        "currency"            => $context->getCurrency()->getIsoCode(),
-        "cardTransactionType" => "AUTH_CAPTURE",
-        "wallet"              => [
-          "walletType"          => "GOOGLE_PAY",
-          "encodedPaymentToken" => $data['gToken'],
-        ],
-        "cardHolderInfo" => [
-          "email"     => $data['email'],
-        ]
-      ], $context->getSalesChannelId());
-
-        if (isset($response['error'])) {
-            return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $response['message']), $response['code']);
-        }
-        return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $response));
+    if (count($errors) > 0) {
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
     }
 
-    #[Route(path: '/store-api/bluesnap/apple-capture', name: 'store-api.bluesnap.appleCapture', methods: ['POST'])]
-    public function appleCapture(Request $request, SalesChannelContext $context): BlueSnapApiResponse
-    {
-        $data        = $request->request->all();
-        $customerEmail = $context->getCustomer()->getEmail();
-        $constraints = new Assert\Collection([
-          'appleToken' => [new Assert\NotBlank(), new Assert\Type('string')],
-          'amount'     => [new Assert\NotBlank(), new Assert\Type('string')],
-        ]);
+    $response = $this->blueSnapClient->capture([
+      "amount" => round((float)$data['amount'], 2),
+      "softDescriptor" => "Google Pay",
+      "currency" => $context->getCurrency()->getIsoCode(),
+      "cardTransactionType" => "AUTH_CAPTURE",
+      "wallet" => [
+        "walletType" => "GOOGLE_PAY",
+        "encodedPaymentToken" => $data['gToken'],
+      ],
+      "cardHolderInfo" => [
+        "email" => $data['email'],
+      ]
+    ], $context->getSalesChannelId());
 
-        $errors = $this->validator->validateFields($data, $constraints);
-        if (count($errors) > 0) {
-            return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
-        }
-        $body = [
-          "amount"              => round((float)$data['amount'], 2),
-          "softDescriptor"      => "Apple Pay",
-          "currency"            => $context->getCurrency()->getIsoCode(),
-          "cardTransactionType" => "AUTH_CAPTURE",
-          "wallet"              => [
-            "walletType"          => "APPLE_PAY",
-            "encodedPaymentToken" => $data['appleToken'],
-          ],
-          "cardHolderInfo" => [
-            "email"     => $customerEmail
-          ]];
-
-        $response = $this->blueSnapClient->capture($body, $context->getSalesChannelId());
-        if (isset($response['error'])) {
-            return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $response['message']), $response['code']);
-        }
-        return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $response));
+    if (isset($response['error'])) {
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $response['message']), $response['code']);
     }
+    return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $response));
+  }
+
+  #[Route(path: '/store-api/bluesnap/apple-capture', name: 'store-api.bluesnap.appleCapture', methods: ['POST'])]
+  public function appleCapture(Request $request, SalesChannelContext $context): BlueSnapApiResponse
+  {
+    $data = $request->request->all();
+    $customerEmail = $context->getCustomer()->getEmail();
+    $constraints = new Assert\Collection([
+      'appleToken' => [new Assert\NotBlank(), new Assert\Type('string')],
+      'amount' => [new Assert\NotBlank(), new Assert\Type('string')],
+    ]);
+
+    $errors = $this->validator->validateFields($data, $constraints);
+    if (count($errors) > 0) {
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
+    }
+    $body = [
+      "amount" => round((float)$data['amount'], 2),
+      "softDescriptor" => "Apple Pay",
+      "currency" => $context->getCurrency()->getIsoCode(),
+      "cardTransactionType" => "AUTH_CAPTURE",
+      "wallet" => [
+        "walletType" => "APPLE_PAY",
+        "encodedPaymentToken" => $data['appleToken'],
+      ],
+      "cardHolderInfo" => [
+        "email" => $customerEmail
+      ]];
+
+    $response = $this->blueSnapClient->capture($body, $context->getSalesChannelId());
+    if (isset($response['error'])) {
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $response['message']), $response['code']);
+    }
+    return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $response));
+  }
 
   #[Route(path: '/store-api/bluesnap/apple-create-wallet', name: 'store-api.bluesnap.appleCreateWallet', methods: ['POST'])]
   public function appleCreateWallet(Request $request, SalesChannelContext $context): BlueSnapApiResponse
@@ -421,7 +420,6 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     $successUrl = $data['successUrl'] . '?orderId=' . $data['order_id'];
     $failedUrl = $data['failedUrl'];
 
-    //    $paymentMethodName = $salesChannelContext->getPaymentMethod()->getName();
     $this->blueSnapTransactionService->addTransaction($data['order_id'], $data['paymentMethod'], $data['order_id'], TransactionStatuses::PENDING->value, $context->getContext());
     $link = $this->paymentLinkService->generatePaymentLink($orderDetail, $successUrl, $failedUrl, true, $context->getSalesChannelId());
 
@@ -464,12 +462,34 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     }
     $transactionId = $this->orderService->getOrderTransactionIdByOrderId($data['orderId'], $context->getContext());
     $bluesnapTransaction = $this->blueSnapTransactionService->getTransactionByOrderId($data['orderId'], $context->getContext());
-    if($bluesnapTransaction->getStatus() != 'paid')
-    {
+    if ($bluesnapTransaction->getStatus() != 'paid') {
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $data['errorUrl']));
     }
     $this->transactionStateHandler->paid($transactionId, $context->getContext());
 
     return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $data['finishUrl']));
+  }
+
+  #[Route(path: '/store-api/bluesnap/re-send-payment-link', name: 'store-api.bluesnap.reSendPaymentLink', methods: ['POST'])]
+  public function reSendPaymentLink(Request $request, Context $context): BlueSnapApiResponse
+  {
+    $data = $request->request->all();
+    $constraints = new Assert\Collection([
+      'orderId' => [new Assert\NotBlank(), new Assert\Type('string')],
+    ]);
+    $errors = $this->validator->validateFields($data, $constraints);
+    if (count($errors) > 0) {
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
+    }
+
+    $order = $this->orderService->getOrderDetailsById($data['orderId'], $context);
+    if(!$order){
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, 'No Order Found!'), 400);
+    }
+    $paymentLink = $this->paymentLinkService->generatePaymentLink($order, 'payment-link-success', 'payment-link-fail', false, $order->getSalesChannelID());
+    $this->paymentLinkService->storePaymentLink($data['orderId'], $paymentLink, $context);
+    $this->paymentLinkService->sendEmail($paymentLink, $order, $order->getSalesChannelID(), $context);
+
+    return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, 'Payment link sent!'));
   }
 }

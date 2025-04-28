@@ -28,4 +28,10 @@ class BlueSnapApiController extends StorefrontController
     return $this->route->refund($request, $context);
   }
 
+  #[Route(path: '/api/re-send-payment-link', name: 'api.bluesnap.reSendPaymentLink', methods: ['POST'])]
+  public function reSendPaymentLink(Request $request, Context $context)
+  {
+    return $this->route->reSendPaymentLink($request, $context);
+  }
+
 }

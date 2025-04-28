@@ -35,4 +35,7 @@ abstract class AbstractBlueSnapRoute
   abstract public function refund(Request $request, Context $context): BlueSnapApiResponse;
 
   abstract public function handlePayment(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+
+  abstract public function reSendPaymentLink(Request $request, Context $context): BlueSnapApiResponse;
+
 }

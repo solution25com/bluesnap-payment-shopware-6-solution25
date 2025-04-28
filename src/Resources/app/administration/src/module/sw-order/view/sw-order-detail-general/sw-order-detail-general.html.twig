@@ -1,17 +1,51 @@
 {% block sw_order_detail_general %}
-    <sw-card v-if="transactionFound">
-        <div>
-            <h2>Bluesnap Details</h2>
+  <sw-card
+      title="Bluesnap Details"
+      :isLoading="isLoading"
+      position-identifier="bluesnap-details"
+  >
+    <template #toolbar v-if="paymentMethod.includes('LinkPayment')">
+      <div>
+        <p style="margin-bottom: 10px"><strong>Re-send Payment Link</strong></p>
+        <sw-button
+            variant="primary"
+            :isLoading="isSendingEmail"
+            :disabled="disabledStatuses.some(s => paymentStatus.includes(s))"
+            @click="onConfirmSendPaymentLink"
+        >
+          Send Email
+        </sw-button>
+      </div>
+    </template>
 
-            <div v-if="isLoading">
-                <sw-loader />
-            </div>
+    <div>
+      <dl>
+        <dt><strong>Bluesnap Transaction ID</strong></dt>
+        <dd>{{ orderTransactionId }}</dd>
+      </dl>
+    </div>
+  </sw-card>
 
-            <div v-else>
-                <p><strong>Bluesnap Transaction ID:</strong> {{ orderTransactionId }}</p>
-            </div>
-        </div>
-    </sw-card>
+  <sw-modal
+      v-if="showConfirmModal"
+      title="Confirm Send Email"
+      @modal-close="onCloseModal"
+  >
+    <p>Are you sure you want to send the payment link by email?</p>
 
-    {% parent %}
+    <template #modal-footer>
+      <sw-button @click="onCloseModal" variant="secondary">
+        Cancel
+      </sw-button>
+      <sw-button
+          variant="primary"
+          :isLoading="isSendingEmail"
+          @click="confirmSendPaymentLink"
+      >
+        Send Email
+      </sw-button>
+    </template>
+  </sw-modal>
+
+  {% parent %}
 {% endblock %}
