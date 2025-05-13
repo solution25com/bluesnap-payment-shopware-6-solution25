@@ -23,7 +23,7 @@ class RefundService
   private EntityRepository $orderReturnRepository;
   private StateMachineRegistry $stateMachineRegistry;
   private PositionStateHandler $positionStateHandler;
-  private OrderService          $orderService;
+  private OrderService $orderService;
   private LoggerInterface $logger;
 
   public function __construct(
@@ -73,14 +73,21 @@ class RefundService
     ];
 
     $transaction = $this->blueSnapTransactionService->getTransactionByOrderId($data['orderId'], $context);
+    $order = $this->orderService->getOrderDetailsById($data['orderId'], $context);
 
     if ($transaction) {
       $response = $this->blueSnapApiClient->refund($transaction->getTransactionId(), $body, $orderReturn->getOrder()->getSalesChannelID());
       $parsedResponse = json_decode($response, true);
       if ($parsedResponse['refundStatus'] == 'SUCCESS') {
 
-        // TODO: Check if complete order has been refunded
-        $this->transactionStateHandler->refundPartially($orderTransactionId, $context);
+        // TODO: Fix this by calculating every return order
+        // -> add every amount and if it matches the order amount
+        // -> then is fully returned
+        if ($order->getAmountTotal() == $orderReturn->getAmountTotal()) {
+          $this->transactionStateHandler->refund($orderTransactionId, $context);
+        } else {
+          $this->transactionStateHandler->refundPartially($orderTransactionId, $context);
+        }
 
         $this->blueSnapTransactionService->updateTransactionStatus(
           $data['orderId'],
