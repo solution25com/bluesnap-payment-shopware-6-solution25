@@ -22,7 +22,7 @@ class RefundService
   private OrderTransactionStateHandler $transactionStateHandler;
   private ?EntityRepository $orderReturnRepository;
   private StateMachineRegistry $stateMachineRegistry;
-  private PositionStateHandler $positionStateHandler;
+  private ?PositionStateHandler $positionStateHandler;
   private OrderService $orderService;
   private LoggerInterface $logger;
 
@@ -32,7 +32,7 @@ class RefundService
     ?EntityRepository            $orderReturnRepository,
     OrderTransactionStateHandler $transactionStateHandler,
     StateMachineRegistry         $stateMachineRegistry,
-    PositionStateHandler         $positionStateHandler,
+    ?PositionStateHandler         $positionStateHandler,
     OrderService                 $orderService,
     LoggerInterface              $logger
   )
