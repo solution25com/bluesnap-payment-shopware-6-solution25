@@ -20,7 +20,7 @@ class RefundService
   private BlueSnapTransactionService $blueSnapTransactionService;
   private BlueSnapApiClient $blueSnapApiClient;
   private OrderTransactionStateHandler $transactionStateHandler;
-  private EntityRepository $orderReturnRepository;
+  private ?EntityRepository $orderReturnRepository;
   private StateMachineRegistry $stateMachineRegistry;
   private PositionStateHandler $positionStateHandler;
   private OrderService $orderService;
@@ -29,7 +29,7 @@ class RefundService
   public function __construct(
     BlueSnapTransactionService   $blueSnapTransactionService,
     BlueSnapApiClient            $blueSnapApiClient,
-    EntityRepository             $orderReturnRepository,
+    ?EntityRepository            $orderReturnRepository,
     OrderTransactionStateHandler $transactionStateHandler,
     StateMachineRegistry         $stateMachineRegistry,
     PositionStateHandler         $positionStateHandler,
@@ -47,9 +47,13 @@ class RefundService
     $this->logger = $logger;
   }
 
-
   public function handelRefunds($data, Context $context)
   {
+    if($this->orderReturnRepository === null) {
+      $this->logger->error('OrderReturnRepository is not available');
+      return null;
+    }
+
     $criteria = new Criteria();
     $criteria->addAssociation('order');
     $criteria->addAssociation('lineItems');
