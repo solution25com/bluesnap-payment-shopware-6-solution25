@@ -54,6 +54,7 @@ class RefundService
       return null;
     }
 
+
     $criteria = new Criteria();
     $criteria->addAssociation('order');
     $criteria->addAssociation('lineItems');
@@ -61,15 +62,30 @@ class RefundService
     $orderReturn = $this->orderReturnRepository->search($criteria, $context)->first();
     $orderTransactionId = $this->orderService->getOrderTransactionIdByOrderId($data['orderId'], $context);
 
-    $this->stateMachineRegistry->transition(
-      new Transition(
-        OrderReturnDefinition::ENTITY_NAME,
-        $orderReturn->getId(),
-        StateMachineTransitionActions::ACTION_PROCESS,
-        'stateId'
-      ),
-      $context
-    );
+    if(!$orderReturn){
+      $this->logger->error('$orderReturn is not available');
+      return null;
+    }
+    if(!$orderTransactionId){
+      $this->logger->error('$orderTransactionId is not available');
+      return null;
+    }
+
+    try{
+      $this->stateMachineRegistry->transition(
+        new Transition(
+          OrderReturnDefinition::ENTITY_NAME,
+          $orderReturn->getId(),
+          StateMachineTransitionActions::ACTION_PROCESS,
+          'stateId'
+        ),
+        $context
+      );
+    }
+    catch (\Exception $exception){
+      $this->logger->error('Error while changing status to InProgress');
+      $this->logger->error($exception->getMessage());
+    }
 
     $body = [
       "cancelSubscriptions" => false,
@@ -82,38 +98,64 @@ class RefundService
     if ($transaction) {
       $response = $this->blueSnapApiClient->refund($transaction->getTransactionId(), $body, $orderReturn->getOrder()->getSalesChannelID());
       $parsedResponse = json_decode($response, true);
+
       if ($parsedResponse['refundStatus'] == 'SUCCESS') {
 
         // TODO: Fix this by calculating every return order
         // -> add every amount and if it matches the order amount
         // -> then is fully returned
-        if ($order->getAmountTotal() == $orderReturn->getAmountTotal()) {
-          $this->transactionStateHandler->refund($orderTransactionId, $context);
-        } else {
-          $this->transactionStateHandler->refundPartially($orderTransactionId, $context);
+        try{
+          if ($order->getAmountTotal() == $orderReturn->getAmountTotal()) {
+            $this->transactionStateHandler->refund($orderTransactionId, $context);
+          } else {
+            $this->transactionStateHandler->refundPartially($orderTransactionId, $context);
+          }
+        }
+        catch (\Exception $e){
+          $this->logger->error('Error while changing order status');
+          $this->logger->error($e->getMessage());
         }
 
-        $this->blueSnapTransactionService->updateTransactionStatus(
-          $data['orderId'],
-          TransactionStatuses::REFUND->value,
-          $context
-        );
-
-        $this->stateMachineRegistry->transition(
-          new Transition(
-            OrderReturnDefinition::ENTITY_NAME,
-            $orderReturn->getId(),
-            StateMachineTransitionActions::ACTION_COMPLETE,
-            'stateId'
-          ),
-          $context
-        );
-
-        $itemIds = [];
-        foreach ($orderReturn->getLineItems() as $lineItem) {
-          $itemIds[] = $lineItem->getId();
+        try {
+          $this->blueSnapTransactionService->updateTransactionStatus(
+            $data['orderId'],
+            TransactionStatuses::REFUND->value,
+            $context
+          );
         }
-        $this->positionStateHandler->transitReturnItems($itemIds, PositionStateHandler::STATE_RETURNED, $context);
+        catch (\Exception $e){
+          $this->logger->error('Error while changing transaction status');
+          $this->logger->error($e->getMessage());
+        }
+
+
+        try{
+          $this->stateMachineRegistry->transition(
+            new Transition(
+              OrderReturnDefinition::ENTITY_NAME,
+              $orderReturn->getId(),
+              StateMachineTransitionActions::ACTION_COMPLETE,
+              'stateId'
+            ),
+            $context
+          );
+        }
+        catch (\Exception $e){
+          $this->logger->error('Error while changing status to Complete');
+          $this->logger->error($e->getMessage());
+        }
+
+        try{
+          $itemIds = [];
+          foreach ($orderReturn->getLineItems() as $lineItem) {
+            $itemIds[] = $lineItem->getId();
+          }
+          $this->positionStateHandler->transitReturnItems($itemIds, PositionStateHandler::STATE_RETURNED, $context);
+        }
+        catch (\Exception $e){
+          $this->logger->error('Error while changing return item status');
+          $this->logger->error($e->getMessage());
+        }
 
         // TODO: if order line item status needs to be updated to partial return
         // and if complete quantity eq true then mark as full return -> function to be used:
