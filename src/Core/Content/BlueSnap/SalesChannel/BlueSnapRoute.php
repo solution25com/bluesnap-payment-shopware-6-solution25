@@ -448,7 +448,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   #[Route(path: '/store-api/handle-payment', name: 'store-api.payment.handle', methods: ['GET', 'POST'])]
   public function handlePayment(Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
-    $data = [...$request->query->all(), ...$request->request->all()];
+    $data = $request->request->all();
 
     $constraints = new Assert\Collection([
       'orderId' => [new Assert\NotBlank(), new Assert\Type('string')],
