@@ -23,7 +23,7 @@ class BlueSnapTransactionService
 
     public function updateTransactionStatus($orderId, $status, $context, $captureReferenceNumber = '')
     {
-        $transaction = $this->getTransactionByOrderId($orderId, $context);
+        $transaction = $this->getTransactionByOrderId($orderId, $context->getContext());
 
         $this->blueSnapTransactionRepository->update([
           [
@@ -32,7 +32,7 @@ class BlueSnapTransactionService
             'transactionId' => $captureReferenceNumber != '' ? $captureReferenceNumber : $transaction->getTransactionId(),
             'updatedAt'     => (new \DateTime())->format('Y-m-d H:i:s')
           ]
-        ], $context);
+        ], $context->getContext());
 
         $this->orderRepository->upsert([[
           'id'                  => $orderId,
@@ -44,7 +44,7 @@ class BlueSnapTransactionService
               'status'                => $status,
             ]
           ]
-        ]], $context);
+        ]], $context->getContext());
     }
 
     public function addTransaction($orderId, $paymentMethodName, $transactionId, $status, $context): void
