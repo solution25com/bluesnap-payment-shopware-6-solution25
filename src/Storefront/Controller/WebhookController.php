@@ -80,7 +80,7 @@ class WebhookController
 
     $this->transactionStateHandler->paid($transaction->getId(), $context->getContext());
 
-    $this->blueSnapTransactionService->updateTransactionStatus($order->getId(), TransactionStatuses::PAID->value, $context, $captureReferenceNumber);
+    $this->blueSnapTransactionService->updateTransactionStatus($order->getId(), TransactionStatuses::PAID->value, $context->getContext(), $captureReferenceNumber);
     return new JsonResponse(['status' => true]);
   }
 }
