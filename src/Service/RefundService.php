@@ -99,13 +99,20 @@ class RefundService
       $response = $this->blueSnapApiClient->refund($transaction->getTransactionId(), $body, $orderReturn->getOrder()->getSalesChannelID());
       $parsedResponse = json_decode($response, true);
 
-      if ($parsedResponse['refundStatus'] == 'SUCCESS') {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $data['orderId']));
+        $allReturns = $this->orderReturnRepository->search($criteria, $context);
 
-        // TODO: Fix this by calculating every return order
-        // -> add every amount and if it matches the order amount
-        // -> then is fully returned
-        try{
-          if ($order->getAmountTotal() == $orderReturn->getAmountTotal()) {
+        $totalRefundedAmount = 0;
+        foreach ($allReturns->getElements() as $return) {
+            $totalRefundedAmount += (int) round($return->getAmountTotal() * 100);
+        }
+
+        $orderTotalCents = (int) round($order->getAmountTotal() * 100);
+
+        if ($parsedResponse['refundStatus'] == 'SUCCESS') {
+            try{
+                if ($orderTotalCents == $totalRefundedAmount) {
             $this->transactionStateHandler->refund($orderTransactionId, $context);
           } else {
             $this->transactionStateHandler->refundPartially($orderTransactionId, $context);
