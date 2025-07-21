@@ -3,6 +3,7 @@
 namespace BlueSnap\Service;
 
 use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
@@ -42,4 +43,16 @@ class OrderService
     return null;
   }
 
+  public function updateOrderCustomFields(Entity $order, float|int $orderAmount, $orderId, Context $context)
+  {
+    $customFields = $order->getCustomFields() ?? [];
+    $customFields['returnAmountCapture'] = $orderAmount;
+
+    $this->orderRepository->update([
+      [
+        'id' => $orderId,
+        'customFields' => $customFields,
+      ],
+    ], $context);
+  }
 }

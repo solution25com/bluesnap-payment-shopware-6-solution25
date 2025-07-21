@@ -99,26 +99,28 @@ class RefundService
       $response = $this->blueSnapApiClient->refund($transaction->getTransactionId(), $body, $orderReturn->getOrder()->getSalesChannelID());
       $parsedResponse = json_decode($response, true);
 
-        $criteria = new Criteria();
-        $criteria->addFilter(new EqualsFilter('orderId', $data['orderId']));
-        $allReturns = $this->orderReturnRepository->search($criteria, $context);
+      $criteria = new Criteria();
+      $criteria->addFilter(new EqualsFilter('orderId', $data['orderId']));
 
-        $totalRefundedAmount = 0;
-        foreach ($allReturns->getElements() as $return) {
-            $totalRefundedAmount += (int) round($return->getAmountTotal() * 100);
-        }
+      if ($parsedResponse['refundStatus'] === 'SUCCESS') {
+        try {
+          $refundedAmountCents = (int) round($orderReturn->getAmountTotal() * 100);
 
-        $orderTotalCents = (int) round($order->getAmountTotal() * 100);
+          $customFields = $order->getCustomFields() ?? [];
+          $existingCaptured = isset($customFields['returnAmountCapture']) ? (int) $customFields['returnAmountCapture'] : 0;
+          $newCapturedAmount = $existingCaptured + $refundedAmountCents;
 
-        if ($parsedResponse['refundStatus'] == 'SUCCESS') {
-            try{
-                if ($orderTotalCents == $totalRefundedAmount) {
+          $this->orderService->updateOrderCustomFields($order, $newCapturedAmount, $order->getId(), $context);
+
+          $orderTotalCents = (int) round($order->getAmountTotal() * 100);
+
+          if ($newCapturedAmount >= $orderTotalCents) {
             $this->transactionStateHandler->refund($orderTransactionId, $context);
           } else {
             $this->transactionStateHandler->refundPartially($orderTransactionId, $context);
           }
-        }
-        catch (\Exception $e){
+
+        } catch (\Exception $e) {
           $this->logger->error('Error while changing order status');
           $this->logger->error($e->getMessage());
         }
