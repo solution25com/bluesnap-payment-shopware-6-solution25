@@ -17,7 +17,10 @@ The Bluesnap Shopware 6 Plugin is a reliable payment solution that connects Blue
 - **Save Card**: Let customers store card details for future use.  
 - **Update Card**: Allow customers to change saved card information.  
 - **Delete Card**: Give users control to remove stored cards.  
-- **3D Secure**: Add an extra layer of protection to card transactions.  
+- **3D Secure**: Add an extra layer of protection to card transactions.
+
+## Compatibility
+- ✅ Shopware 6.6.x 
 
 ## Get Started
 
