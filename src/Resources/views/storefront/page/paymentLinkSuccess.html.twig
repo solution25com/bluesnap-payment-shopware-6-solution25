@@ -2,7 +2,7 @@
 
 {% block base_content %}
     <div class="finish-order-info">
-        <h1 class="finish-header">
+        <span class="h1 finish-header">
             <svg xmlns="http://www.w3.org/2000/svg" width="47" height="47" viewBox="0 0 47 47" fill="none">
                 <path d="M23.5 47C36.4787 47 47 36.4787 47 23.5C47 10.5213 36.4787 0 23.5 0C10.5213 0 0 10.5213 0 23.5C0 36.4787 10.5213 47 23.5 47Z"
                       fill="#39B54A"/>
@@ -10,8 +10,8 @@
                       fill="white"/>
             </svg>
             {{ 'Bluesnap.paymentSuccess.paymentSuccess-text'|trans }}
-        </h1>
-        <h6 class="order-number">{{ 'Bluesnap.paymentSuccess.order-number'|trans }} </h6>
+        </span>
+        <span class="h6 order-number">{{ 'Bluesnap.paymentSuccess.order-number'|trans }} </span>
         <p class="order-confirmation"> {{ 'Bluesnap.paymentSuccess.order-confirmation'|trans }}</p>
     </div>
 {% endblock %}

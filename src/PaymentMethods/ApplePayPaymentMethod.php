@@ -1,9 +1,9 @@
 <?php
 
-namespace BlueSnap\PaymentMethods;
+namespace solu1BluesnapPayment\PaymentMethods;
 
-use BlueSnap\Gateways\ApplePay;
-use BlueSnap\PaymentMethods\PaymentMethodInterface;
+use solu1BluesnapPayment\Gateways\ApplePay;
+use solu1BluesnapPayment\PaymentMethods\PaymentMethodInterface;
 
 class ApplePayPaymentMethod implements PaymentMethodInterface
 {

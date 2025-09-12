@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BlueSnap\Storefront\Struct;
+namespace solu1BluesnapPayment\Storefront\Struct;
 
 use Shopware\Core\Framework\Struct\Struct;
 

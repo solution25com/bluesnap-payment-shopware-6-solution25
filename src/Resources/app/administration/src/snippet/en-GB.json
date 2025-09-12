@@ -1,0 +1,14 @@
+{
+  "Bluesnap": {
+    "apiTest": {
+      "success": {
+        "title": "BlueSnap API Test",
+        "message": "Connection successful!"
+      },
+      "error": {
+        "title": "BlueSnap API Test",
+        "message": "Connection test failed! Please check API credentials."
+      }
+    }
+  }
+}

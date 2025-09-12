@@ -1,8 +1,8 @@
 <?php
 
-namespace BlueSnap\Service;
+namespace solu1BluesnapPayment\Service;
 
-use BlueSnap\Core\Content\Transaction\BluesnapTransactionEntity;
+use solu1BluesnapPayment\Core\Content\Transaction\BluesnapTransactionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -21,7 +21,7 @@ class BlueSnapTransactionService
         $this->orderRepository               = $orderRepository;
     }
 
-    public function updateTransactionStatus($orderId, $status, $context, $captureReferenceNumber = '')
+    public function updateTransactionStatus($orderId, $status, $context, $captureReferenceNumber = ''): void
     {
         $transaction = $this->getTransactionByOrderId($orderId, $context);
 

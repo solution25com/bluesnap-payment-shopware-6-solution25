@@ -1,8 +1,8 @@
 <?php
 
-namespace BlueSnap\Core\Content\BlueSnap\SalesChannel;
+namespace solu1BluesnapPayment\Core\Content\BlueSnap\SalesChannel;
 
-use BlueSnap\Core\Content\BlueSnap\BlueSnapApiResponseStruct;
+use solu1BluesnapPayment\Core\Content\BlueSnap\BlueSnapApiResponseStruct;
 use Shopware\Core\System\SalesChannel\StoreApiResponse;
 
 class BlueSnapApiResponse extends StoreApiResponse

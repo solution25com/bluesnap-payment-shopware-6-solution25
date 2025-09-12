@@ -1,9 +1,8 @@
 <?php
 
-namespace BlueSnap\PaymentMethods;
+namespace solu1BluesnapPayment\PaymentMethods;
 
-use BlueSnap\Gateways\CreditCard;
-use BlueSnap\PaymentMethods\PaymentMethodInterface;
+use solu1BluesnapPayment\Gateways\CreditCard;
 
 class CreditCardPaymentMethod implements PaymentMethodInterface
 {

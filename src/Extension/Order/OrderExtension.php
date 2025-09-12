@@ -1,8 +1,8 @@
 <?php
 
-namespace BlueSnap\Extension\Order;
+namespace solu1BluesnapPayment\Extension\Order;
 
-use BlueSnap\Core\Content\Transaction\BluesnapTransactionDefinition;
+use solu1BluesnapPayment\Core\Content\Transaction\BluesnapTransactionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;
@@ -20,5 +20,9 @@ class OrderExtension extends EntityExtension
     public function getDefinitionClass(): string
     {
         return \Shopware\Core\Checkout\Order\OrderDefinition::class;
+    }
+
+    public function getEntityName(): string {
+      return  \Shopware\Core\Checkout\Order\OrderDefinition::ENTITY_NAME;
     }
 }

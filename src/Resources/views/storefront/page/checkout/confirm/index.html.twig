@@ -2,14 +2,17 @@
 
 {% block page_checkout_confirm_tos_control_checkbox %}
   {{ parent() }}
+    {% if page.extensions.bluesnap %}
   <input
           type="hidden"
           required="required"
-          id="bluesnap-transaction-id"
+          id="solu1-bluesnap-transaction-id"
           form="confirmOrderForm"
           value=""
-          name="bluesnap_transaction_id"
+          name="solu1_bluesnap_transaction_id"
   >
+    {% endif %}
+
 {% endblock %}
 
 
@@ -35,6 +38,7 @@
          {% endblock %}
 
 {% block page_checkout_confirm_form_submit %}
+  <input id='paymentData' type="hidden" name="paymentData" value=""/>
   {% if page.extensions.bluesnap and (page.extensions.bluesnap.gateway == 'googlePay' or page.extensions.bluesnap.gateway == 'applePay') %}
     {% sw_include page.extensions.bluesnap.template %}
   {% else %}

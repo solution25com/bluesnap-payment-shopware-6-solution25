@@ -1,6 +1,6 @@
 <?php
 
-namespace BlueSnap\PaymentMethods;
+namespace solu1BluesnapPayment\PaymentMethods;
 
 class PaymentMethods
 {

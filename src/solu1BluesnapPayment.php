@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace BlueSnap;
+namespace solu1BluesnapPayment;
 
-use BlueSnap\PaymentMethods\PaymentMethodInterface;
-use BlueSnap\PaymentMethods\PaymentMethods;
+use solu1BluesnapPayment\PaymentMethods\PaymentMethodInterface;
+use solu1BluesnapPayment\PaymentMethods\PaymentMethods;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Context;
@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
 
-class BlueSnap extends Plugin
+class solu1BluesnapPayment extends Plugin
 {
     public function install(InstallContext $installContext): void
     {
@@ -57,7 +57,7 @@ class BlueSnap extends Plugin
 
     private function addPaymentMethod(PaymentMethodInterface $paymentMethod, Context $context): void
     {
-        $paymentMethodId = $this->getPaymentMethodId($paymentMethod->getPaymentHandler());
+        $paymentMethodId = $this->getPaymentMethodId($paymentMethod->getPaymentHandler(), $context);
 
         $pluginIdProvider = $this->getDependency(PluginIdProvider::class);
         $pluginId         = $pluginIdProvider->getPluginIdByBaseClass(get_class($this), $context);
@@ -74,6 +74,7 @@ class BlueSnap extends Plugin
           'handlerIdentifier' => $paymentMethod->getPaymentHandler(),
           'name'              => $paymentMethod->getName(),
           'description'       => $paymentMethod->getDescription(),
+          'technicalName'     => $paymentMethod->getName(),
           'pluginId'          => $pluginId,
           'afterOrderEnabled' => true
         ];
@@ -96,7 +97,7 @@ class BlueSnap extends Plugin
     private function setPaymentMethodIsActive(bool $active, Context $context, PaymentMethodInterface $paymentMethod): void
     {
         $paymentRepository = $this->getDependency('payment_method.repository');
-        $paymentMethodId   = $this->getPaymentMethodId($paymentMethod->getPaymentHandler());
+        $paymentMethodId   = $this->getPaymentMethodId($paymentMethod->getPaymentHandler(), $context);
 
         if (!$paymentMethodId) {
             return;
@@ -110,7 +111,7 @@ class BlueSnap extends Plugin
         $paymentRepository->update([$paymentMethodData], $context);
     }
 
-    private function getPaymentMethodId(string $paymentMethodHandler): ?string
+    private function getPaymentMethodId(string $paymentMethodHandler, Context $context): ?string
     {
         $paymentRepository = $this->getDependency('payment_method.repository');
         $paymentCriteria   = (new Criteria())->addFilter(new EqualsFilter(
@@ -118,7 +119,7 @@ class BlueSnap extends Plugin
             $paymentMethodHandler
         ));
 
-        $paymentIds = $paymentRepository->searchIds($paymentCriteria, Context::createDefaultContext());
+        $paymentIds = $paymentRepository->searchIds($paymentCriteria, $context);
 
         if ($paymentIds->getTotal() === 0) {
             return null;
@@ -140,9 +141,9 @@ class BlueSnap extends Plugin
         $connection->executeStatement(
             /** @lang text */
             'DROP TABLE IF EXISTS
-        `bluesnap_payment_link`,
-        `bluesnap_transaction`,
-        `bluesnap_vaulted_shopper`;'
+        `solu1_bluesnap_payment_link`,
+        `solu1_bluesnap_transaction`,
+        `solu1_bluesnap_vaulted_shopper`;'
         );
 
         // Delete migrations
@@ -150,7 +151,7 @@ class BlueSnap extends Plugin
             /** @lang text */
             'DELETE FROM `migration` WHERE `class` LIKE :blue_snap OR `class` LIKE :vaulted_shopper;',
             [
-              'blue_snap'       => '%BlueSnap%',
+              'blue_snap'       => '%solu1BluesnapPayment%',
               'vaulted_shopper' => '%VaultedShopper%',
             ]
         );

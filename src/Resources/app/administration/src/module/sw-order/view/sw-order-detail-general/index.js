@@ -60,7 +60,6 @@ Shopware.Component.override('sw-order-detail-general', {
           message: 'The payment link email was successfully sent to the customer.'
         });
       } catch (err) {
-        console.log(err)
         this.createNotificationError({
           title: 'Error',
           message: 'Failed to send payment link email.'
@@ -83,7 +82,7 @@ Shopware.Component.override('sw-order-detail-general', {
 
       const orderId = this.$route.params.id || this.order?.id;
 
-      const repository = this.repositoryFactory.create('bluesnap_transaction');
+      const repository = this.repositoryFactory.create('solu1_bluesnap_transaction');
       const criteria = new Criteria();
       criteria.addFilter(Criteria.equals('orderId', orderId));
 

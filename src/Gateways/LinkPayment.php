@@ -1,26 +1,24 @@
 <?php
 
-namespace BlueSnap\Gateways;
+namespace solu1BluesnapPayment\Gateways;
 
-use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
-use Shopware\Core\Checkout\Payment\Cart\AsyncPaymentTransactionStruct;
-use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AsynchronousPaymentHandlerInterface;
-use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
-use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
+use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
+use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
+use Shopware\Core\Framework\Context;
+use Shopware\Core\Framework\Struct\Struct;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-class LinkPayment implements AsynchronousPaymentHandlerInterface
+class LinkPayment extends AbstractPaymentHandler
 {
-    public function __construct()
-    {
-    }
-    public function pay(AsyncPaymentTransactionStruct $transaction, RequestDataBag $dataBag, SalesChannelContext $salesChannelContext): RedirectResponse
-    {
-        return new RedirectResponse('/');
-    }
-    public function finalize(AsyncPaymentTransactionStruct $transaction, Request $request, SalesChannelContext $salesChannelContext): void
-    {
-        // Nothing here
-    }
+  public function supports(PaymentHandlerType $type, string $paymentMethodId, Context $context): bool
+  {
+    // This payment handler does not support recurring payments nor refunds
+    return false;
+  }
+  public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
+  {
+    return new RedirectResponse('/');
+  }
 }

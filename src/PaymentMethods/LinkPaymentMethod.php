@@ -1,9 +1,9 @@
 <?php
 
-namespace BlueSnap\PaymentMethods;
+namespace solu1BluesnapPayment\PaymentMethods;
 
-use BlueSnap\Gateways\LinkPayment;
-use BlueSnap\PaymentMethods\PaymentMethodInterface;
+use solu1BluesnapPayment\Gateways\LinkPayment;
+use solu1BluesnapPayment\PaymentMethods\PaymentMethodInterface;
 
 class LinkPaymentMethod implements PaymentMethodInterface
 {

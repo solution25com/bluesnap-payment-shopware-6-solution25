@@ -1,12 +1,12 @@
 <?php
 
-namespace BlueSnap\EventSubscriber;
+namespace solu1BluesnapPayment\EventSubscriber;
 
-use BlueSnap\Gateways\LinkPayment;
-use BlueSnap\Library\Constants\TransactionStatuses;
-use BlueSnap\Service\BlueSnapTransactionService;
-use BlueSnap\Service\OrderService;
-use BlueSnap\Service\PaymentLinkService;
+use solu1BluesnapPayment\Gateways\LinkPayment;
+use solu1BluesnapPayment\Library\Constants\TransactionStatuses;
+use solu1BluesnapPayment\Service\BlueSnapTransactionService;
+use solu1BluesnapPayment\Service\OrderService;
+use solu1BluesnapPayment\Service\PaymentLinkService;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;
@@ -63,7 +63,7 @@ class OrderPaymentLinkSubscriber implements EventSubscriberInterface
                 if (!$paymentLinkRecord && $order->getTransactions()->first()->getPaymentMethod()->getHandlerIdentifier() == LinkPayment::class) {
                     $this->dispatcher->removeSubscriber($this);
                     $this->blueSnapTransactionService->addTransaction($orderId, $order->getTransactions()->first()->getPaymentMethod()->getName(), $orderId, TransactionStatuses::PENDING->value, $context);
-                    $paymentLink = $this->paymentLinkService->generatePaymentLink($order, 'payment-link-success', 'payment-link-fail', false, $salesChannelId);
+                    $paymentLink = $this->paymentLinkService->generatePaymentLink($order, 'payment-link-success', 'payment-link-fail', $context,false, $salesChannelId);
                     $this->paymentLinkService->storePaymentLink($orderId, $paymentLink, $context);
                     $this->paymentLinkService->sendEmail($paymentLink, $order, $salesChannelId, $context);
                 }

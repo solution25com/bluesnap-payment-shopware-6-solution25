@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BlueSnap\PaymentMethods;
+namespace solu1BluesnapPayment\PaymentMethods;
 
 interface PaymentMethodInterface
 {

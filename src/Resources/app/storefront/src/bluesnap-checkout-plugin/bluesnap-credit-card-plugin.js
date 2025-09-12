@@ -1,4 +1,6 @@
 import BlueSnapApi from "../services/BlueSnapApi";
+import CDNLoader from "../services/CDNLoader";
+
 
 export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
   static options = {
@@ -7,9 +9,17 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
   };
 
   init() {
-    this._registerElements();
-    this._registerEvents();
-    this._showForm();
+
+    const bluesnapElement = document.getElementById('bluesnap-credit-card')
+    const scriptUrl = bluesnapElement.getAttribute("data-script-url");
+    const loader = new CDNLoader(scriptUrl);
+
+
+    loader.loadScript(() => {
+      this._registerElements();
+      this._registerEvents();
+      this._showForm();
+    })
   }
 
   _registerElements() {
@@ -21,7 +31,6 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
     this.securedLastName = this.parentCreditCardWrapper.getAttribute('data-secured-lastName');
     this.securedAmount = this.parentCreditCardWrapper.getAttribute('data-secured-amount');
     this.securedCurrency = this.parentCreditCardWrapper.getAttribute('data-secured-currency');
-    this.shopperCardTyp = this.parentCreditCardWrapper.getAttribute("data-card-type");
     this.cardNumberDom = document.getElementById("bluesnap-card-number");
     this.cardHolderDom = document.getElementById("bluesnap-card-holder");
     this.cardHolderDomLastName = document.getElementById("bluesnap-card-holder-lastname");
@@ -32,7 +41,7 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
     this.lastName = document.getElementById("bluesnap-last-name").value
     this.saveCard = document.getElementById("bluesnap-save-card")?.checked || null
     this.threeDS = !!this.parentCreditCardWrapper.getAttribute('data-three-d-secure');
-
+    this.errorMessage = document.getElementById('error-message');
 
     this.cardUrl = {
       "AMEX": "https://files.readme.io/97e7acc-Amex.png",
@@ -91,7 +100,6 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
           }
         }
       },
-      //styling is optional
       style: {
         // Styling all inputs
         "input": {
@@ -101,7 +109,6 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
           "color": "#555"
         },
         // Styling a specific field
-        /*"#ccn": {},*/
         // Styling Hosted Payment Field input state
         ":focus": {
           "color": "#555"
@@ -115,6 +122,12 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
     bluesnap.hostedPaymentFieldsCreate(this.blueSnapObject);
   }
 
+  _scrollToBluesnapSection() {
+    this.parentCreditCardWrapper.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center'
+    });
+  }
 
   _registerEvents() {
     this.confirmOrderForm.addEventListener('click', this._onOrderSubmitButtonClick.bind(this));
@@ -123,7 +136,7 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
     }
   }
 
-  async _showForm() {
+  _showForm() {
 
     const isSaveCardChecked = this.saveCardCheckbox.checked;
     this.savedCardForm.classList.toggle('d-none', !isSaveCardChecked);
@@ -153,17 +166,23 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
       cardLastFourDigits: document.getElementById('bluesnap-credit-card').getAttribute('data-shopper-last-digits'),
     };
     const result = await BlueSnapApi.updateVaultedShopper(this.vaultedId, body);
-    if (result.success) {}
-    else {
+    if (result.success) {
+    } else {
       console.error('Failed to update vaulted shopper:', result.message);
     }
   }
 
 
   _creditCardCapture() {
+    if (!this._validateBluesnapFields()) {
+      return;
+    }
+
     bluesnap.hostedPaymentFieldsSubmitData(
       async (callback) => {
+
         if (callback.error != null) {
+
           const errorMessageSpan = document.getElementById('error-message');
           errorMessageSpan.style.display = 'none';
 
@@ -174,10 +193,14 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
             const error = errorArray[i];
             errorMessages.push(`${error.errorCode}: ${error.errorDescription}`);
           }
+
           errorMessageSpan.innerHTML = errorMessages.join('<br/>');
           errorMessageSpan.style.display = 'block';
+          this._scrollToBluesnapSection();
           return;
         }
+
+
         if (this.threeDS === true) {
           if (callback.threeDSecure == null || callback.threeDSecure.authResult !== 'AUTHENTICATION_SUCCEEDED') {
             if (callback.threeDSecure?.authResult === 'AUTHENTICATION_UNAVAILABLE') {
@@ -185,10 +208,13 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
               document.querySelector('#error-message .error-alert p').innerText = `This card type does not support 3D Secure: ${callback.threeDSecure.authResult}`;
               document.getElementById("error-message").classList.remove('d-none');
               document.getElementById('bluesnap-checkout-form').classList.remove('d-none');
+              this._scrollToBluesnapSection();
               return;
             }
           }
         }
+
+
         const saveCard = document.getElementById("bluesnap-save-card")?.checked || null;
         if (this.vaultedId && saveCard) {
           await this._updateVaultedShopperCard();
@@ -209,23 +235,30 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
         };
         document.getElementById('bluesnap-checkout-form').classList.add('d-none');
         document.getElementById("bluesnap-loader").style.display = 'block';
+        this._scrollToBluesnapSection();
 
-        const result = await BlueSnapApi.capture(body);
-        if (result && result.success) {
-          document.getElementById('bluesnap-transaction-id').value = JSON.parse(result.message).transactionId;
+        const flow = document.getElementById('bluesnap-credit-card').getAttribute('data-flow');
+
+        if (flow === 'order_payment') {
+          document.getElementById('paymentData').value = JSON.stringify(body);
           document.getElementById('confirmOrderForm').submit();
+        } else {
+          const result = await BlueSnapApi.capture(body);
+          if (result && result.success) {
+            document.getElementById('solu1-bluesnap-transaction-id').value = JSON.parse(result.message).transactionId;
+            document.getElementById('confirmOrderForm').submit();
+          } else {
+            const message = result.message;
+            const parsedMessage = JSON.parse(message);
+            const description = parsedMessage[0]?.description;
+            document.getElementById("bluesnap-loader").style.display = "none";
+            document.querySelector('#error-message .error-alert p').innerText = description.split('-')[0];
+            document.getElementById('error-message').classList.remove('d-none');
+            document.getElementById("error-message").classList.add('block');
+            document.getElementById('bluesnap-checkout-form').classList.remove('d-none');
+          }
         }
-        else{
-          const message = result.message;
-          const parsedMessage = JSON.parse(message);
-          const description = parsedMessage[0]?.description;
-          document.getElementById("bluesnap-loader").style.display = "none";
-          console.log(description);
-          document.querySelector('#error-message .error-alert p').innerText = description.split('-')[0];
-          document.getElementById('error-message').classList.remove('d-none');
-          document.getElementById("error-message").classList.add('block');
-          document.getElementById('bluesnap-checkout-form').classList.remove('d-none');
-        }
+
       },
       this.threeDS ? this.threeDSecureObj : undefined
     );
@@ -233,6 +266,17 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
 
   async _onOrderSubmitButtonClick(event) {
     event.preventDefault();
+
+    if (this.saveCardCheckbox) {
+      this.saveCardCheckbox.disabled = true;
+    }
+
+    if (!this.confirmOrderForm.checkValidity()) {
+      this.confirmOrderForm.reportValidity();
+      return;
+    }
+
+    this._scrollToBluesnapSection();
     if (document.getElementById("bluesnap-is-save-card").checked) {
       await this._vaultedCapture()
     } else {
@@ -257,10 +301,14 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
               authResult: threeDSecure?.authResult
             }),
           };
+          document.getElementById('bluesnap-saved-card-form').classList.add('d-none');
+          document.getElementById("bluesnap-loader").style.display = 'block';
+          this._scrollToBluesnapSection();
+
           const result = await BlueSnapApi.vaultedShopper(body);
           if (result && result.success) {
             const message = JSON.parse(result.message);
-            document.getElementById('bluesnap-transaction-id').value = message.transactionId;
+            document.getElementById('solu1-bluesnap-transaction-id').value = message.transactionId;
             document.getElementById('confirmOrderForm').submit();
           }
 
@@ -269,8 +317,7 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
           document.querySelector('#error-message .error-alert p').innerText = sdkResponse.info.errors;
           document.getElementById('error-message').classList.remove('d-none')
           document.getElementById('error-message').classList.add('block');
-          const warningsArray = sdkResponse.info.warnings;
-          console.log('errorsArray', errorsArray);
+          this._scrollToBluesnapSection();
         }
       });
     } else {
@@ -285,13 +332,24 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
 
       document.getElementById('bluesnap-saved-card-form').classList.add('d-none');
       document.getElementById("bluesnap-loader").style.display = 'block';
-      const result = await BlueSnapApi.vaultedShopper(body);
+      this._scrollToBluesnapSection();
 
-      if (result && result.success) {
-        const message = JSON.parse(result.message);
-        document.getElementById('bluesnap-transaction-id').value = message.transactionId;
+      const flow = document.getElementById('bluesnap-credit-card').getAttribute('data-flow');
+
+      if (flow === 'order_payment') {
+        document.getElementById('paymentData').value = JSON.stringify(body);
         document.getElementById('confirmOrderForm').submit();
+      } else {
+        const result = await BlueSnapApi.vaultedShopper(body);
+
+        if (result && result.success) {
+          const message = JSON.parse(result.message);
+          document.getElementById('solu1-bluesnap-transaction-id').value = message.transactionId;
+          document.getElementById('confirmOrderForm').submit();
+        }
       }
+
+
     }
 
     const Shopper4Digits = this.parentCreditCardWrapper.getAttribute('data-shopper-last-digits');
@@ -316,6 +374,33 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
     if (removeClass) {
       element.classList.remove(...removeClass.split(' '));
     }
+  }
 
+  _validateBluesnapFields() {
+    let isValid = true;
+
+    const requiredFields = [
+      {id: 'bluesnap-first-name', name: 'First name'},
+      {id: 'bluesnap-last-name', name: 'Last name'},
+    ];
+
+    requiredFields.forEach(field => {
+      const input = document.getElementById(field.id);
+      if (!input || input.value.trim() === '') {
+        input.classList.add('is-invalid');
+        isValid = false;
+      } else {
+        input.classList.remove('is-invalid');
+      }
+    });
+
+    if (!isValid) {
+      this.errorMessage.querySelector('p').innerText = 'Please fill in all required fields.';
+      this.errorMessage.classList.remove('d-none');
+      this._scrollToBluesnapSection();
+    } else {
+      this.errorMessage.classList.add('d-none');
+    }
+    return isValid;
   }
 }

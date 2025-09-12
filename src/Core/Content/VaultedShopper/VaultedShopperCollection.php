@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BlueSnap\Core\Content\VaultedShopper;
+namespace solu1BluesnapPayment\Core\Content\VaultedShopper;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 

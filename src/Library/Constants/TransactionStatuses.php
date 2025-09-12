@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BlueSnap\Library\Constants;
+namespace solu1BluesnapPayment\Library\Constants;
 
 enum TransactionStatuses: string
 {
@@ -10,4 +10,6 @@ enum TransactionStatuses: string
     case PAID    = 'paid';
     case FAIL    = "fail";
     case REFUND  = "refund";
+    case AUTHORIZED = 'authorized';
+    case CANCELLED   = 'cancelled';
 }

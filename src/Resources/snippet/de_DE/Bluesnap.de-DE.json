@@ -1,14 +1,27 @@
 {
   "Bluesnap": {
+    "apiTest": {
+      "success": {
+        "title": "BlueSnap API-Test",
+        "message": "Verbindung erfolgreich!"
+      },
+      "error": {
+        "title": "BlueSnap API-Test",
+        "message": "Verbindungstest fehlgeschlagen! Bitte überprüfen Sie die API-Zugangsdaten."
+      }
+    },
     "apple-pay": {
       "alert-message": "Apple Pay is not supported in your current browser or device. Please try using Safari on an Apple device to complete your purchase with Apple Pay."
     },
     "credit-card": {
       "fields": {
+        "first-name-placeholder": "First Name",
+        "last-name-placeholder": "Last Name",
         "saved-card-text": "Use Saved Card",
         "helper-text": "16 digits on your card, <span>e.g., 1234 5678 9123 4567</span>",
         "secure-payments": "Secure payments",
-        "save-card-info": "Save card for future payment"
+        "save-card-info": "Save card for future payment",
+        "logo": "Logo"
       }
     },
     "button": {

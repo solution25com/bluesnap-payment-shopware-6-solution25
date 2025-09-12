@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BlueSnap\Core\Content\Transaction;
+namespace solu1BluesnapPayment\Core\Content\Transaction;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
@@ -11,22 +11,11 @@ class BluesnapTransactionEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected $id;
-
     protected string $orderId;
     protected string $paymentMethodName;
     protected string $transactionId;
     protected string $status;
 
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getOrderId(): string
     {

@@ -1,6 +1,6 @@
 <?php
 
-namespace BlueSnap\Core\Content\PaymentLink;
+namespace solu1BluesnapPayment\Core\Content\PaymentLink;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\LongTextField;
@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 
 class PaymentLinkDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'bluesnap_payment_link';
+    public const ENTITY_NAME = 'solu1_bluesnap_payment_link';
 
     public function getEntityName(): string
     {

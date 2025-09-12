@@ -58,24 +58,16 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
 
         paymentDataRequest.emailRequired = true; // Request payer email
         paymentDataRequest.shippingAddressRequired = true; // Request shipping address
-        // paymentDataRequest.billingAddressRequired = true; // Request billing address
 
         paymentDataRequest.shippingAddressParameters = {
           phoneNumberRequired: true // Optional: Set to false if phone number is not needed
         };
-
-        // paymentDataRequest.billingAddressParameters = {
-        //   format: 'FULL', // Ensures full name, street, city, state, zip, and country are included
-        //   phoneNumberRequired: true // Optional
-        // };
-
         return paymentDataRequest;
       }
 
       function getGooglePaymentsClient() {
         if (paymentsClient === null) {
           const mode = document.getElementById('bluesnap-google-pay').getAttribute('data-mode');
-          console.log(mode)
           const environment = mode === "sandbox" ? "TEST" : "PRODUCTION";
           paymentsClient = new google.payments.api.PaymentsClient({environment: environment});
         }
@@ -87,8 +79,6 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
         const paymentsClient = getGooglePaymentsClient();
         paymentsClient.isReadyToPay(getGoogleIsReadyToPayRequest())
           .then(function (response) {
-            console.log('on GooglePayLoaded', response )
-
             if (response.result) {
               addGooglePayButton();
               // @todo prefetch payment data to improve performance after confirming site functionality
@@ -128,6 +118,7 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
           totalPriceStatus: 'NOT_CURRENTLY_KNOWN',
           currencyCode: document.getElementById('bluesnap-google-pay').getAttribute('data-currency-code'),
         };
+
         const paymentsClient = getGooglePaymentsClient();
         paymentsClient.prefetchPaymentData(paymentDataRequest);
       }
@@ -139,7 +130,6 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
 
         const paymentDataRequest = getGooglePaymentDataRequest();
         paymentDataRequest.transactionInfo = getGoogleTransactionInfo();
-        console.log('pInfo',paymentDataRequest.transactionInfo)
 
         const paymentsClient = getGooglePaymentsClient();
         paymentsClient.loadPaymentData(paymentDataRequest)
@@ -152,6 +142,7 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
       }
 
       async function processPayment(paymentData) {
+
         const paymentMethodData = paymentData.paymentMethodData;
         const cardInfo = paymentMethodData.info || {};
 
@@ -179,14 +170,23 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
         const jsonString = JSON.stringify(structuredPayload);
         const gToken = b64EncodeUnicode(jsonString);
 
-        const result = await BlueSnapApi.googleCapture({
+        const flow = document.getElementById('bluesnap-google-pay').getAttribute('data-flow');
+
+        const body = {
           gToken,
           email: paymentData.email
-        });
-        if (result && result.success) {
-          document.getElementById('bluesnap-transaction-id').value = JSON.parse(result.message).transactionId;
-          document.getElementById('confirmOrderForm').submit();
         }
+        if (flow === 'order_payment') {
+          document.getElementById('paymentData').value = JSON.stringify(body);
+          document.getElementById('confirmOrderForm').submit();
+        } else {
+          const result = await BlueSnapApi.googleCapture(body);
+          if (result && result.success) {
+            document.getElementById('solu1-bluesnap-transaction-id').value = JSON.parse(result.message).transactionId;
+            document.getElementById('confirmOrderForm').submit();
+          }
+        }
+
       }
 
 

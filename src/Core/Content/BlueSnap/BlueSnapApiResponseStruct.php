@@ -1,6 +1,6 @@
 <?php
 
-namespace BlueSnap\Core\Content\BlueSnap;
+namespace solu1BluesnapPayment\Core\Content\BlueSnap;
 
 use Shopware\Core\Framework\Struct\Struct;
 

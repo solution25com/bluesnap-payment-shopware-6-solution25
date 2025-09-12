@@ -1,8 +1,8 @@
 <?php
 
-namespace BlueSnap\Exceptions;
+namespace solu1BluesnapPayment\Exceptions;
 
-use BlueSnap\Exceptions\BaseException;
+use solu1BluesnapPayment\Exceptions\BaseException;
 use Exception;
 
 class CreditCardCaptureRequestException extends BaseException

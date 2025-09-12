@@ -2,12 +2,13 @@
 
 declare(strict_types=1);
 
-namespace BlueSnap\Library;
+namespace solu1BluesnapPayment\Library;
 
 abstract class Endpoints
 {
     protected const PAYMENT_FIELD_TOKENS = 'PAYMENT_FIELD_TOKENS';
     protected const TRANSACTION          = 'TRANSACTION';
+    PROTECTED CONST CAPTURE_TRANSACTION_OR_VOID  = 'CAPTURE_TRANSACTION_OR_VOID';
     protected const APPLE_WALLET         = 'APPLE_WALLET';
     protected const RECURRING            = 'RECURRING';
     protected const VAULTED_SHOPPERS     = 'VAULTED_SHOPPERS';
@@ -25,6 +26,12 @@ abstract class Endpoints
         'method' => 'POST',
         'url'    => '/services/2/transactions'
       ],
+
+      self::CAPTURE_TRANSACTION_OR_VOID => [
+        'method' => 'PUT',
+        'url'    => '/services/2/transactions'
+      ],
+
       self::APPLE_WALLET => [
         'method' => 'POST',
         'url'    => '/services/2/wallets'

@@ -18,6 +18,9 @@
         {% endblock %}
 
         {% block component_payment_method_label %}
+            {% if not page.extensions.bluesnap.template  %}
+                {{ parent() }}
+            {% else %}
           <label class="form-check-label payment-method-label"
                  for="paymentMethod{{ payment.id }}">
             {% block component_payment_method_image %}
@@ -60,13 +63,13 @@
             {% endblock %}
           </label>
 
-          {# Safe include for BlueSnap template #}
-          {% if payment.formattedHandlerIdentifier == "handler_bluesnap_creditcard"
-            and context.paymentMethod.formattedHandlerIdentifier == "handler_bluesnap_creditcard"
+          {% if payment.formattedHandlerIdentifier == "handler_solu1bluesnappayment_creditcard"
+            and context.paymentMethod.formattedHandlerIdentifier == "handler_solu1bluesnappayment_creditcard"
             and page.extensions.bluesnap is defined
             and page.extensions.bluesnap.template is defined
             and page.extensions.bluesnap.template %}
             {% sw_include page.extensions.bluesnap.template %}
+          {% endif %}
           {% endif %}
 
         {% endblock %}

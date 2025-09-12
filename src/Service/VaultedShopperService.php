@@ -1,6 +1,6 @@
 <?php
 
-namespace BlueSnap\Service;
+namespace solu1BluesnapPayment\Service;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
@@ -19,14 +19,12 @@ class VaultedShopperService
         $this->vaultedShopperRepository = $vaultedShopperRepository;
         $this->logger                   = $logger;
     }
-    public function store(SalesChannelContext $salesChannelContext, string $vaultedShopperId, string $cardType): void
-    {
-        $context                = $salesChannelContext->getContext();
-        $salesChannelCustomerId = $salesChannelContext->getCustomer()->getId();
 
+    public function store(string $vaultedShopperId, string $cardType, string $customerId,  Context $context): void
+    {
         try {
             $existingShopper = $this->vaultedShopperRepository->search(
-                (new Criteria())->addFilter(new EqualsFilter('customerId', $salesChannelCustomerId)),
+                (new Criteria())->addFilter(new EqualsFilter('customerId', $customerId)),
                 $context
             )->first();
             if ($existingShopper) {
@@ -34,7 +32,7 @@ class VaultedShopperService
                     [
                       [
                         'id'               => $existingShopper->getId(),
-                        'customerId'       => $salesChannelCustomerId,
+                        'customerId'       => $customerId,
                         'vaultedShopperId' => $vaultedShopperId,
                         'cardType'         => $cardType,
                         'updatedAt'        => (new \DateTime())->format('Y-m-d H:i:s'),
@@ -47,7 +45,7 @@ class VaultedShopperService
                     [
                       [
                         'id'               => Uuid::randomHex(),
-                        'customerId'       => $salesChannelCustomerId,
+                        'customerId'       => $customerId,
                         'vaultedShopperId' => $vaultedShopperId,
                         'cardType'         => $cardType,
                         'createdAt'        => (new \DateTime())->format('Y-m-d H:i:s'),

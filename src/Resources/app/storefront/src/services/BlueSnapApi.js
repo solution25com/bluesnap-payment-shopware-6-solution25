@@ -24,7 +24,7 @@ class BlueSnapApi {
       const response = await fetch(url, requestOptions)
       return await response.json();
     } catch (err) {
-      console.log(JSON.stringify(err, null, 2));
+      console.error(JSON.stringify(err, null, 2));
     }
   }
 }

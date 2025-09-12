@@ -1,9 +1,9 @@
 <?php
 
-namespace BlueSnap\PaymentMethods;
+namespace solu1BluesnapPayment\PaymentMethods;
 
-use BlueSnap\Gateways\GooglePay;
-use BlueSnap\PaymentMethods\PaymentMethodInterface;
+use solu1BluesnapPayment\Gateways\GooglePay;
+use solu1BluesnapPayment\PaymentMethods\PaymentMethodInterface;
 
 class GooglePayPaymentMethod implements PaymentMethodInterface
 {

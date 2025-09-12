@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BlueSnap\Core\Content\VaultedShopper;
+namespace solu1BluesnapPayment\Core\Content\VaultedShopper;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
@@ -13,23 +13,11 @@ class VaultedShopperEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected $id;
-
     protected ?string $customerId;
 
-    protected $vaultedShopperId;
+    protected string $vaultedShopperId;
+    protected string $cardType;
 
-    protected $cardType;
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getCustomerId(): ?string
     {

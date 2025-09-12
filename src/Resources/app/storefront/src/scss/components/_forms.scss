@@ -210,21 +210,16 @@
         }
     }
 }
-//html
-//{
-//  font-size: 100%;
-//}
+
 .quantity-selector-group-input {
-    height: inherit !important;
+    height: inherit;
 }
 
 .panel {
     width: 100%;
-    //margin: 2em auto;
 }
 .panel-body {
     width: 95%;
-    //margin: 2em auto;
 }
 .helper-text {
     color: $theme-color-amaranth;

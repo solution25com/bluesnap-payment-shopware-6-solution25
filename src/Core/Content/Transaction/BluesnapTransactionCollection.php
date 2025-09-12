@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BlueSnap\Core\Content\Transaction;
+namespace solu1BluesnapPayment\Core\Content\Transaction;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 

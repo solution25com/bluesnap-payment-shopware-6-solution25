@@ -1,8 +1,8 @@
 <?php
 
-namespace BlueSnap\Service;
+namespace solu1BluesnapPayment\Service;
 
-use BlueSnap\Library\Constants\TransactionStatuses;
+use solu1BluesnapPayment\Library\Constants\TransactionStatuses;
 use Psr\Log\LoggerInterface;
 use Shopware\Commercial\ReturnManagement\Domain\StateHandler\PositionStateHandler;
 use Shopware\Commercial\ReturnManagement\Entity\OrderReturn\OrderReturnDefinition;
@@ -99,28 +99,19 @@ class RefundService
       $response = $this->blueSnapApiClient->refund($transaction->getTransactionId(), $body, $orderReturn->getOrder()->getSalesChannelID());
       $parsedResponse = json_decode($response, true);
 
-      $criteria = new Criteria();
-      $criteria->addFilter(new EqualsFilter('orderId', $data['orderId']));
+      if ($parsedResponse['refundStatus'] == 'SUCCESS') {
 
-      if ($parsedResponse['refundStatus'] === 'SUCCESS') {
-        try {
-          $refundedAmountCents = (int) round($orderReturn->getAmountTotal() * 100);
-
-          $customFields = $order->getCustomFields() ?? [];
-          $existingCaptured = isset($customFields['returnAmountCapture']) ? (int) $customFields['returnAmountCapture'] : 0;
-          $newCapturedAmount = $existingCaptured + $refundedAmountCents;
-
-          $this->orderService->updateOrderCustomFields($order, $newCapturedAmount, $order->getId(), $context);
-
-          $orderTotalCents = (int) round($order->getAmountTotal() * 100);
-
-          if ($newCapturedAmount >= $orderTotalCents) {
+        // TODO: Fix this by calculating every return order
+        // -> add every amount and if it matches the order amount
+        // -> then is fully returned
+        try{
+          if ($order->getAmountTotal() == $orderReturn->getAmountTotal()) {
             $this->transactionStateHandler->refund($orderTransactionId, $context);
           } else {
             $this->transactionStateHandler->refundPartially($orderTransactionId, $context);
           }
-
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e){
           $this->logger->error('Error while changing order status');
           $this->logger->error($e->getMessage());
         }
@@ -168,7 +159,6 @@ class RefundService
 
         // TODO: if order line item status needs to be updated to partial return
         // and if complete quantity eq true then mark as full return -> function to be used:
-        // $this->positionStateHandler->transitOrderLineItems();
       }
       return $parsedResponse;
     }

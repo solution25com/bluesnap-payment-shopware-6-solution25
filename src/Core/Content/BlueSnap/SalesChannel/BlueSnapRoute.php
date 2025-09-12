@@ -1,18 +1,18 @@
 <?php
 
-namespace BlueSnap\Core\Content\BlueSnap\SalesChannel;
+namespace solu1BluesnapPayment\Core\Content\BlueSnap\SalesChannel;
 
-use BlueSnap\Core\Content\BlueSnap\AbstractBlueSnapRoute;
-use BlueSnap\Core\Content\BlueSnap\BlueSnapApiResponseStruct;
-use BlueSnap\Library\Constants\TransactionStatuses;
-use BlueSnap\Library\ValidatorUtility;
-use BlueSnap\Service\BlueSnapApiClient;
-use BlueSnap\Service\BlueSnapConfig;
-use BlueSnap\Service\BlueSnapTransactionService;
-use BlueSnap\Service\OrderService;
-use BlueSnap\Service\PaymentLinkService;
-use BlueSnap\Service\RefundService;
-use BlueSnap\Service\VaultedShopperService;
+use solu1BluesnapPayment\Core\Content\BlueSnap\AbstractBlueSnapRoute;
+use solu1BluesnapPayment\Core\Content\BlueSnap\BlueSnapApiResponseStruct;
+use solu1BluesnapPayment\Library\Constants\TransactionStatuses;
+use solu1BluesnapPayment\Library\ValidatorUtility;
+use solu1BluesnapPayment\Service\BlueSnapApiClient;
+use solu1BluesnapPayment\Service\BlueSnapConfig;
+use solu1BluesnapPayment\Service\BlueSnapTransactionService;
+use solu1BluesnapPayment\Service\OrderService;
+use solu1BluesnapPayment\Service\PaymentLinkService;
+use solu1BluesnapPayment\Service\RefundService;
+use solu1BluesnapPayment\Service\VaultedShopperService;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Framework\Context;
@@ -100,6 +100,8 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     $is3DSEnabled = $this->blueSnapConfig->getConfig('threeDS', $salesChannelId);
     $data = $request->request->all();
 
+    $cardTransactionType = $this->blueSnapConfig->getCardTransactionType($salesChannelId);
+
     $customer = $context->getCustomer();
     $billingAddress = $customer->getActiveBillingAddress() ?? $customer->getDefaultBillingAddress();
     $city = $billingAddress->getCity();
@@ -127,7 +129,10 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
         new Assert\Optional([
           new Assert\Type('string'),
         ])
-      ]
+      ],
+      'cartData' => new Assert\Optional([
+        new Assert\Type('array'),
+      ]),
     ]);
 
     $errors = $this->validator->validateFields($data, $constraints);
@@ -149,7 +154,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
 
       ],
       "pfToken" => $data['pfToken'],
-      "cardTransactionType" => "AUTH_CAPTURE",
+      "cardTransactionType" => $cardTransactionType,
       "transactionInitiator" => "SHOPPER"
     ];
 
@@ -160,6 +165,15 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
         "threeDSecureReferenceId" => $data['threeDSecureReferenceId']
       ];
     }
+
+    if (!empty($data['cartData'])) {
+      $level3Data = $this->orderService->buildLevel3Data($data['cartData'], $context->getContext());
+      if (!empty($level3Data)) {
+        $body['level3Data'] = $level3Data;
+      }
+    }
+
+
     $response = $this->blueSnapClient->capture($body, $salesChannelId);
     if (isset($response['error'])) {
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $response['message']), $response['code']);
@@ -170,7 +184,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       $vaultedShopperId = $responseData['vaultedShopperId'];
       $isGuestCustomer = $context->getCustomer()->getGuest();
       if ($data['saveCard'] && !$isGuestCustomer) {
-        $this->vaultedShopperService->store($context, $vaultedShopperId, $data['cardType']);
+        $this->vaultedShopperService->store($vaultedShopperId, $data['cardType'], $context->getCustomer()->getId(), $context->getContext());
       }
     }
 
@@ -181,10 +195,14 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   public function googleCapture(Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
     $data = $request->request->all();
+    $cardTransactionType = $this->blueSnapConfig->getCardTransactionType($context->getSalesChannelId());
     $constraints = new Assert\Collection([
       'gToken' => [new Assert\NotBlank(), new Assert\Type('string')],
       'amount' => [new Assert\NotBlank(), new Assert\Type('string')],
       'email' => [new Assert\NotBlank(), new Assert\Type('string')],
+      'cartData' => new Assert\Optional([
+        new Assert\Type('array'),
+      ]),
 
     ]);
 
@@ -194,11 +212,11 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
     }
 
-    $response = $this->blueSnapClient->capture([
+    $body = [
       "amount" => round((float)$data['amount'], 2),
       "softDescriptor" => "Google Pay",
       "currency" => $context->getCurrency()->getIsoCode(),
-      "cardTransactionType" => "AUTH_CAPTURE",
+      "cardTransactionType" => $cardTransactionType,
       "wallet" => [
         "walletType" => "GOOGLE_PAY",
         "encodedPaymentToken" => $data['gToken'],
@@ -206,7 +224,18 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       "cardHolderInfo" => [
         "email" => $data['email'],
       ]
-    ], $context->getSalesChannelId());
+    ];
+
+    $salesChannelId = $context->getSalesChannel()->getId();
+
+    if (!empty($data['cartData'])) {
+      $level3Data = $this->orderService->buildLevel3Data($data['cartData'], $context->getContext());
+      if (!empty($level3Data)) {
+        $body['level3Data'] = $level3Data;
+      }
+    }
+
+    $response = $this->blueSnapClient->capture($body, $salesChannelId);
 
     if (isset($response['error'])) {
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $response['message']), $response['code']);
@@ -218,10 +247,18 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   public function appleCapture(Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
     $data = $request->request->all();
+    $cardTransactionType = $this->blueSnapConfig->getCardTransactionType($context->getSalesChannelId());
+
     $customerEmail = $context->getCustomer()->getEmail();
     $constraints = new Assert\Collection([
       'appleToken' => [new Assert\NotBlank(), new Assert\Type('string')],
       'amount' => [new Assert\NotBlank(), new Assert\Type('string')],
+      'cartData' => new Assert\Optional([
+        new Assert\Type('array'),
+      ]),
+      'email' => new Assert\Optional([
+        new Assert\Type('string'),
+      ]),
     ]);
 
     $errors = $this->validator->validateFields($data, $constraints);
@@ -232,7 +269,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       "amount" => round((float)$data['amount'], 2),
       "softDescriptor" => "Apple Pay",
       "currency" => $context->getCurrency()->getIsoCode(),
-      "cardTransactionType" => "AUTH_CAPTURE",
+      "cardTransactionType" => "$cardTransactionType",
       "wallet" => [
         "walletType" => "APPLE_PAY",
         "encodedPaymentToken" => $data['appleToken'],
@@ -240,6 +277,15 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       "cardHolderInfo" => [
         "email" => $customerEmail
       ]];
+
+
+    if (!empty($data['cartData'])) {
+      $level3Data = $this->orderService->buildLevel3Data($data['cartData'], $context->getContext());
+      if (!empty($level3Data)) {
+        $body['level3Data'] = $level3Data;
+      }
+    }
+
 
     $response = $this->blueSnapClient->capture($body, $context->getSalesChannelId());
     if (isset($response['error'])) {
@@ -297,6 +343,8 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   public function vaultedShopper(Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
     $salesChannelId = $context->getSalesChannel()->getId();
+    $cardTransactionType = $this->blueSnapConfig->getCardTransactionType($context->getSalesChannelId());
+
 
     $is3DSEnabled = $this->blueSnapConfig->getConfig('threeDS', $salesChannelId);
     $data = $request->request->all();
@@ -313,7 +361,10 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
         new Assert\Optional([
           new Assert\Type('string'),
         ])
-      ]
+      ],
+      'cartData' => new Assert\Optional([
+        new Assert\Type('array'),
+      ]),
     ]);
 
     $errors = $this->validator->validateFields($data, $constraints);
@@ -328,7 +379,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       "vaultedShopperId" => $vaultedId,
       "softDescriptor" => "DescTest",
       "currency" => $context->getCurrency()->getIsoCode(),
-      "cardTransactionType" => "AUTH_CAPTURE",
+      "cardTransactionType" => $cardTransactionType,
     ];
 
     if ($is3DSEnabled && !empty($data['authResult']) && !empty($data['threeDSecureReferenceId'])) {
@@ -337,6 +388,14 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
         "threeDSecureReferenceId" => $data['threeDSecureReferenceId']
       ];
     }
+
+    if (!empty($data['cartData'])) {
+      $level3Data = $this->orderService->buildLevel3Data($data['cartData'], $context->getContext());
+      if (!empty($level3Data)) {
+        $body['level3Data'] = $level3Data;
+      }
+    }
+
 
     $response = $this->blueSnapClient->capture($body, $context->getSalesChannelId());
     if (isset($response['error'])) {
@@ -421,7 +480,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     $failedUrl = $data['failedUrl'];
 
     $this->blueSnapTransactionService->addTransaction($data['order_id'], $data['paymentMethod'], $data['order_id'], TransactionStatuses::PENDING->value, $context->getContext());
-    $link = $this->paymentLinkService->generatePaymentLink($orderDetail, $successUrl, $failedUrl, true, $context->getSalesChannelId());
+    $link = $this->paymentLinkService->generatePaymentLink($orderDetail, $successUrl, $failedUrl, $context->getContext(), true, $context->getSalesChannelId());
 
     return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $link));
   }
@@ -483,13 +542,21 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     }
 
     $order = $this->orderService->getOrderDetailsById($data['orderId'], $context);
-    if(!$order){
+    if (!$order) {
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, 'No Order Found!'), 400);
     }
-    $paymentLink = $this->paymentLinkService->generatePaymentLink($order, 'payment-link-success', 'payment-link-fail', false, $order->getSalesChannelID());
+    $paymentLink = $this->paymentLinkService->generatePaymentLink($order, 'payment-link-success', 'payment-link-fail', $context, false, $order->getSalesChannelID());
     $this->paymentLinkService->storePaymentLink($data['orderId'], $paymentLink, $context);
     $this->paymentLinkService->sendEmail($paymentLink, $order, $order->getSalesChannelID(), $context);
 
     return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, 'Payment link sent!'));
   }
+  #[Route(path: '/store-api/bluesnap/test-connection', name: 'store-api.bluesnap.testConnection', methods: ['POST'])]
+  public function testConnection(Request $request, Context $context): BlueSnapApiResponse
+  {
+
+
+    return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, 'Test connection!'));
+  }
+
 }

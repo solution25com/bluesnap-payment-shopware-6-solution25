@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BlueSnap\Core\Content\Transaction;
+namespace solu1BluesnapPayment\Core\Content\Transaction;
 
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
@@ -14,7 +14,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 
 class BluesnapTransactionDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'bluesnap_transaction';
+    public const ENTITY_NAME = 'solu1_bluesnap_transaction';
 
     public function getEntityName(): string
     {

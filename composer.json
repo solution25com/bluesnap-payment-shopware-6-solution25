@@ -2,8 +2,8 @@
   "name": "solution25/bluesnap",
   "description": "BlueSnap payment method for Shopware 6",
   "type": "shopware-platform-plugin",
-  "version": "1.0.0",
-  "license": "MIT",
+  "version": "1.0.3",
+  "license": "proprietary",
   "authors": [
     {
         "name": "solution 25",
@@ -11,10 +11,10 @@
     }
 ],
   "require": {
-      "shopware/core": "~6.6.0"
+      "shopware/core": "^6.6 || ^6.7"
   },
   "extra": {
-      "shopware-plugin-class": "BlueSnap\\BlueSnap",
+      "shopware-plugin-class": "solu1BluesnapPayment\\solu1BluesnapPayment",
       "label": {
           "de-DE": "BlueSnap payment method for Shopware 6",
           "en-GB": "BlueSnap payment method for Shopware 6"
@@ -22,12 +22,17 @@
   },
   "autoload": {
       "psr-4": {
-          "BlueSnap\\": "src/"
+          "solu1BluesnapPayment\\": "src/"
       }
   },
   "autoload-dev": {
       "psr-4": {
-          "BlueSnap\\Tests\\": "tests/"
+          "solu1BluesnapPayment\\Tests\\": "tests/"
       }
+  },
+  "config": {
+    "allow-plugins": {
+      "symfony/runtime": true
+    }
   }
 }

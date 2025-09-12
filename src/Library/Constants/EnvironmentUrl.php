@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BlueSnap\Library\Constants;
+namespace solu1BluesnapPayment\Library\Constants;
 
 enum EnvironmentUrl: string
 {

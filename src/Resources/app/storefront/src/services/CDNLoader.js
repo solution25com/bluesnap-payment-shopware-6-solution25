@@ -6,7 +6,6 @@ export default class CDNLoader {
     const script = document.createElement('script');
     script.src = this.cdnUrl;
     script.onload = () => {
-      console.log('Script loaded successfully');
       if (callback) callback();
     };
     script.onerror = () => {
