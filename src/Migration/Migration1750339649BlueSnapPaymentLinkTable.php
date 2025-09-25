@@ -19,7 +19,7 @@ class Migration1750339649BlueSnapPaymentLinkTable extends MigrationStep
     public function update(Connection $connection): void
     {
         $query = <<<SQL
-        CREATE TABLE IF NOT EXISTS `solu1_bluesnap_payment_link` (
+        CREATE TABLE IF NOT EXISTS `bluesnap_payment_link` (
                 `id` BINARY(16) NOT NULL,
                 `order_id` VARCHAR(255) NOT NULL,
                 `link` LONGTEXT NOT NULL,
@@ -37,6 +37,6 @@ class Migration1750339649BlueSnapPaymentLinkTable extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeStatement('DROP TABLE IF EXISTS `solu1_bluesnap_payment_link`');
+        $connection->executeStatement('DROP TABLE IF EXISTS `bluesnap_payment_link`');
     }
 }

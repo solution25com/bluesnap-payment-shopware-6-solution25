@@ -14,9 +14,9 @@ class BlueSnapConfig
     public function getConfig(string $configName, string $salesChannelId = ''): mixed
     {
         if ($salesChannelId) {
-            return $this->systemConfigService->get('solu1BluesnapPayment.config.' . trim($configName), $salesChannelId);
+            return $this->systemConfigService->get('BlueSnap.config.' . trim($configName), $salesChannelId);
         }
-        return $this->systemConfigService->get('solu1BluesnapPayment.config.' . trim($configName));
+        return $this->systemConfigService->get('BlueSnap.config.' . trim($configName));
     }
 
     public function Level23DataConfigs($salesChannelId, $customerGroupId): bool

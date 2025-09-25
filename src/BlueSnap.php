@@ -141,9 +141,9 @@ class BlueSnap extends Plugin
         $connection->executeStatement(
             /** @lang text */
             'DROP TABLE IF EXISTS
-        `solu1_bluesnap_payment_link`,
-        `solu1_bluesnap_transaction`,
-        `solu1_bluesnap_vaulted_shopper`;'
+        `bluesnap_payment_link`,
+        `bluesnap_transaction`,
+        `bluesnap_vaulted_shopper`;'
         );
 
         // Delete migrations
@@ -151,7 +151,7 @@ class BlueSnap extends Plugin
             /** @lang text */
             'DELETE FROM `migration` WHERE `class` LIKE :blue_snap OR `class` LIKE :vaulted_shopper;',
             [
-              'blue_snap'       => '%solu1BluesnapPayment%',
+              'blue_snap'       => '%BlueSnap%',
               'vaulted_shopper' => '%VaultedShopper%',
             ]
         );

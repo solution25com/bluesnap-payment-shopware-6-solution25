@@ -182,7 +182,7 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
         } else {
           const result = await BlueSnapApi.googleCapture(body);
           if (result && result.success) {
-            document.getElementById('solu1-bluesnap-transaction-id').value = JSON.parse(result.message).transactionId;
+            document.getElementById('bluesnap-transaction-id').value = JSON.parse(result.message).transactionId;
             document.getElementById('confirmOrderForm').submit();
           }
         }

@@ -245,7 +245,7 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
         } else {
           const result = await BlueSnapApi.capture(body);
           if (result && result.success) {
-            document.getElementById('solu1-bluesnap-transaction-id').value = JSON.parse(result.message).transactionId;
+            document.getElementById('bluesnap-transaction-id').value = JSON.parse(result.message).transactionId;
             document.getElementById('confirmOrderForm').submit();
           } else {
             const message = result.message;
@@ -308,7 +308,7 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
           const result = await BlueSnapApi.vaultedShopper(body);
           if (result && result.success) {
             const message = JSON.parse(result.message);
-            document.getElementById('solu1-bluesnap-transaction-id').value = message.transactionId;
+            document.getElementById('bluesnap-transaction-id').value = message.transactionId;
             document.getElementById('confirmOrderForm').submit();
           }
 
@@ -344,7 +344,7 @@ export default class BluesnapCreditCardPlugin extends window.PluginBaseClass {
 
         if (result && result.success) {
           const message = JSON.parse(result.message);
-          document.getElementById('solu1-bluesnap-transaction-id').value = message.transactionId;
+          document.getElementById('bluesnap-transaction-id').value = message.transactionId;
           document.getElementById('confirmOrderForm').submit();
         }
       }

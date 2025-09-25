@@ -82,7 +82,7 @@ Shopware.Component.override('sw-order-detail-general', {
 
       const orderId = this.$route.params.id || this.order?.id;
 
-      const repository = this.repositoryFactory.create('solu1_bluesnap_transaction');
+      const repository = this.repositoryFactory.create('bluesnap_transaction');
       const criteria = new Criteria();
       criteria.addFilter(Criteria.equals('orderId', orderId));
 

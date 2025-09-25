@@ -20,7 +20,7 @@ class Migration1750339858BluesnapTransactionTable extends MigrationStep
     {
         $sql = /** @lang text */
             <<<SQL
-        CREATE TABLE IF NOT EXISTS `solu1_bluesnap_transaction` (
+        CREATE TABLE IF NOT EXISTS `bluesnap_transaction` (
             `id` BINARY(16) NOT NULL,
             `order_id` VARCHAR(255) NOT NULL,
             `payment_method_name` varchar(255),

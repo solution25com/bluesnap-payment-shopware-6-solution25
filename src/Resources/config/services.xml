@@ -76,12 +76,12 @@
     </service>
 
     <service id="BlueSnap\Service\VaultedShopperService">
-      <argument type="service" id="solu1_bluesnap_vaulted_shopper.repository"/> //check
+      <argument type="service" id="bluesnap_vaulted_shopper.repository"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
     <service id="BlueSnap\Service\BlueSnapTransactionService">
-      <argument type="service" id="solu1_bluesnap_transaction.repository"/>//check
+      <argument type="service" id="bluesnap_transaction.repository"/>
       <argument type="service" id="order.repository"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
@@ -95,7 +95,7 @@
     </service>
 
     <service id="BlueSnap\Service\PaymentLinkService" lazy="true">
-      <argument type="service" id="solu1_bluesnap_payment_link.repository"/> //check
+      <argument type="service" id="bluesnap_payment_link.repository"/>
       <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
       <argument type="service" id="BlueSnap\Service\BlueSnapConfig"/>
       <argument type="service" id="request_stack"/>
@@ -128,15 +128,15 @@
 
     <!-- Entity Definitions -->
     <service id="BlueSnap\Core\Content\PaymentLink\PaymentLinkDefinition">
-      <tag name="shopware.entity.definition" entity="solu1_bluesnap_payment_link"/>//check
+      <tag name="shopware.entity.definition" entity="bluesnap_payment_link"/>
     </service>
 
     <service id="BlueSnap\Core\Content\VaultedShopper\VaultedShopperDefinition">
-      <tag name="shopware.entity.definition" entity="solu1_bluesnap_vaulted_shopper"/>//check
+      <tag name="shopware.entity.definition" entity="bluesnap_vaulted_shopper"/>
     </service>
 
     <service id="BlueSnap\Core\Content\Transaction\BluesnapTransactionDefinition">
-      <tag name="shopware.entity.definition" entity="solu1_bluesnap_payment_link"/>
+      <tag name="shopware.entity.definition" entity="bluesnap_payment_link"/>
     </service>
 
     <service id="BlueSnap\Extension\Order\OrderExtension">

@@ -71,7 +71,7 @@ class OrderPaymentStatusChangeSubscriber implements EventSubscriberInterface
 
     $handlerIdentifier = $paymentMethod->getHandlerIdentifier();
 
-    if (!str_starts_with($handlerIdentifier, 'solu1BluesnapPayment\\Gateways\\')) {
+    if (!str_starts_with($handlerIdentifier, 'BlueSnap\\Gateways\\')) {
       return;
     }
 

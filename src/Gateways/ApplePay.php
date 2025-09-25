@@ -127,7 +127,7 @@ class ApplePay extends AbstractPaymentHandler
 
   private function paymentFirstFlow(Request $request, PaymentTransactionStruct $transaction, OrderTransactionEntity $orderTransaction, string $handlerMethodName, string $transactionStatus, Context $context): void
   {
-    $bluesnapTransactionId = $request->request->get('solu1_bluesnap_transaction_id');
+    $bluesnapTransactionId = $request->request->get('bluesnap_transaction_id');
     $orderId = $orderTransaction->getOrder()->getId();
     $this->transactionStateHandler->{$handlerMethodName}($transaction->getOrderTransactionId(), $context);
     $this->blueSnapTransactionService->addTransaction($orderId, $orderTransaction->getPaymentMethod()->getName(), $bluesnapTransactionId, $transactionStatus, $context);

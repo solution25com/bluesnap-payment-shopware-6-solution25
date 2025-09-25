@@ -12,7 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 
 class PaymentLinkDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'solu1_bluesnap_payment_link';
+    public const ENTITY_NAME = 'bluesnap_payment_link';
 
     public function getEntityName(): string
     {

@@ -18,7 +18,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 
 class VaultedShopperDefinition extends EntityDefinition
 {
-    public const ENTITY_NAME = 'solu1_bluesnap_vaulted_shopper';
+    public const ENTITY_NAME = 'bluesnap_vaulted_shopper';
 
     public function getEntityName(): string
     {

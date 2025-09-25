@@ -20,7 +20,7 @@ class Migration1750339398VaultedShopper extends MigrationStep
     {
         $sql = /** @lang text */
             <<<SQL
-        CREATE TABLE IF NOT EXISTS `solu1_bluesnap_vaulted_shopper` (
+        CREATE TABLE IF NOT EXISTS `bluesnap_vaulted_shopper` (
             `id` BINARY(16) NOT NULL,
             `customer_id` Binary(16) NOT NULL,
             `vaulted_shopper_id` VARCHAR(255) NOT NULL,
@@ -28,7 +28,7 @@ class Migration1750339398VaultedShopper extends MigrationStep
             `created_at` DATETIME(3),
             `updated_at` DATETIME(3) DEFAULT NULL,
             PRIMARY KEY (`id`),
-            CONSTRAINT `fk.solu1_bluesnap_vaulted_shopper.customer_id` FOREIGN KEY (`customer_id`)
+            CONSTRAINT `fk.bluesnap_vaulted_shopper.customer_id` FOREIGN KEY (`customer_id`)
             REFERENCES `customer` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
         )
             ENGINE = InnoDB

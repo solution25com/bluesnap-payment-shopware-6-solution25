@@ -9,7 +9,7 @@
 
     <span class="icon icon-{{ name }}{% for entry in styles %}{% if entry != "" %} icon-{{ entry }}{% endif %}{% endfor %}">
         {% if pack == 'customsvg' %}
-            {{ source('@solu1BluesnapPayment/assets/icon/default/' ~ name ~ '.svg', ignore_missing = true) }}
+            {{ source('@BlueSnap/assets/icon/default/' ~ name ~ '.svg', ignore_missing = true) }}
         {% else %}
             {{ source('@Storefront/assets/icon/' ~ pack ~ '/' ~ name ~ '.svg', ignore_missing = true) }}
         {% endif %}

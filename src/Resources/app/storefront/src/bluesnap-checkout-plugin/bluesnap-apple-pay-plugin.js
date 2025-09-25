@@ -21,7 +21,7 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
       currencyCode: 'USD',
       supportedNetworks: ['visa', 'masterCard', 'amex', 'discover'],
       merchantCapabilities: ['supports3DS'],
-      total: {label: 'solu1BluesnapPayment', amount: this.totalPrice},
+      total: {label: 'BlueSnap', amount: this.totalPrice},
     };
     const session = new ApplePaySession(14, request);
 
@@ -30,7 +30,7 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
       const body = {
         "validationUrl": validationURL,
         "domainName": this.domain,
-        "displayName": "solu1BluesnapPayment"
+        "displayName": "BlueSnap"
       }
 
       const result = await BlueSnapApi.appleCreateWallet(body)
@@ -59,7 +59,7 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
         const captureResult = await BlueSnapApi.appleCapture(body)
 
         if(captureResult && captureResult.success) {
-          document.getElementById('solu1-bluesnap-transaction-id').value = JSON.parse(captureResult.message).transactionId;
+          document.getElementById('bluesnap-transaction-id').value = JSON.parse(captureResult.message).transactionId;
           document.getElementById('confirmOrderForm').submit()
         }
       }
