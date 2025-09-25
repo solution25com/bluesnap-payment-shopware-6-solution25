@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace solu1BluesnapPayment\Library\Constants;
+namespace BlueSnap\Library\Constants;
 
 enum TransactionStatuses: string
 {

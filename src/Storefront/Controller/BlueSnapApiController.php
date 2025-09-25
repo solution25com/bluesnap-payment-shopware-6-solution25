@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace solu1BluesnapPayment\Storefront\Controller;
+namespace BlueSnap\Storefront\Controller;
 
-use solu1BluesnapPayment\Core\Content\BlueSnap\SalesChannel\BlueSnapApiResponse;
-use solu1BluesnapPayment\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute;
+use BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapApiResponse;
+use BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute;
 use Shopware\Core\Framework\Context;
 use Shopware\Storefront\Controller\StorefrontController;
 use Symfony\Component\HttpFoundation\Request;

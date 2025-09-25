@@ -1,8 +1,8 @@
 <?php
 
-namespace solu1BluesnapPayment\Core\Content\BlueSnap;
+namespace BlueSnap\Core\Content\BlueSnap;
 
-use solu1BluesnapPayment\Core\Content\BlueSnap\SalesChannel\BlueSnapApiResponse;
+use BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapApiResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;

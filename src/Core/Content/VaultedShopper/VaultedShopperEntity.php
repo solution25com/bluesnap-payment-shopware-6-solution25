@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace solu1BluesnapPayment\Core\Content\VaultedShopper;
+namespace BlueSnap\Core\Content\VaultedShopper;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;

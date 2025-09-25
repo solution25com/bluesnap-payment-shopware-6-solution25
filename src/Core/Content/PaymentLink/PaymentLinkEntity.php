@@ -1,6 +1,6 @@
 <?php
 
-namespace solu1BluesnapPayment\Core\Content\PaymentLink;
+namespace BlueSnap\Core\Content\PaymentLink;
 
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;

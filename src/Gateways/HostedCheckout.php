@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace solu1BluesnapPayment\Gateways;
+namespace BlueSnap\Gateways;
 
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
@@ -11,10 +11,10 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Struct\Struct;
-use solu1BluesnapPayment\Library\Constants\TransactionStatuses;
-use solu1BluesnapPayment\Service\BlueSnapTransactionService;
-use solu1BluesnapPayment\Service\OrderService;
-use solu1BluesnapPayment\Service\PaymentLinkService;
+use BlueSnap\Library\Constants\TransactionStatuses;
+use BlueSnap\Service\BlueSnapTransactionService;
+use BlueSnap\Service\OrderService;
+use BlueSnap\Service\PaymentLinkService;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;

@@ -1,6 +1,6 @@
 <?php
 
-namespace solu1BluesnapPayment\Exceptions;
+namespace BlueSnap\Exceptions;
 
 use Exception;
 

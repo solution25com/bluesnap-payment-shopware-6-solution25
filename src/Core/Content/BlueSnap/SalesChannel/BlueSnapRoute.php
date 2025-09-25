@@ -1,18 +1,18 @@
 <?php
 
-namespace solu1BluesnapPayment\Core\Content\BlueSnap\SalesChannel;
+namespace BlueSnap\Core\Content\BlueSnap\SalesChannel;
 
-use solu1BluesnapPayment\Core\Content\BlueSnap\AbstractBlueSnapRoute;
-use solu1BluesnapPayment\Core\Content\BlueSnap\BlueSnapApiResponseStruct;
-use solu1BluesnapPayment\Library\Constants\TransactionStatuses;
-use solu1BluesnapPayment\Library\ValidatorUtility;
-use solu1BluesnapPayment\Service\BlueSnapApiClient;
-use solu1BluesnapPayment\Service\BlueSnapConfig;
-use solu1BluesnapPayment\Service\BlueSnapTransactionService;
-use solu1BluesnapPayment\Service\OrderService;
-use solu1BluesnapPayment\Service\PaymentLinkService;
-use solu1BluesnapPayment\Service\RefundService;
-use solu1BluesnapPayment\Service\VaultedShopperService;
+use BlueSnap\Core\Content\BlueSnap\AbstractBlueSnapRoute;
+use BlueSnap\Core\Content\BlueSnap\BlueSnapApiResponseStruct;
+use BlueSnap\Library\Constants\TransactionStatuses;
+use BlueSnap\Library\ValidatorUtility;
+use BlueSnap\Service\BlueSnapApiClient;
+use BlueSnap\Service\BlueSnapConfig;
+use BlueSnap\Service\BlueSnapTransactionService;
+use BlueSnap\Service\OrderService;
+use BlueSnap\Service\PaymentLinkService;
+use BlueSnap\Service\RefundService;
+use BlueSnap\Service\VaultedShopperService;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Framework\Context;

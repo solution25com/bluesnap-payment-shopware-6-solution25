@@ -1,10 +1,10 @@
 <?php
 
-namespace solu1BluesnapPayment\Service;
+namespace BlueSnap\Service;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
-use solu1BluesnapPayment\Library\Constants\EnvironmentUrl;
+use BlueSnap\Library\Constants\EnvironmentUrl;
 use Shopware\Core\Content\Mail\Service\AbstractMailService;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;

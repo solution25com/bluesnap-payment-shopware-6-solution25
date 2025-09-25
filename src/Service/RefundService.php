@@ -1,8 +1,8 @@
 <?php
 
-namespace solu1BluesnapPayment\Service;
+namespace BlueSnap\Service;
 
-use solu1BluesnapPayment\Library\Constants\TransactionStatuses;
+use BlueSnap\Library\Constants\TransactionStatuses;
 use Psr\Log\LoggerInterface;
 use Shopware\Commercial\ReturnManagement\Domain\StateHandler\PositionStateHandler;
 use Shopware\Commercial\ReturnManagement\Entity\OrderReturn\OrderReturnDefinition;

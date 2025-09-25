@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace solu1BluesnapPayment\Migration;
+namespace BlueSnap\Migration;
 
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Log\Package;

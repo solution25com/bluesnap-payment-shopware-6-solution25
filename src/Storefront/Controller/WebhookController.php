@@ -2,14 +2,14 @@
 
 declare(strict_types=1);
 
-namespace solu1BluesnapPayment\Storefront\Controller;
+namespace BlueSnap\Storefront\Controller;
 
-use solu1BluesnapPayment\Gateways\HostedCheckout;
-use solu1BluesnapPayment\Gateways\LinkPayment;
-use solu1BluesnapPayment\Library\Constants\TransactionStatuses;
-use solu1BluesnapPayment\Service\BlueSnapConfig;
-use solu1BluesnapPayment\Service\BlueSnapTransactionService;
-use solu1BluesnapPayment\Service\OrderService;
+use BlueSnap\Gateways\HostedCheckout;
+use BlueSnap\Gateways\LinkPayment;
+use BlueSnap\Library\Constants\TransactionStatuses;
+use BlueSnap\Service\BlueSnapConfig;
+use BlueSnap\Service\BlueSnapTransactionService;
+use BlueSnap\Service\OrderService;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\JsonResponse;

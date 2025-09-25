@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace solu1BluesnapPayment;
+namespace BlueSnap;
 
-use solu1BluesnapPayment\PaymentMethods\PaymentMethodInterface;
-use solu1BluesnapPayment\PaymentMethods\PaymentMethods;
+use BlueSnap\PaymentMethods\PaymentMethodInterface;
+use BlueSnap\PaymentMethods\PaymentMethods;
 use Doctrine\DBAL\Connection;
 use Shopware\Core\Framework\Plugin;
 use Shopware\Core\Framework\Context;
@@ -17,7 +17,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Plugin\Util\PluginIdProvider;
 
-class solu1BluesnapPayment extends Plugin
+class BlueSnap extends Plugin
 {
     public function install(InstallContext $installContext): void
     {

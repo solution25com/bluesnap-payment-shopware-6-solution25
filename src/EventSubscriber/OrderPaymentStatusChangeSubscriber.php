@@ -1,6 +1,6 @@
 <?php
 
-namespace solu1BluesnapPayment\EventSubscriber;
+namespace BlueSnap\EventSubscriber;
 
 
 use Psr\Log\LoggerInterface;
@@ -10,9 +10,9 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\System\StateMachine\Event\StateMachineTransitionEvent;
 use Shopware\Core\System\StateMachine\StateMachineException;
-use solu1BluesnapPayment\Library\Constants\TransactionStatuses;
-use solu1BluesnapPayment\Service\BlueSnapApiClient;
-use solu1BluesnapPayment\Service\BlueSnapTransactionService;
+use BlueSnap\Library\Constants\TransactionStatuses;
+use BlueSnap\Service\BlueSnapApiClient;
+use BlueSnap\Service\BlueSnapTransactionService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
 class OrderPaymentStatusChangeSubscriber implements EventSubscriberInterface

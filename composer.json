@@ -14,7 +14,7 @@
       "shopware/core": "^6.6 || ^6.7"
   },
   "extra": {
-      "shopware-plugin-class": "solu1BluesnapPayment\\solu1BluesnapPayment",
+      "shopware-plugin-class": "BlueSnap\\BlueSnap",
       "label": {
           "de-DE": "BlueSnap payment method for Shopware 6",
           "en-GB": "BlueSnap payment method for Shopware 6"
@@ -22,12 +22,12 @@
   },
   "autoload": {
       "psr-4": {
-          "solu1BluesnapPayment\\": "src/"
+          "BlueSnap\\": "src/"
       }
   },
   "autoload-dev": {
       "psr-4": {
-          "solu1BluesnapPayment\\Tests\\": "tests/"
+          "BlueSnap\\Tests\\": "tests/"
       }
   },
   "config": {

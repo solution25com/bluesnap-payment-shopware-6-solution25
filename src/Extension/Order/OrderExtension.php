@@ -1,8 +1,8 @@
 <?php
 
-namespace solu1BluesnapPayment\Extension\Order;
+namespace BlueSnap\Extension\Order;
 
-use solu1BluesnapPayment\Core\Content\Transaction\BluesnapTransactionDefinition;
+use BlueSnap\Core\Content\Transaction\BluesnapTransactionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityExtension;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\OneToManyAssociationField;

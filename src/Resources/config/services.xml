@@ -5,51 +5,51 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
   <services>
     <!-- Gateways -->
-    <service id="solu1BluesnapPayment\Gateways\LinkPayment">
+    <service id="BlueSnap\Gateways\LinkPayment">
       <tag name="shopware.payment.method"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Gateways\HostedCheckout">
-      <argument type="service" id="solu1BluesnapPayment\Service\OrderService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\PaymentLinkService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapTransactionService"/>
+    <service id="BlueSnap\Gateways\HostedCheckout">
+      <argument type="service" id="BlueSnap\Service\OrderService"/>
+      <argument type="service" id="BlueSnap\Service\PaymentLinkService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
       <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler" />
       <argument type="service" id="Bluesnap.logger"/>
       <tag name="shopware.payment.method"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Gateways\CreditCard">
+    <service id="BlueSnap\Gateways\CreditCard">
       <argument type="service"
                 id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapTransactionService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapApiClient"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\VaultedShopperService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapConfig"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\OrderService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
+      <argument type="service" id="BlueSnap\Service\VaultedShopperService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapConfig"/>
+      <argument type="service" id="BlueSnap\Service\OrderService"/>
       <argument type="service" id="Bluesnap.logger"/>
 
       <tag name="shopware.payment.method"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Gateways\GooglePay">
+    <service id="BlueSnap\Gateways\GooglePay">
       <argument type="service"
                 id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapTransactionService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapApiClient"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapConfig"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\OrderService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapConfig"/>
+      <argument type="service" id="BlueSnap\Service\OrderService"/>
       <argument type="service" id="Bluesnap.logger"/>
 
       <tag name="shopware.payment.method"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Gateways\ApplePay">
+    <service id="BlueSnap\Gateways\ApplePay">
       <argument type="service"
                 id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapTransactionService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapConfig"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\OrderService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapApiClient"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapConfig"/>
+      <argument type="service" id="BlueSnap\Service\OrderService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
       <argument type="service" id="Bluesnap.logger"/>
 
       <tag name="shopware.payment.method"/>
@@ -58,35 +58,35 @@
 
     <!-- Services -->
 
-    <service id="solu1BluesnapPayment\Storefront\Controller\TestApiConnectionController" public="true">
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapApiClient"/>
+    <service id="BlueSnap\Storefront\Controller\TestApiConnectionController" public="true">
+      <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
       <call method="setContainer">
         <argument type="service" id="service_container"/>
       </call>
     </service>
 
-    <service id="solu1BluesnapPayment\Service\BlueSnapConfig">
+    <service id="BlueSnap\Service\BlueSnapConfig">
       <argument id="Shopware\Core\System\SystemConfig\SystemConfigService" type="service"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Service\BlueSnapApiClient">
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapConfig"/>
+    <service id="BlueSnap\Service\BlueSnapApiClient">
+      <argument type="service" id="BlueSnap\Service\BlueSnapConfig"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Service\VaultedShopperService">
-      <argument type="service" id="solu1_bluesnap_vaulted_shopper.repository"/>
+    <service id="BlueSnap\Service\VaultedShopperService">
+      <argument type="service" id="solu1_bluesnap_vaulted_shopper.repository"/> //check
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Service\BlueSnapTransactionService">
-      <argument type="service" id="solu1_bluesnap_transaction.repository"/>
+    <service id="BlueSnap\Service\BlueSnapTransactionService">
+      <argument type="service" id="solu1_bluesnap_transaction.repository"/>//check
       <argument type="service" id="order.repository"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Service\OrderService">
+    <service id="BlueSnap\Service\OrderService">
       <argument type="service" id="order.repository"/>
       <argument type="service" id="order_transaction.repository"/>
       <argument type="service" id="product.repository"/>
@@ -94,67 +94,67 @@
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Service\PaymentLinkService" lazy="true">
-      <argument type="service" id="solu1_bluesnap_payment_link.repository"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapApiClient"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapConfig"/>
+    <service id="BlueSnap\Service\PaymentLinkService" lazy="true">
+      <argument type="service" id="solu1_bluesnap_payment_link.repository"/> //check
+      <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapConfig"/>
       <argument type="service" id="request_stack"/>
       <argument type="service" id="Shopware\Core\Content\Mail\Service\MailService"/>
       <argument type="service" id="mail_template.repository"/>
       <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
       <argument type="service" id="order.repository"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\OrderService"/>
+      <argument type="service" id="BlueSnap\Service\OrderService"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Service\RefundService">
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapTransactionService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapApiClient"/>
+    <service id="BlueSnap\Service\RefundService">
+      <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
       <argument type="service" id="order_return.repository" on-invalid="null"/>
       <argument type="service"
                 id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
       <argument type="service" id="Shopware\Core\System\StateMachine\StateMachineRegistry"/>
       <argument type="service" id="Shopware\Commercial\ReturnManagement\Domain\StateHandler\PositionStateHandler"
                 on-invalid="null"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\OrderService"/>
+      <argument type="service" id="BlueSnap\Service\OrderService"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Library\ValidatorUtility">
+    <service id="BlueSnap\Library\ValidatorUtility">
       <argument type="service" id="validator"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
     <!-- End Services -->
 
     <!-- Entity Definitions -->
-    <service id="solu1BluesnapPayment\Core\Content\PaymentLink\PaymentLinkDefinition">
+    <service id="BlueSnap\Core\Content\PaymentLink\PaymentLinkDefinition">
+      <tag name="shopware.entity.definition" entity="solu1_bluesnap_payment_link"/>//check
+    </service>
+
+    <service id="BlueSnap\Core\Content\VaultedShopper\VaultedShopperDefinition">
+      <tag name="shopware.entity.definition" entity="solu1_bluesnap_vaulted_shopper"/>//check
+    </service>
+
+    <service id="BlueSnap\Core\Content\Transaction\BluesnapTransactionDefinition">
       <tag name="shopware.entity.definition" entity="solu1_bluesnap_payment_link"/>
     </service>
 
-    <service id="solu1BluesnapPayment\Core\Content\VaultedShopper\VaultedShopperDefinition">
-      <tag name="shopware.entity.definition" entity="solu1_bluesnap_vaulted_shopper"/>
-    </service>
-
-    <service id="solu1BluesnapPayment\Core\Content\Transaction\BluesnapTransactionDefinition">
-      <tag name="shopware.entity.definition" entity="solu1_bluesnap_payment_link"/>
-    </service>
-
-    <service id="solu1BluesnapPayment\Extension\Order\OrderExtension">
+    <service id="BlueSnap\Extension\Order\OrderExtension">
       <tag name="shopware.entity.extension"/>
     </service>
 
     <!-- End Entity Definitions -->
 
     <!-- Store Api Routes -->
-    <service id="solu1BluesnapPayment\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute" public="true">
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapApiClient"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapConfig"/>
-      <argument type="service" id="solu1BluesnapPayment\Library\ValidatorUtility"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\VaultedShopperService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\OrderService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\PaymentLinkService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapTransactionService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\RefundService"/>
+    <service id="BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute" public="true">
+      <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapConfig"/>
+      <argument type="service" id="BlueSnap\Library\ValidatorUtility"/>
+      <argument type="service" id="BlueSnap\Service\VaultedShopperService"/>
+      <argument type="service" id="BlueSnap\Service\OrderService"/>
+      <argument type="service" id="BlueSnap\Service\PaymentLinkService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
+      <argument type="service" id="BlueSnap\Service\RefundService"/>
       <argument type="service"
                 id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
       <argument type="service" id="Bluesnap.logger"/>
@@ -162,28 +162,28 @@
     <!-- End Store Api Routes -->
 
     <!-- Storefront Controllers -->
-    <service id="solu1BluesnapPayment\Storefront\Controller\BlueSnapController" public="true">
-      <argument type="service" id="solu1BluesnapPayment\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\OrderService" />
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapConfig" />
+    <service id="BlueSnap\Storefront\Controller\BlueSnapController" public="true">
+      <argument type="service" id="BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute"/>
+      <argument type="service" id="BlueSnap\Service\OrderService" />
+      <argument type="service" id="BlueSnap\Service\BlueSnapConfig" />
       <call method="setContainer">
         <argument type="service" id="service_container"/>
       </call>
     </service>
 
-    <service id="solu1BluesnapPayment\Storefront\Controller\BlueSnapApiController" public="true">
-      <argument type="service" id="solu1BluesnapPayment\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute"/>
+    <service id="BlueSnap\Storefront\Controller\BlueSnapApiController" public="true">
+      <argument type="service" id="BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute"/>
       <call method="setContainer">
         <argument type="service" id="service_container"/>
       </call>
     </service>
 
-    <service id="solu1BluesnapPayment\Storefront\Controller\WebhookController" public="true">
-      <argument type="service" id="solu1BluesnapPayment\Service\OrderService"/>
+    <service id="BlueSnap\Storefront\Controller\WebhookController" public="true">
+      <argument type="service" id="BlueSnap\Service\OrderService"/>
       <argument type="service"
                 id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapTransactionService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapConfig"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapConfig"/>
 
       <argument type="service" id="Bluesnap.logger"/>
     </service>
@@ -204,18 +204,18 @@
     <!-- End Logger -->
 
     <!-- Event Subscribers -->
-    <service id="solu1BluesnapPayment\EventSubscriber\CheckoutConfirmEventSubscriber">
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapApiClient"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapConfig"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\VaultedShopperService"/>
+    <service id="BlueSnap\EventSubscriber\CheckoutConfirmEventSubscriber">
+      <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapConfig"/>
+      <argument type="service" id="BlueSnap\Service\VaultedShopperService"/>
 
       <tag name="kernel.event_subscriber"/>
     </service>
 
-    <service id="solu1BluesnapPayment\EventSubscriber\OrderPaymentLinkSubscriber">
-      <argument type="service" id="solu1BluesnapPayment\Service\OrderService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\PaymentLinkService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapTransactionService"/>
+    <service id="BlueSnap\EventSubscriber\OrderPaymentLinkSubscriber">
+      <argument type="service" id="BlueSnap\Service\OrderService"/>
+      <argument type="service" id="BlueSnap\Service\PaymentLinkService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
       <argument type="service" id="Symfony\Component\EventDispatcher\EventDispatcherInterface"/>
 
       <argument type="service" id="Bluesnap.logger"/>
@@ -223,9 +223,9 @@
       <tag name="kernel.event_subscriber"/>
     </service>
 
-    <service id="solu1BluesnapPayment\EventSubscriber\OrderPaymentStatusChangeSubscriber">
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapTransactionService"/>
-      <argument type="service" id="solu1BluesnapPayment\Service\BlueSnapApiClient"/>
+    <service id="BlueSnap\EventSubscriber\OrderPaymentStatusChangeSubscriber">
+      <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapApiClient"/>
       <argument type="service" id="order.repository"/>
       <argument type="service" id="order_transaction.repository"/>
       <argument type="service" id="Bluesnap.logger"/>

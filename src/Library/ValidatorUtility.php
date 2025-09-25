@@ -1,6 +1,6 @@
 <?php
 
-namespace solu1BluesnapPayment\Library;
+namespace BlueSnap\Library;
 
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 

@@ -1,16 +1,16 @@
 <?php
 
-namespace solu1BluesnapPayment\EventSubscriber;
+namespace BlueSnap\EventSubscriber;
 
-use solu1BluesnapPayment\Gateways\ApplePay;
-use solu1BluesnapPayment\Gateways\CreditCard;
-use solu1BluesnapPayment\Gateways\GooglePay;
-use solu1BluesnapPayment\Gateways\LinkPayment;
-use solu1BluesnapPayment\Library\Constants\EnvironmentUrl;
-use solu1BluesnapPayment\Service\BlueSnapApiClient;
-use solu1BluesnapPayment\Service\BlueSnapConfig;
-use solu1BluesnapPayment\Service\VaultedShopperService;
-use solu1BluesnapPayment\Storefront\Struct\CheckoutTemplateCustomData;
+use BlueSnap\Gateways\ApplePay;
+use BlueSnap\Gateways\CreditCard;
+use BlueSnap\Gateways\GooglePay;
+use BlueSnap\Gateways\LinkPayment;
+use BlueSnap\Library\Constants\EnvironmentUrl;
+use BlueSnap\Service\BlueSnapApiClient;
+use BlueSnap\Service\BlueSnapConfig;
+use BlueSnap\Service\VaultedShopperService;
+use BlueSnap\Storefront\Struct\CheckoutTemplateCustomData;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Shopware\Storefront\Page\Checkout\Confirm\CheckoutConfirmPageLoadedEvent;

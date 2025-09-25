@@ -1,12 +1,12 @@
 <?php
 
-namespace solu1BluesnapPayment\EventSubscriber;
+namespace BlueSnap\EventSubscriber;
 
-use solu1BluesnapPayment\Gateways\LinkPayment;
-use solu1BluesnapPayment\Library\Constants\TransactionStatuses;
-use solu1BluesnapPayment\Service\BlueSnapTransactionService;
-use solu1BluesnapPayment\Service\OrderService;
-use solu1BluesnapPayment\Service\PaymentLinkService;
+use BlueSnap\Gateways\LinkPayment;
+use BlueSnap\Library\Constants\TransactionStatuses;
+use BlueSnap\Service\BlueSnapTransactionService;
+use BlueSnap\Service\OrderService;
+use BlueSnap\Service\PaymentLinkService;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\OrderEvents;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityWrittenEvent;

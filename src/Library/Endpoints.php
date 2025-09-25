@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace solu1BluesnapPayment\Library;
+namespace BlueSnap\Library;
 
 abstract class Endpoints
 {

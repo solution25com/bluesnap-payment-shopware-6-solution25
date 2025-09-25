@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-namespace solu1BluesnapPayment\Service;
+namespace BlueSnap\Service;
 
-use solu1BluesnapPayment\Exceptions\AppleWalletCaptureException;
-use solu1BluesnapPayment\Exceptions\BaseException;
-use solu1BluesnapPayment\Exceptions\BlueSnapTokenRequestException;
-use solu1BluesnapPayment\Exceptions\CreditCardCaptureRequestException;
-use solu1BluesnapPayment\Exceptions\HostedCheckoutException;
-use solu1BluesnapPayment\Exceptions\RefundException;
-use solu1BluesnapPayment\Exceptions\UpdateVaultedShopperException;
-use solu1BluesnapPayment\Exceptions\VaultedShopperException;
-use solu1BluesnapPayment\Library\Constants\EnvironmentUrl;
-use solu1BluesnapPayment\Library\Endpoints;
+use BlueSnap\Exceptions\AppleWalletCaptureException;
+use BlueSnap\Exceptions\BaseException;
+use BlueSnap\Exceptions\BlueSnapTokenRequestException;
+use BlueSnap\Exceptions\CreditCardCaptureRequestException;
+use BlueSnap\Exceptions\HostedCheckoutException;
+use BlueSnap\Exceptions\RefundException;
+use BlueSnap\Exceptions\UpdateVaultedShopperException;
+use BlueSnap\Exceptions\VaultedShopperException;
+use BlueSnap\Library\Constants\EnvironmentUrl;
+use BlueSnap\Library\Endpoints;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\ResponseInterface;

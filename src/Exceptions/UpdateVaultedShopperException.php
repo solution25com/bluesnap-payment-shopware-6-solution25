@@ -1,8 +1,8 @@
 <?php
 
-namespace solu1BluesnapPayment\Exceptions;
+namespace BlueSnap\Exceptions;
 
-use solu1BluesnapPayment\Exceptions\BaseException;
+use BlueSnap\Exceptions\BaseException;
 use Exception;
 
 class UpdateVaultedShopperException extends BaseException

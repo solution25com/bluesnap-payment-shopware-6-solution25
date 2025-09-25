@@ -1,6 +1,6 @@
 <?php
 
-namespace solu1BluesnapPayment\Service;
+namespace BlueSnap\Service;
 
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;

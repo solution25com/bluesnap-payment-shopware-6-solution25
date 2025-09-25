@@ -1,6 +1,6 @@
 <?php
 
-namespace solu1BluesnapPayment\Service;
+namespace BlueSnap\Service;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;

@@ -1,8 +1,8 @@
 <?php
 
-namespace solu1BluesnapPayment\Service;
+namespace BlueSnap\Service;
 
-use solu1BluesnapPayment\Core\Content\Transaction\BluesnapTransactionEntity;
+use BlueSnap\Core\Content\Transaction\BluesnapTransactionEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;

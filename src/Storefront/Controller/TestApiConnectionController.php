@@ -1,8 +1,8 @@
 <?php declare(strict_types=1);
 
-namespace solu1BluesnapPayment\Storefront\Controller;
+namespace BlueSnap\Storefront\Controller;
 
-use solu1BluesnapPayment\Service\BlueSnapApiClient;
+use BlueSnap\Service\BlueSnapApiClient;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;

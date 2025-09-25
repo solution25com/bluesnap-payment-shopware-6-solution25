@@ -1,6 +1,6 @@
 <?php
 
-namespace solu1BluesnapPayment\Gateways;
+namespace BlueSnap\Gateways;
 
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;

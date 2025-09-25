@@ -1,6 +1,6 @@
 <?php
 
-namespace solu1BluesnapPayment\Service;
+namespace BlueSnap\Service;
 
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 

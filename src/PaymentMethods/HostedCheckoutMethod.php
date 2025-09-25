@@ -1,8 +1,8 @@
 <?php
 
-namespace solu1BluesnapPayment\PaymentMethods;
+namespace BlueSnap\PaymentMethods;
 
-use solu1BluesnapPayment\Gateways\HostedCheckout;
+use BlueSnap\Gateways\HostedCheckout;
 
 class HostedCheckoutMethod implements PaymentMethodInterface
 {

@@ -63,8 +63,8 @@
             {% endblock %}
           </label>
 
-          {% if payment.formattedHandlerIdentifier == "handler_solu1bluesnappayment_creditcard"
-            and context.paymentMethod.formattedHandlerIdentifier == "handler_solu1bluesnappayment_creditcard"
+          {% if payment.formattedHandlerIdentifier == "handler_bluesnap_creditcard"
+            and context.paymentMethod.formattedHandlerIdentifier == "handler_bluesnap_creditcard"
             and page.extensions.bluesnap is defined
             and page.extensions.bluesnap.template is defined
             and page.extensions.bluesnap.template %}
