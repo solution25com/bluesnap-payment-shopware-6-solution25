@@ -2,6 +2,9 @@
 
 namespace BlueSnap\Core\Content\BlueSnap\SalesChannel;
 
+use BlueSnap\PaymentMethods\PaymentMethods;
+use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute;
+use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRouteResponse;
 use BlueSnap\Core\Content\BlueSnap\AbstractBlueSnapRoute;
 use BlueSnap\Core\Content\BlueSnap\BlueSnapApiResponseStruct;
 use BlueSnap\Library\Constants\TransactionStatuses;
@@ -35,6 +38,8 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   private RefundService $refundService;
 
   private OrderTransactionStateHandler $transactionStateHandler;
+
+  private HandlePaymentMethodRoute $handlePaymentMethodRoute;
   private LoggerInterface $logger;
 
   public function __construct(
@@ -47,6 +52,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     BlueSnapTransactionService   $blueSnapTransactionService,
     RefundService                $refundService,
     OrderTransactionStateHandler $transactionStateHandler,
+    HandlePaymentMethodRoute     $handlePaymentMethodRoute,
     LoggerInterface              $logger
   )
   {
@@ -59,6 +65,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     $this->blueSnapTransactionService = $blueSnapTransactionService;
     $this->refundService = $refundService;
     $this->transactionStateHandler = $transactionStateHandler;
+    $this->handlePaymentMethodRoute = $handlePaymentMethodRoute;
     $this->logger = $logger;
   }
 
@@ -505,9 +512,25 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   }
 
   #[Route(path: '/store-api/handle-payment', name: 'store-api.payment.handle', methods: ['GET', 'POST'])]
-  public function handlePayment(Request $request, SalesChannelContext $context): BlueSnapApiResponse
+  public function handlePayment(Request $request, SalesChannelContext $context): BlueSnapApiResponse|HandlePaymentMethodRouteResponse
   {
     $data = $request->request->all();
+
+    $order = $this->orderService->getOrderDetailsById($data['orderId'], $context->getContext());
+    if ($order) {
+      $orderTransaction = $order->getTransactions()->first();
+      $paymentMethod = $orderTransaction->getPaymentMethod();
+
+      $bluesnapPaymentMethods = new PaymentMethods();
+      $handlers = [];
+      foreach ($bluesnapPaymentMethods::PAYMENT_METHODS as $method) {
+        $method = new $method;
+        $handlers[] = $method->getPaymentHandler();
+      }
+      if (!in_array($paymentMethod->getHandlerIdentifier(), $handlers)) {
+        return $this->handlePaymentMethodRoute->load($request, $context);
+      }
+    }
 
     $constraints = new Assert\Collection([
       'orderId' => [new Assert\NotBlank(), new Assert\Type('string')],
@@ -551,6 +574,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
 
     return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, 'Payment link sent!'));
   }
+
   #[Route(path: '/store-api/bluesnap/test-connection', name: 'store-api.bluesnap.testConnection', methods: ['POST'])]
   public function testConnection(Request $request, Context $context): BlueSnapApiResponse
   {

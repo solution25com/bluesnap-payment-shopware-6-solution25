@@ -1,7 +1,7 @@
 {% block solu1_bluesnap_apple_pay %}
   <div id="bluesnap-apple-pay" data-bluesnap-apple-pay="true"
        data-merchant-id="{{ page.extensions.bluesnap.merchantId }}"
-       data-pf-token="{{ page.extensions.bluesnap.pfToken }}"
+       data-pf-token="{{ page.extensions.bluesnap.pfToken is iterable ? '' : page.extensions.bluesnap.pfToken }}"
        data-total-price="{{ page.cart.price.totalPrice }}"
        data-domain-name="{{ app.request.host }}"
        data-flow="{{ page.extensions.bluesnap.flow }}"

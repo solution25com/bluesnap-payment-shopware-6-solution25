@@ -157,6 +157,7 @@
       <argument type="service" id="BlueSnap\Service\RefundService"/>
       <argument type="service"
                 id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
+      <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute" />
       <argument type="service" id="Bluesnap.logger"/>
     </service>
     <!-- End Store Api Routes -->

@@ -6,6 +6,7 @@ use BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapApiResponse;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
+use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRouteResponse;
 
 abstract class AbstractBlueSnapRoute
 {
@@ -33,7 +34,7 @@ abstract class AbstractBlueSnapRoute
 
   abstract public function refund(Request $request, Context $context): BlueSnapApiResponse;
 
-  abstract public function handlePayment(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+  abstract public function handlePayment(Request $request, SalesChannelContext $context):  BlueSnapApiResponse | HandlePaymentMethodRouteResponse;
 
   abstract public function reSendPaymentLink(Request $request, Context $context): BlueSnapApiResponse;
 
