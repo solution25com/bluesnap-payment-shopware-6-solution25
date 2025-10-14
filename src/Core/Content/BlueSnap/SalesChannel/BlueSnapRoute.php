@@ -3,6 +3,8 @@
 namespace BlueSnap\Core\Content\BlueSnap\SalesChannel;
 
 use BlueSnap\PaymentMethods\PaymentMethods;
+use Shopware\Core\Checkout\Cart\AbstractCartPersister;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute;
 use Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRouteResponse;
 use BlueSnap\Core\Content\BlueSnap\AbstractBlueSnapRoute;
@@ -20,6 +22,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
+use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
@@ -36,11 +39,12 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   private PaymentLinkService $paymentLinkService;
   private BlueSnapTransactionService $blueSnapTransactionService;
   private RefundService $refundService;
-
   private OrderTransactionStateHandler $transactionStateHandler;
-
   private HandlePaymentMethodRoute $handlePaymentMethodRoute;
+  private CartOrderRoute $cartOrderRoute;
+  private AbstractCartPersister $cartPersister;
   private LoggerInterface $logger;
+
 
   public function __construct(
     BlueSnapApiClient            $client,
@@ -53,6 +57,8 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     RefundService                $refundService,
     OrderTransactionStateHandler $transactionStateHandler,
     HandlePaymentMethodRoute     $handlePaymentMethodRoute,
+    CartOrderRoute               $cartOrderRoute,
+    AbstractCartPersister        $cartPersister,
     LoggerInterface              $logger
   )
   {
@@ -66,6 +72,8 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     $this->refundService = $refundService;
     $this->transactionStateHandler = $transactionStateHandler;
     $this->handlePaymentMethodRoute = $handlePaymentMethodRoute;
+    $this->cartOrderRoute = $cartOrderRoute;
+    $this->cartPersister = $cartPersister;
     $this->logger = $logger;
   }
 
@@ -103,6 +111,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   #[Route(path: '/store-api/bluesnap/capture', name: 'store-api.bluesnap.capture', methods: ['POST'])]
   public function capture(Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
+
     $salesChannelId = $context->getSalesChannel()->getId();
     $is3DSEnabled = $this->blueSnapConfig->getConfig('threeDS', $salesChannelId);
     $data = $request->request->all();
@@ -180,9 +189,15 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       }
     }
 
+    $shadowCart = $this->orderService->generateShadowCart($context);
+    $orderResponse = $this->cartOrderRoute->order($shadowCart['cart'], $shadowCart['context'], new RequestDataBag());
+    $order = $orderResponse->getOrder();
+    $orderTransaction = $order->getTransactions()->first();
 
     $response = $this->blueSnapClient->capture($body, $salesChannelId);
+
     if (isset($response['error'])) {
+      $this->transactionStateHandler->fail($orderTransaction->getId(), $context->getContext());
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $response['message']), $response['code']);
     }
 
@@ -195,12 +210,26 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       }
     }
 
-    return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $response));
+    $this->blueSnapTransactionService->addTransaction(
+      $order->getId(),
+      $orderTransaction->getPaymentMethod()->getName(),
+      $responseData['transactionId'],
+      $cardTransactionType == 'AUTH_ONLY' ? TransactionStatuses::AUTHORIZED->value : TransactionStatuses::PAID->value,
+      $context->getContext()
+    );
+
+    $statusHandlerFunctionName = $cardTransactionType == 'AUTH_ONLY' ? 'authorize' : 'paid';
+    $this->transactionStateHandler->{$statusHandlerFunctionName}($orderTransaction->getId(), $context->getContext());
+
+    $this->cartPersister->delete($context->getToken(), $context);
+
+    return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, ["orderId" => $order->getId()]));
   }
 
   #[Route(path: '/store-api/bluesnap/google-capture', name: 'store-api.bluesnap.googleCapture', methods: ['POST'])]
   public function googleCapture(Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
+
     $data = $request->request->all();
     $cardTransactionType = $this->blueSnapConfig->getCardTransactionType($context->getSalesChannelId());
     $constraints = new Assert\Collection([
@@ -210,7 +239,6 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       'cartData' => new Assert\Optional([
         new Assert\Type('array'),
       ]),
-
     ]);
 
     $errors = $this->validator->validateFields($data, $constraints);
@@ -242,12 +270,36 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       }
     }
 
+    $shadowCart = $this->orderService->generateShadowCart($context);
+    $orderResponse = $this->cartOrderRoute->order($shadowCart['cart'], $shadowCart['context'], new RequestDataBag());
+
+    $order = $orderResponse->getOrder();
+    $orderTransaction = $order->getTransactions()->first();
+
     $response = $this->blueSnapClient->capture($body, $salesChannelId);
 
+
     if (isset($response['error'])) {
+      $this->transactionStateHandler->fail($orderTransaction->getId(), $context->getContext());
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $response['message']), $response['code']);
     }
-    return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $response));
+
+    $responseDecoded = json_decode($response, true);
+
+    $this->blueSnapTransactionService->addTransaction(
+      $order->getId(),
+      $orderTransaction->getPaymentMethod()->getName(),
+      $responseDecoded['transactionId'],
+      $cardTransactionType == 'AUTH_ONLY' ? TransactionStatuses::AUTHORIZED->value : TransactionStatuses::PAID->value,
+      $context->getContext()
+    );
+
+    $statusHandlerFunctionName = $cardTransactionType == 'AUTH_ONLY' ? 'authorize' : 'paid';
+    $this->transactionStateHandler->{$statusHandlerFunctionName}($orderTransaction->getId(), $context->getContext());
+
+    $this->cartPersister->delete($context->getToken(), $context);
+
+    return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, ['orderId' => $order->getId()]));
   }
 
   #[Route(path: '/store-api/bluesnap/apple-capture', name: 'store-api.bluesnap.appleCapture', methods: ['POST'])]
@@ -293,12 +345,34 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       }
     }
 
+    $shadowCart = $this->orderService->generateShadowCart($context);
+    $orderResponse = $this->cartOrderRoute->order($shadowCart['cart'], $shadowCart['context'], new RequestDataBag());
+
+    $order = $orderResponse->getOrder();
+    $orderTransaction = $order->getTransactions()->first();
 
     $response = $this->blueSnapClient->capture($body, $context->getSalesChannelId());
     if (isset($response['error'])) {
+      $this->transactionStateHandler->fail($orderTransaction->getId(), $context->getContext());
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $response['message']), $response['code']);
     }
-    return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $response));
+
+    $responseDecoded = json_decode($response, true);
+
+    $this->blueSnapTransactionService->addTransaction(
+      $order->getId(),
+      $orderTransaction->getPaymentMethod()->getName(),
+      $responseDecoded['transactionId'],
+      $cardTransactionType == 'AUTH_ONLY' ? TransactionStatuses::AUTHORIZED->value : TransactionStatuses::PAID->value,
+      $context->getContext()
+    );
+
+    $statusHandlerFunctionName = $cardTransactionType == 'AUTH_ONLY' ? 'authorize' : 'paid';
+    $this->transactionStateHandler->{$statusHandlerFunctionName}($orderTransaction->getId(), $context->getContext());
+
+    $this->cartPersister->delete($context->getToken(), $context);
+
+    return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, ['orderId' => $order->getId()]));
   }
 
   #[Route(path: '/store-api/bluesnap/apple-create-wallet', name: 'store-api.bluesnap.appleCreateWallet', methods: ['POST'])]

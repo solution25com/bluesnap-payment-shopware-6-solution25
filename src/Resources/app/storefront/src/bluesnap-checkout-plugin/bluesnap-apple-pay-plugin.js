@@ -1,6 +1,6 @@
 import BlueSnapApi from "../services/BlueSnapApi";
 
-export default class BluesnapApplePayPlugin extends window.PluginBaseClass {
+export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
 
   static options = {
     confirmFormId: 'confirmOrderForm',
@@ -51,11 +51,11 @@ export default class BluesnapApplePayPlugin extends window.PluginBaseClass {
         email: this.userEmail
       }
 
-      const flow = document.getElementById('bluesnap-apple-pay').getAttribute('data-flow');
+      const flow = document.getElementById('bluesnap-google-pay').getAttribute('data-flow');
 
       session.completePayment(ApplePaySession.STATUS_SUCCESS);
 
-      if (flow !== 'order_payment') {
+      if (flow === 'order_payment') {
         const captureResult = await BlueSnapApi.appleCapture(body)
 
         if(captureResult && captureResult.success) {
@@ -92,10 +92,7 @@ export default class BluesnapApplePayPlugin extends window.PluginBaseClass {
 
   _applePayClick(event) {
     event.preventDefault();
-    if (!this.form.checkValidity()) {
-      // scroll to terms and conditions
-      return;
-    }
+    if (!this.form.checkValidity()) return;
 
     this._applePayClicked()
 

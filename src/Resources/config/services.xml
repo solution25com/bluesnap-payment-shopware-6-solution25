@@ -13,7 +13,8 @@
       <argument type="service" id="BlueSnap\Service\OrderService"/>
       <argument type="service" id="BlueSnap\Service\PaymentLinkService"/>
       <argument type="service" id="BlueSnap\Service\BlueSnapTransactionService"/>
-      <argument type="service" id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler" />
+      <argument type="service"
+                id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
       <argument type="service" id="Bluesnap.logger"/>
       <tag name="shopware.payment.method"/>
     </service>
@@ -66,7 +67,7 @@
     </service>
 
     <service id="BlueSnap\Service\BlueSnapConfig">
-      <argument id="Shopware\Core\System\SystemConfig\SystemConfigService" type="service"/>
+      <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
@@ -90,7 +91,9 @@
       <argument type="service" id="order.repository"/>
       <argument type="service" id="order_transaction.repository"/>
       <argument type="service" id="product.repository"/>
-      <argument id="Shopware\Core\System\SystemConfig\SystemConfigService" type="service"/>
+      <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
+      <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
+      <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
@@ -157,7 +160,9 @@
       <argument type="service" id="BlueSnap\Service\RefundService"/>
       <argument type="service"
                 id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
-      <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute" />
+      <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute"/>
+      <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
+      <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
     <!-- End Store Api Routes -->
@@ -165,8 +170,8 @@
     <!-- Storefront Controllers -->
     <service id="BlueSnap\Storefront\Controller\BlueSnapController" public="true">
       <argument type="service" id="BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute"/>
-      <argument type="service" id="BlueSnap\Service\OrderService" />
-      <argument type="service" id="BlueSnap\Service\BlueSnapConfig" />
+      <argument type="service" id="BlueSnap\Service\OrderService"/>
+      <argument type="service" id="BlueSnap\Service\BlueSnapConfig"/>
       <call method="setContainer">
         <argument type="service" id="service_container"/>
       </call>
@@ -232,7 +237,6 @@
       <argument type="service" id="Bluesnap.logger"/>
       <tag name="kernel.event_subscriber"/>
     </service>
-
     <!-- End Event Subscribers -->
 
   </services>
