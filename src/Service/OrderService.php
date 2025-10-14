@@ -4,14 +4,17 @@ namespace BlueSnap\Service;
 
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
-use Shopware\Core\Checkout\Cart\LineItem\LineItemCollection;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
+use Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory;
+use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -21,18 +24,24 @@ class OrderService
   private EntityRepository $orderTransactionRepository;
   private EntityRepository $productRepository;
   private SystemConfigService $systemConfigService;
+  private CartService $cartService;
+  private CachedSalesChannelContextFactory $salesChannelContextFactory;
 
   public function __construct(
-    EntityRepository    $orderRepository,
-    EntityRepository    $orderTransactionRepository,
-    EntityRepository    $productRepository,
-    SystemConfigService $systemConfigService
+    EntityRepository                 $orderRepository,
+    EntityRepository                 $orderTransactionRepository,
+    EntityRepository                 $productRepository,
+    SystemConfigService              $systemConfigService,
+    CartService                      $cartService,
+    CachedSalesChannelContextFactory $salesChannelContextFactory,
   )
   {
     $this->orderRepository = $orderRepository;
     $this->orderTransactionRepository = $orderTransactionRepository;
     $this->productRepository = $productRepository;
     $this->systemConfigService = $systemConfigService;
+    $this->cartService = $cartService;
+    $this->salesChannelContextFactory = $salesChannelContextFactory;
   }
 
   public function getProduct(string $productId, Context $context): ?ProductEntity
@@ -204,5 +213,47 @@ class OrderService
       'taxRate' => $taxRate,
       'lineItems' => $items,
     ];
+  }
+
+  public function generateShadowCart(SalesChannelContext $context): array
+  {
+    // 1) Get the real cart
+    $originalCart = $this->cartService->getCart($context->getToken(), $context);
+
+    // 2) Make a shadow cart with a fresh token
+    $shadowToken = Uuid::randomHex();
+
+    // build a SalesChannelContext that uses the shadow token but keeps the same customer/channel settings
+    $shadowContext = $this->salesChannelContextFactory->create(
+      $shadowToken,
+      $context->getSalesChannel()->getId(),
+      [
+        SalesChannelContextService::CUSTOMER_ID => $context->getCustomerId(),
+        SalesChannelContextService::LANGUAGE_ID => $context->getLanguageId(),
+        SalesChannelContextService::CURRENCY_ID => $context->getCurrencyId(),
+        SalesChannelContextService::SHIPPING_METHOD_ID => $context->getShippingMethod()->getId(),
+        SalesChannelContextService::PAYMENT_METHOD_ID => $context->getPaymentMethod()->getId(),
+        SalesChannelContextService::BILLING_ADDRESS_ID => $context->getCustomer()?->getActiveBillingAddress()?->getId(),
+        SalesChannelContextService::SHIPPING_ADDRESS_ID => $context->getCustomer()?->getActiveShippingAddress()?->getId(),
+      ]
+    );
+
+    // This creates (or loads) the shadow cart scoped to the shadow token
+    $shadowCart = $this->cartService->getCart($shadowToken, $shadowContext);
+
+    // 3) Copy items from original → shadow
+    foreach ($originalCart->getLineItems() as $item) {
+      // Cloning the LineItem
+      $shadowCart = $this->cartService->add($shadowCart, clone $item, $shadowContext);
+    }
+    // Optional: copy some cart meta if you use them
+    $shadowCart->setCustomerComment($originalCart->getCustomerComment());
+    $shadowCart->setAffiliateCode($originalCart->getAffiliateCode());
+    $shadowCart->setCampaignCode($originalCart->getCampaignCode());
+
+    // 4) Recalculate so shipping, promotions, prices are correct
+    $shadowCart = $this->cartService->recalculate($shadowCart, $shadowContext);
+
+    return ['cart' => $shadowCart, 'context' => $shadowContext];
   }
 }
