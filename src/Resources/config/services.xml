@@ -92,8 +92,6 @@
       <argument type="service" id="order_transaction.repository"/>
       <argument type="service" id="product.repository"/>
       <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService"/>
-      <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService"/>
-      <argument type="service" id="Shopware\Core\System\SalesChannel\Context\CachedSalesChannelContextFactory"/>
       <argument type="service" id="Bluesnap.logger"/>
     </service>
 
@@ -162,7 +160,7 @@
                 id="Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler"/>
       <argument type="service" id="Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute"/>
       <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartOrderRoute"/>
-      <argument type="service" id="Shopware\Core\Checkout\Cart\CartPersister"/>
+      <argument type="service" id="Shopware\Core\Checkout\Cart\SalesChannel\CartService" />
       <argument type="service" id="Bluesnap.logger"/>
     </service>
     <!-- End Store Api Routes -->
