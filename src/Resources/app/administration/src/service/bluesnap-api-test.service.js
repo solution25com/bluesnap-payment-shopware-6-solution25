@@ -5,6 +5,7 @@ export default class BluesnapApiTestService extends ApiService {
     constructor(httpClient, loginService, apiEndpoint = 'bluesnap-test-connection') {
         super(httpClient, loginService, apiEndpoint);
     }
+
     check(values) {
         const headers = this.getBasicHeaders();
 

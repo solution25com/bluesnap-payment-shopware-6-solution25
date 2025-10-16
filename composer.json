@@ -6,33 +6,60 @@
   "license": "proprietary",
   "authors": [
     {
-        "name": "solution 25",
-        "role": "Manufacturer"
+      "name": "solution 25",
+      "role": "Manufacturer"
     }
-],
+  ],
   "require": {
-      "shopware/core": "^6.6 || ^6.7"
+    "shopware/core": "^6.6 || ^6.7"
   },
   "extra": {
-      "shopware-plugin-class": "BlueSnap\\BlueSnap",
-      "label": {
-          "de-DE": "BlueSnap payment method for Shopware 6",
-          "en-GB": "BlueSnap payment method for Shopware 6"
-      }
+    "shopware-plugin-class": "BlueSnap\\BlueSnap",
+    "label": {
+      "de-DE": "BlueSnap Zahlungsmethode für Shopware 6",
+      "en-GB": "BlueSnap payment method for Shopware 6"
+    },
+    "description": {
+      "de-DE": "Das BlueSnap Shopware 6 Plugin verbindet Ihren Shopware-Shop sicher mit dem BlueSnap-Gateway und unterstützt Kreditkarten, Apple Pay, Google Pay, Hosted Checkout sowie Pay-by-Link.",
+      "en-GB": "The BlueSnap Shopware 6 Plugin securely connects your Shopware store with BlueSnap’s gateway and supports credit cards, Apple Pay, Google Pay, hosted checkout, and pay-by-link."
+    },
+    "manufacturerLink": {
+      "de-DE": "https://solution25.com",
+      "en-GB": "https://solution25.com/en/"
+    },
+    "supportLink": {
+      "de-DE": "https://github.com/solution25com/bluesnap-payment-shopware-6-solution25/issues",
+      "en-GB": "https://github.com/solution25com/bluesnap-payment-shopware-6-solution25/issues"
+    }
   },
   "autoload": {
-      "psr-4": {
-          "BlueSnap\\": "src/"
-      }
+    "psr-4": {
+      "BlueSnap\\": "src/"
+    }
   },
   "autoload-dev": {
-      "psr-4": {
-          "BlueSnap\\Tests\\": "tests/"
-      }
+    "psr-4": {
+      "BlueSnap\\Tests\\": "tests/"
+    }
   },
   "config": {
     "allow-plugins": {
       "symfony/runtime": true
     }
+  },
+  "require-dev": {
+    "squizlabs/php_codesniffer": "^3.7"
+  },
+  "scripts": {
+    "post-install-cmd": [
+      "@enable-precommit"
+    ],
+    "post-update-cmd": [
+      "@enable-precommit"
+    ],
+    "enable-precommit": [
+      "cp ./pre-commit .git/hooks/pre-commit",
+      "chmod +x .git/hooks/pre-commit"
+    ]
   }
 }

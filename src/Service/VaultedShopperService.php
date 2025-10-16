@@ -14,13 +14,14 @@ class VaultedShopperService
 {
     private EntityRepository $vaultedShopperRepository;
     private LoggerInterface $logger;
+
     public function __construct(EntityRepository $vaultedShopperRepository, LoggerInterface $logger)
     {
         $this->vaultedShopperRepository = $vaultedShopperRepository;
-        $this->logger                   = $logger;
+        $this->logger = $logger;
     }
 
-    public function store(string $vaultedShopperId, string $cardType, string $customerId,  Context $context): void
+    public function store(string $vaultedShopperId, string $cardType, string $customerId, Context $context): void
     {
         try {
             $existingShopper = $this->vaultedShopperRepository->search(
@@ -30,26 +31,26 @@ class VaultedShopperService
             if ($existingShopper) {
                 $this->vaultedShopperRepository->upsert(
                     [
-                      [
-                        'id'               => $existingShopper->getId(),
-                        'customerId'       => $customerId,
-                        'vaultedShopperId' => $vaultedShopperId,
-                        'cardType'         => $cardType,
-                        'updatedAt'        => (new \DateTime())->format('Y-m-d H:i:s'),
-                      ]
+                        [
+                            'id' => $existingShopper->getId(),
+                            'customerId' => $customerId,
+                            'vaultedShopperId' => $vaultedShopperId,
+                            'cardType' => $cardType,
+                            'updatedAt' => (new \DateTime())->format('Y-m-d H:i:s'),
+                        ]
                     ],
                     $context
                 );
             } else {
                 $this->vaultedShopperRepository->upsert(
                     [
-                      [
-                        'id'               => Uuid::randomHex(),
-                        'customerId'       => $customerId,
-                        'vaultedShopperId' => $vaultedShopperId,
-                        'cardType'         => $cardType,
-                        'createdAt'        => (new \DateTime())->format('Y-m-d H:i:s'),
-                      ]
+                        [
+                            'id' => Uuid::randomHex(),
+                            'customerId' => $customerId,
+                            'vaultedShopperId' => $vaultedShopperId,
+                            'cardType' => $cardType,
+                            'createdAt' => (new \DateTime())->format('Y-m-d H:i:s'),
+                        ]
                     ],
                     $context
                 );
@@ -58,6 +59,7 @@ class VaultedShopperService
             $this->logger->error('Error storing vaulted shopper data: ' . $e->getMessage());
         }
     }
+
     public function getVaultedShopperIdByCustomerId(Context $context, string $customerId): ?string
     {
         $criteria = new Criteria();
@@ -65,6 +67,7 @@ class VaultedShopperService
         $res = $this->vaultedShopperRepository->search($criteria, $context)->first();
         return $res ? $res->getVaultedShopperId() : null;
     }
+
     public function vaultedShopperExist(Context $context, string $customerId): bool
     {
         $criteria = new Criteria();

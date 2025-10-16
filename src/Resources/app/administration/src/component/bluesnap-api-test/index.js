@@ -1,6 +1,6 @@
 import template from './bluesnap-api-test.html.twig';
 
-const { Component, Mixin } = Shopware;
+const {Component, Mixin} = Shopware;
 
 Component.register('bluesnap-api-test', {
     template,

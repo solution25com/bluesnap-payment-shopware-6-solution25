@@ -13,7 +13,7 @@ class OrderExtension extends EntityExtension
     public function extendFields(FieldCollection $collection): void
     {
         $collection->add(
-            (new OneToManyAssociationField('bluesnapTransaction', BluesnapTransactionDefinition::class, 'order_id'))->addFlags(new ApiAware(),),
+            (new OneToManyAssociationField('bluesnapTransaction', BluesnapTransactionDefinition::class, 'order_id'))->addFlags(new ApiAware()),
         );
     }
 
@@ -22,7 +22,8 @@ class OrderExtension extends EntityExtension
         return \Shopware\Core\Checkout\Order\OrderDefinition::class;
     }
 
-    public function getEntityName(): string {
-      return  \Shopware\Core\Checkout\Order\OrderDefinition::ENTITY_NAME;
+    public function getEntityName(): string
+    {
+        return \Shopware\Core\Checkout\Order\OrderDefinition::ENTITY_NAME;
     }
 }

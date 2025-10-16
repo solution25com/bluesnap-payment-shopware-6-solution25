@@ -43,6 +43,7 @@ class VaultedShopperEntity extends Entity
     {
         return $this->cardType;
     }
+
     public function setCardType(string $cardType): void
     {
         $this->cardType = $cardType;

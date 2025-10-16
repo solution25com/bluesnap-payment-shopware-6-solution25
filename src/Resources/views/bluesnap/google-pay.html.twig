@@ -1,13 +1,13 @@
 {% block solu1_bluesnap_google_pay %}
-  <div id="bluesnap-google-pay" class="panel panel-default bootstrap-basic" data-bluesnap-google-pay="true"
-       data-pf-token="{{ page.extensions.bluesnap.pfToken is iterable ? '' : page.extensions.bluesnap.pfToken }}"
-       data-google-merchant-id="{{ page.extensions.bluesnap.googleMerchantId }}"
-       data-merchant-id="{{ page.extensions.bluesnap.merchantId }}"
-       data-total-price="{{ page.cart.price.totalPrice }}"
-       data-currency-code="{{ context.currency.isoCode }}"
-       data-mode="{{ page.extensions.bluesnap.mode }}"
-       data-flow="{{ page.extensions.bluesnap.flow }}">
+    <div id="bluesnap-google-pay" class="panel panel-default bootstrap-basic" data-bluesnap-google-pay="true"
+         data-pf-token="{{ page.extensions.bluesnap.pfToken is iterable ? '' : page.extensions.bluesnap.pfToken }}"
+         data-google-merchant-id="{{ page.extensions.bluesnap.googleMerchantId }}"
+         data-merchant-id="{{ page.extensions.bluesnap.merchantId }}"
+         data-total-price="{{ page.cart.price.totalPrice }}"
+         data-currency-code="{{ context.currency.isoCode }}"
+         data-mode="{{ page.extensions.bluesnap.mode }}"
+         data-flow="{{ page.extensions.bluesnap.flow }}">
 
-    <div id="container"></div>
-  </div>
+        <div id="container"></div>
+    </div>
 {% endblock %}

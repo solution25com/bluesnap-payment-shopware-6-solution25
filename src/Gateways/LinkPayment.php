@@ -12,13 +12,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 class LinkPayment extends AbstractPaymentHandler
 {
-  public function supports(PaymentHandlerType $type, string $paymentMethodId, Context $context): bool
-  {
-    // This payment handler does not support recurring payments nor refunds
-    return false;
-  }
-  public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
-  {
-    return new RedirectResponse('/');
-  }
+    public function supports(PaymentHandlerType $type, string $paymentMethodId, Context $context): bool
+    {
+        // This payment handler does not support recurring payments nor refunds
+        return false;
+    }
+
+    public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
+    {
+        return new RedirectResponse('/');
+    }
 }

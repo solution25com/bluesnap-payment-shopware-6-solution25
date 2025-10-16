@@ -1,86 +1,94 @@
 #apple-pay-support-error {
-    color: $theme-color-deep-fir;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 14px;
-    border-radius: 4px;
-    background: $theme-color-pippin;
+  color: $theme-color-deep-fir;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 14px;
+  border-radius: 4px;
+  background: $theme-color-pippin;
 
-    .apple-alert {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
+  .apple-alert {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 
-        p {
-            width: 90%;
-            margin: 0;
-            padding: 4px 8px;
-        }
-        .svg-icon {
-            background: $theme-color-persimmon;
-            padding: 0 10px;
-            border-radius: 4px;
-            .icon-alert {
-                color: transparent;
-                margin-right: 0;
-                margin-left: 0;
-                svg {
-                    height: 49px;
-                }
-            }
-        }
+    p {
+      width: 90%;
+      margin: 0;
+      padding: 4px 8px;
     }
+
+    .svg-icon {
+      background: $theme-color-persimmon;
+      padding: 0 10px;
+      border-radius: 4px;
+
+      .icon-alert {
+        color: transparent;
+        margin-right: 0;
+        margin-left: 0;
+
+        svg {
+          height: 49px;
+        }
+      }
+    }
+  }
 }
 
 #bluesnap-google-pay {
-    border: none;
-    box-shadow: none;
-    .gpay-card-info-container{
-        width: 100%;
-    }
+  border: none;
+  box-shadow: none;
+
+  .gpay-card-info-container {
+    width: 100%;
+  }
 }
-#bluesnap-direct-debit-test{
-    #payButton{
-        border-radius: 4px;
-        background: $theme-color-black;
-        width:100%;
-        padding:20px 0;
-        display:flex;
-        justify-content:center;
-        align-items:center;
-        gap:8px;
-        color:$theme-color-white;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 600;
-        line-height: 11px;
-        max-height:50px;
-        .icon-button-lock{
-            color:$theme-color-white;
-            svg{
-                top:0;
-            }
-        }
+
+#bluesnap-direct-debit-test {
+  #payButton {
+    border-radius: 4px;
+    background: $theme-color-black;
+    width: 100%;
+    padding: 20px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    color: $theme-color-white;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 600;
+    line-height: 11px;
+    max-height: 50px;
+
+    .icon-button-lock {
+      color: $theme-color-white;
+
+      svg {
+        top: 0;
+      }
     }
+  }
 }
+
 #apple-pay-button {
-    -webkit-appearance: -apple-pay-button;
-    -apple-pay-button-type: plain;
-    display: inline-block;
-    width: 200px;
-    min-height: 30px;
-    border: 1px solid black;
-    background-image: -webkit-named-image(apple-pay-logo-white);
-    background-size: 100% calc(60% + 2px);
-    background-repeat: no-repeat;
-    background-color: black;
-    background-position: 50% 50%;
-    border-radius: 5px;
-    padding: 0px;
-    margin: 5px auto;
+  -webkit-appearance: -apple-pay-button;
+  -apple-pay-button-type: plain;
+  display: inline-block;
+  width: 200px;
+  min-height: 30px;
+  border: 1px solid black;
+  background-image: -webkit-named-image(apple-pay-logo-white);
+  background-size: 100% calc(60% + 2px);
+  background-repeat: no-repeat;
+  background-color: black;
+  background-position: 50% 50%;
+  border-radius: 5px;
+  padding: 0px;
+  margin: 5px auto;
 }
 
 .visually-hidden {
-    visibility: hidden;
+  visibility: hidden;
 }

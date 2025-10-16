@@ -19,66 +19,64 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 
-
 class HostedCheckout extends AbstractPaymentHandler
 {
-  private OrderService $orderService;
-  private PaymentLinkService $paymentLinkService;
+    private OrderService $orderService;
+    private PaymentLinkService $paymentLinkService;
 
-  private BlueSnapTransactionService $blueSnapTransactionService;
+    private BlueSnapTransactionService $blueSnapTransactionService;
 
-  private OrderTransactionStateHandler $transactionStateHandler;
-  private LoggerInterface $logger;
+    private OrderTransactionStateHandler $transactionStateHandler;
+    private LoggerInterface $logger;
 
 
-  public function __construct(
-    OrderService                 $orderService,
-    PaymentLinkService           $paymentLinkService,
-    BlueSnapTransactionService   $blueSnapTransactionService,
-    OrderTransactionStateHandler $transactionStateHandler,
-    LoggerInterface              $logger,
-  )
-  {
-    $this->orderService = $orderService;
-    $this->paymentLinkService = $paymentLinkService;
-    $this->blueSnapTransactionService = $blueSnapTransactionService;
-    $this->transactionStateHandler = $transactionStateHandler;
-    $this->logger = $logger;
-  }
-
-  public function supports(PaymentHandlerType $type, string $paymentMethodId, Context $context): bool
-  {
-    // This payment handler does not support recurring payments nor refunds
-    return false;
-  }
-
-  public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
-  {
-
-    $orderTransaction = $this->orderService->getOrderTransactionsById($transaction->getOrderTransactionId(), $context);
-    if (!$orderTransaction) {
-      $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
-      throw new \RuntimeException('OrderTransaction not found for ID ' . $transaction->getOrderTransactionId());
+    public function __construct(
+        OrderService $orderService,
+        PaymentLinkService $paymentLinkService,
+        BlueSnapTransactionService $blueSnapTransactionService,
+        OrderTransactionStateHandler $transactionStateHandler,
+        LoggerInterface $logger,
+    ) {
+        $this->orderService = $orderService;
+        $this->paymentLinkService = $paymentLinkService;
+        $this->blueSnapTransactionService = $blueSnapTransactionService;
+        $this->transactionStateHandler = $transactionStateHandler;
+        $this->logger = $logger;
     }
 
-    $salesChannelId = $request->attributes->get('sw-sales-channel-id');
-    $redirectUrl = $this->sendReturnUrlToExternalGateway($orderTransaction, $salesChannelId, $context);
-    return new RedirectResponse($redirectUrl);
-  }
+    public function supports(PaymentHandlerType $type, string $paymentMethodId, Context $context): bool
+    {
+        // This payment handler does not support recurring payments nor refunds
+        return false;
+    }
+
+    public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
+    {
+
+        $orderTransaction = $this->orderService->getOrderTransactionsById($transaction->getOrderTransactionId(), $context);
+        if (!$orderTransaction) {
+            $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
+            throw new \RuntimeException('OrderTransaction not found for ID ' . $transaction->getOrderTransactionId());
+        }
+
+        $salesChannelId = $request->attributes->get('sw-sales-channel-id');
+        $redirectUrl = $this->sendReturnUrlToExternalGateway($orderTransaction, $salesChannelId, $context);
+        return new RedirectResponse($redirectUrl);
+    }
 
 
-  private function sendReturnUrlToExternalGateway(OrderTransactionEntity $orderTransaction, string $salesChannelId, Context $context): string
-  {
-    $order = $orderTransaction->getOrder();
-    $orderId = $order->getId();
-    $orderDetail = $this->orderService->getOrderDetailsById($orderId, $context);
-    $successUrl = 'checkout/finish?orderId=' . $orderId;
-    $failedUrl = 'checkout/confirm?redirected=0';
+    private function sendReturnUrlToExternalGateway(OrderTransactionEntity $orderTransaction, string $salesChannelId, Context $context): string
+    {
+        $order = $orderTransaction->getOrder();
+        $orderId = $order->getId();
+        $orderDetail = $this->orderService->getOrderDetailsById($orderId, $context);
+        $successUrl = 'checkout/finish?orderId=' . $orderId;
+        $failedUrl = 'checkout/confirm?redirected=0';
 
-    $paymentMethodName = $orderTransaction->getPaymentMethod()->getName();
+        $paymentMethodName = $orderTransaction->getPaymentMethod()->getName();
 
 
-    $this->blueSnapTransactionService->addTransaction($orderId, $paymentMethodName, $orderId, TransactionStatuses::PENDING->value, $context);
-    return $this->paymentLinkService->generatePaymentLink($orderDetail, $successUrl, $failedUrl, $context, false, $salesChannelId);
-  }
+        $this->blueSnapTransactionService->addTransaction($orderId, $paymentMethodName, $orderId, TransactionStatuses::PENDING->value, $context);
+        return $this->paymentLinkService->generatePaymentLink($orderDetail, $successUrl, $failedUrl, $context, false, $salesChannelId);
+    }
 }

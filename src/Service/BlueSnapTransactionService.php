@@ -18,7 +18,7 @@ class BlueSnapTransactionService
     public function __construct(EntityRepository $blueSnapTransactionRepository, EntityRepository $orderRepository)
     {
         $this->blueSnapTransactionRepository = $blueSnapTransactionRepository;
-        $this->orderRepository               = $orderRepository;
+        $this->orderRepository = $orderRepository;
     }
 
     public function updateTransactionStatus($orderId, $status, $context, $captureReferenceNumber = ''): void
@@ -26,24 +26,24 @@ class BlueSnapTransactionService
         $transaction = $this->getTransactionByOrderId($orderId, $context);
 
         $this->blueSnapTransactionRepository->update([
-          [
-            'id'            => $transaction->getId(),
-            'status'        => $status,
-            'transactionId' => $captureReferenceNumber != '' ? $captureReferenceNumber : $transaction->getTransactionId(),
-            'updatedAt'     => (new \DateTime())->format('Y-m-d H:i:s')
-          ]
+            [
+                'id' => $transaction->getId(),
+                'status' => $status,
+                'transactionId' => $captureReferenceNumber != '' ? $captureReferenceNumber : $transaction->getTransactionId(),
+                'updatedAt' => (new \DateTime())->format('Y-m-d H:i:s')
+            ]
         ], $context);
 
         $this->orderRepository->upsert([[
-          'id'                  => $orderId,
-          'bluesnapTransaction' => [
-            'data' => [
-              'id'                    => $transaction->getId(),
-              'blueSnapTransactionId' => $captureReferenceNumber != '' ? $captureReferenceNumber : $transaction->getTransactionId(),
-              'paymentMethodName'     => $transaction->getPaymentMethodName(),
-              'status'                => $status,
+            'id' => $orderId,
+            'bluesnapTransaction' => [
+                'data' => [
+                    'id' => $transaction->getId(),
+                    'blueSnapTransactionId' => $captureReferenceNumber != '' ? $captureReferenceNumber : $transaction->getTransactionId(),
+                    'paymentMethodName' => $transaction->getPaymentMethodName(),
+                    'status' => $status,
+                ]
             ]
-          ]
         ]], $context);
     }
 
@@ -51,26 +51,26 @@ class BlueSnapTransactionService
     {
         $tableBlueSnapId = Uuid::randomHex();
         $this->blueSnapTransactionRepository->upsert([
-          [
-            'id'                => $tableBlueSnapId,
-            'orderId'           => $orderId,
-            'paymentMethodName' => $paymentMethodName,
-            'transactionId'     => $transactionId,
-            'status'            => $status,
-            'createdAt'         => (new \DateTime())->format('Y-m-d H:i:s')
-          ]
+            [
+                'id' => $tableBlueSnapId,
+                'orderId' => $orderId,
+                'paymentMethodName' => $paymentMethodName,
+                'transactionId' => $transactionId,
+                'status' => $status,
+                'createdAt' => (new \DateTime())->format('Y-m-d H:i:s')
+            ]
         ], $context);
 
         $this->orderRepository->upsert([[
-          'id'                  => $orderId,
-          'bluesnapTransaction' => [
-            'data' => [
-              'id'                    => $tableBlueSnapId,
-              'blueSnapTransactionId' => $transactionId,
-              'paymentMethodName'     => $paymentMethodName,
-              'status'                => $status,
+            'id' => $orderId,
+            'bluesnapTransaction' => [
+                'data' => [
+                    'id' => $tableBlueSnapId,
+                    'blueSnapTransactionId' => $transactionId,
+                    'paymentMethodName' => $paymentMethodName,
+                    'status' => $status,
+                ]
             ]
-          ]
         ]], $context);
     }
 

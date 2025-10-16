@@ -15,7 +15,7 @@
       }
     },
     "button": {
-    "debit-card-btn-text": "Submit order"
+      "debit-card-btn-text": "Submit order"
     },
     "paymentFail": {
       "paymentFail-text": "Unfortunately you payment did not go through",

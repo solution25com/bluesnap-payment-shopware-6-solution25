@@ -1,47 +1,47 @@
 {% sw_extends '@Storefront/storefront/page/checkout/confirm/index.html.twig' %}
 
 {% block page_checkout_confirm_tos_control_checkbox %}
-  {{ parent() }}
+    {{ parent() }}
     {% if page.extensions.bluesnap %}
-  <input
-          type="hidden"
-          required="required"
-          id="bluesnap-transaction-id"
-          form="confirmOrderForm"
-          value=""
-          name="bluesnap_transaction_id"
-  >
+        <input
+                type="hidden"
+                required="required"
+                id="bluesnap-transaction-id"
+                form="confirmOrderForm"
+                value=""
+                name="bluesnap_transaction_id"
+        >
     {% endif %}
 
 {% endblock %}
 
 
  {% block page_checkout_confirm_payment_shipping %}
-             <div class="confirm-payment-shipping">
-                 <div class="row">
-                     {% block page_checkout_confirm_payment %}
-                         <div class="col-sm-8 confirm-payment">
-                             {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-payment.html.twig' %}
-                         </div>
-                     {% endblock %}
-
-                     {% block page_checkout_confirm_shipping %}
-                         {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
-                         {% if page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
-                             <div class="col-sm-4 confirm-shipping">
-                                 {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
-                             </div>
-                         {% endif %}
-                     {% endblock %}
+     <div class="confirm-payment-shipping">
+         <div class="row">
+             {% block page_checkout_confirm_payment %}
+                 <div class="col-sm-8 confirm-payment">
+                     {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-payment.html.twig' %}
                  </div>
-             </div>
-         {% endblock %}
+             {% endblock %}
+
+             {% block page_checkout_confirm_shipping %}
+                 {% set PHYSICAL_STATE = constant('Shopware\\Core\\Content\\Product\\State::IS_PHYSICAL') %}
+                 {% if page.cart.lineItems.hasLineItemWithState(PHYSICAL_STATE) %}
+                     <div class="col-sm-4 confirm-shipping">
+                         {% sw_include '@Storefront/storefront/page/checkout/confirm/confirm-shipping.html.twig' %}
+                     </div>
+                 {% endif %}
+             {% endblock %}
+         </div>
+     </div>
+ {% endblock %}
 
 {% block page_checkout_confirm_form_submit %}
-  <input id='paymentData' type="hidden" name="paymentData" value=""/>
-  {% if page.extensions.bluesnap and (page.extensions.bluesnap.gateway == 'googlePay' or page.extensions.bluesnap.gateway == 'applePay') %}
-    {% sw_include page.extensions.bluesnap.template %}
-  {% else %}
-    {{ parent() }}
-  {% endif %}
+    <input id='paymentData' type="hidden" name="paymentData" value=""/>
+    {% if page.extensions.bluesnap and (page.extensions.bluesnap.gateway == 'googlePay' or page.extensions.bluesnap.gateway == 'applePay') %}
+        {% sw_include page.extensions.bluesnap.template %}
+    {% else %}
+        {{ parent() }}
+    {% endif %}
 {% endblock %}

@@ -20,116 +20,115 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ApplePay extends AbstractPaymentHandler
 {
-  private OrderTransactionStateHandler $transactionStateHandler;
-  private BlueSnapTransactionService $blueSnapTransactionService;
+    private OrderTransactionStateHandler $transactionStateHandler;
+    private BlueSnapTransactionService $blueSnapTransactionService;
 
-  private BlueSnapConfig $blueSnapConfig;
+    private BlueSnapConfig $blueSnapConfig;
 
-  private OrderService $orderService;
+    private OrderService $orderService;
 
-  private BlueSnapApiClient $blueSnapApiClient;
-  private LoggerInterface $logger;
+    private BlueSnapApiClient $blueSnapApiClient;
+    private LoggerInterface $logger;
 
-  public function __construct(
-    OrderTransactionStateHandler $transactionStateHandler,
-    BlueSnapTransactionService   $blueSnapTransactionService,
-    BlueSnapConfig               $blueSnapConfig,
-    OrderService                 $orderService,
-    BlueSnapApiClient            $blueSnapApiClient,
-    LoggerInterface              $logger
-  )
-  {
-    $this->transactionStateHandler = $transactionStateHandler;
-    $this->blueSnapTransactionService = $blueSnapTransactionService;
-    $this->blueSnapConfig = $blueSnapConfig;
-    $this->orderService = $orderService;
-    $this->blueSnapApiClient = $blueSnapApiClient;
-    $this->logger = $logger;
-  }
-
-  public function supports(PaymentHandlerType $type, string $paymentMethodId, Context $context): bool
-  {
-    // This payment handler does not support recurring payments nor refunds
-    return false;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
-  {
-    $salesChannelId = $request->attributes->get('sw-sales-channel-id');
-    $flow = $this->blueSnapConfig->getConfig('flow', $salesChannelId);
-
-    $authorizeOption = $this->blueSnapConfig->getCardTransactionType($salesChannelId);
-
-    $transactionStatus = $authorizeOption == 'AUTH_ONLY' ? TransactionStatuses::AUTHORIZED->value : TransactionStatuses::PAID->value;
-    $transactionMethodName = $authorizeOption == 'AUTH_ONLY' ? 'authorize' : 'paid';
-
-    $orderTransaction = $this->orderService->getOrderTransactionsById($transaction->getOrderTransactionId(), $context);
-    if (!$orderTransaction) {
-      $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
-      throw new \RuntimeException('OrderTransaction not found for ID ' . $transaction->getOrderTransactionId());
+    public function __construct(
+        OrderTransactionStateHandler $transactionStateHandler,
+        BlueSnapTransactionService $blueSnapTransactionService,
+        BlueSnapConfig $blueSnapConfig,
+        OrderService $orderService,
+        BlueSnapApiClient $blueSnapApiClient,
+        LoggerInterface $logger
+    ) {
+        $this->transactionStateHandler = $transactionStateHandler;
+        $this->blueSnapTransactionService = $blueSnapTransactionService;
+        $this->blueSnapConfig = $blueSnapConfig;
+        $this->orderService = $orderService;
+        $this->blueSnapApiClient = $blueSnapApiClient;
+        $this->logger = $logger;
     }
 
-    if ($flow == 'payment_order') {
-      $this->paymentFirstFlow($request, $transaction, $orderTransaction, $transactionMethodName, $transactionStatus, $context);
-    } else {
-      $this->orderFirstFlow($request, $transaction, $orderTransaction, $authorizeOption, $transactionMethodName, $transactionStatus, $salesChannelId, $context);
+    public function supports(PaymentHandlerType $type, string $paymentMethodId, Context $context): bool
+    {
+        // This payment handler does not support recurring payments nor refunds
+        return false;
     }
 
-    return null;
-  }
+    /**
+     * @inheritDoc
+     */
+    public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
+    {
+        $salesChannelId = $request->attributes->get('sw-sales-channel-id');
+        $flow = $this->blueSnapConfig->getConfig('flow', $salesChannelId);
 
-  private function orderFirstFlow(Request $request, PaymentTransactionStruct $transaction, OrderTransactionEntity $orderTransaction, string $cardTransactionType, string $handlerMethodName, string $transactionStatus, string $salesChannelId, Context $context): void
-  {
-    $order = $orderTransaction->getOrder();
-    $currency = $order->getCurrency();
+        $authorizeOption = $this->blueSnapConfig->getCardTransactionType($salesChannelId);
 
-    if (!$request->request->get('paymentData')) {
-      $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
-      throw new \RuntimeException('Missing paymentData');
-    }
-    $paymentData = json_decode($request->request->get('paymentData'), true);
+        $transactionStatus = $authorizeOption == 'AUTH_ONLY' ? TransactionStatuses::AUTHORIZED->value : TransactionStatuses::PAID->value;
+        $transactionMethodName = $authorizeOption == 'AUTH_ONLY' ? 'authorize' : 'paid';
 
-    $body = [
-      'amount' => $orderTransaction->getAmount()->getTotalPrice(),
-      "softDescriptor" => "Apple Pay",
-      "currency" => $currency->getIsoCode(),
-      "cardTransactionType" => $cardTransactionType,
-      "wallet" => [
-        "walletType" => "APPLE_PAY",
-        "encodedPaymentToken" => $paymentData['appleToken'],
-      ],
-      "cardHolderInfo" => [
-        "email" => $paymentData['email']
-      ]];
+        $orderTransaction = $this->orderService->getOrderTransactionsById($transaction->getOrderTransactionId(), $context);
+        if (!$orderTransaction) {
+            $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
+            throw new \RuntimeException('OrderTransaction not found for ID ' . $transaction->getOrderTransactionId());
+        }
 
+        if ($flow == 'payment_order') {
+            $this->paymentFirstFlow($request, $transaction, $orderTransaction, $transactionMethodName, $transactionStatus, $context);
+        } else {
+            $this->orderFirstFlow($request, $transaction, $orderTransaction, $authorizeOption, $transactionMethodName, $transactionStatus, $salesChannelId, $context);
+        }
 
-    if ($this->blueSnapConfig->Level23DataConfigs($order->getSalesChannelId(), $order->getOrderCustomer()->getCustomer()->getGroupId())) {
-      $formatedCartValue = $this->orderService->extractLVL2_3DataFromOrder($order);
-      $level3Data = $this->orderService->buildLevel3Data($formatedCartValue, $context);
-      if (!empty($level3Data)) {
-        $body['level3Data'] = $level3Data;
-      }
+        return null;
     }
 
+    private function orderFirstFlow(Request $request, PaymentTransactionStruct $transaction, OrderTransactionEntity $orderTransaction, string $cardTransactionType, string $handlerMethodName, string $transactionStatus, string $salesChannelId, Context $context): void
+    {
+        $order = $orderTransaction->getOrder();
+        $currency = $order->getCurrency();
 
-    $response = $this->blueSnapApiClient->capture($body, $salesChannelId);
-    if (isset($response['error'])) {
-      $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
-      throw new \RuntimeException($response['error']);
+        if (!$request->request->get('paymentData')) {
+            $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
+            throw new \RuntimeException('Missing paymentData');
+        }
+        $paymentData = json_decode($request->request->get('paymentData'), true);
+
+        $body = [
+            'amount' => $orderTransaction->getAmount()->getTotalPrice(),
+            "softDescriptor" => "Apple Pay",
+            "currency" => $currency->getIsoCode(),
+            "cardTransactionType" => $cardTransactionType,
+            "wallet" => [
+                "walletType" => "APPLE_PAY",
+                "encodedPaymentToken" => $paymentData['appleToken'],
+            ],
+            "cardHolderInfo" => [
+                "email" => $paymentData['email']
+            ]];
+
+
+        if ($this->blueSnapConfig->level23DataConfigs($order->getSalesChannelId(), $order->getOrderCustomer()->getCustomer()->getGroupId())) {
+            $formatedCartValue = $this->orderService->extractLVL2And3DataFromOrder($order);
+            $level3Data = $this->orderService->buildLevel3Data($formatedCartValue, $context);
+            if (!empty($level3Data)) {
+                $body['level3Data'] = $level3Data;
+            }
+        }
+
+
+        $response = $this->blueSnapApiClient->capture($body, $salesChannelId);
+        if (isset($response['error'])) {
+            $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
+            throw new \RuntimeException($response['error']);
+        }
+        $responseData = json_decode($response, true);
+        $this->transactionStateHandler->{$handlerMethodName}($transaction->getOrderTransactionId(), $context);
+        $this->blueSnapTransactionService->addTransaction($order->getId(), $orderTransaction->getPaymentMethod()->getName(), $responseData['transactionId'], $transactionStatus, $context);
     }
-    $responseData = json_decode($response, true);
-    $this->transactionStateHandler->{$handlerMethodName}($transaction->getOrderTransactionId(), $context);
-    $this->blueSnapTransactionService->addTransaction($order->getId(), $orderTransaction->getPaymentMethod()->getName(), $responseData['transactionId'], $transactionStatus, $context);
-  }
 
-  private function paymentFirstFlow(Request $request, PaymentTransactionStruct $transaction, OrderTransactionEntity $orderTransaction, string $handlerMethodName, string $transactionStatus, Context $context): void
-  {
-    $bluesnapTransactionId = $request->request->get('bluesnap_transaction_id');
-    $orderId = $orderTransaction->getOrder()->getId();
-    $this->transactionStateHandler->{$handlerMethodName}($transaction->getOrderTransactionId(), $context);
-    $this->blueSnapTransactionService->addTransaction($orderId, $orderTransaction->getPaymentMethod()->getName(), $bluesnapTransactionId, $transactionStatus, $context);
-  }
+    private function paymentFirstFlow(Request $request, PaymentTransactionStruct $transaction, OrderTransactionEntity $orderTransaction, string $handlerMethodName, string $transactionStatus, Context $context): void
+    {
+        $bluesnapTransactionId = $request->request->get('bluesnap_transaction_id');
+        $orderId = $orderTransaction->getOrder()->getId();
+        $this->transactionStateHandler->{$handlerMethodName}($transaction->getOrderTransactionId(), $context);
+        $this->blueSnapTransactionService->addTransaction($orderId, $orderTransaction->getPaymentMethod()->getName(), $bluesnapTransactionId, $transactionStatus, $context);
+    }
 }

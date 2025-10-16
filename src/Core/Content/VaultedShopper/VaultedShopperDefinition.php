@@ -38,11 +38,11 @@ class VaultedShopperDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-          (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-          (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new Required()),
-          (new StringField('vaulted_shopper_id', 'vaultedShopperId'))->addFlags(new Required()),
-          (new StringField('card_type', 'cardType')),
-          new OneToOneAssociationField('customer', 'customer_id', 'id', CustomerDefinition::class, false)
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new FkField('customer_id', 'customerId', CustomerDefinition::class))->addFlags(new Required()),
+            (new StringField('vaulted_shopper_id', 'vaultedShopperId'))->addFlags(new Required()),
+            (new StringField('card_type', 'cardType')),
+            new OneToOneAssociationField('customer', 'customer_id', 'id', CustomerDefinition::class, false)
         ]);
     }
 }

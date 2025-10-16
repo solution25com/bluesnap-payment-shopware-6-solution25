@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace BlueSnap\Migration;
 
@@ -65,14 +67,14 @@ class Migration1750340109AddPaymentLinkEmailTemplate extends MigrationStep
         $mailTemplateTypeId = Uuid::randomHex();
 
         $defaultLangId = $this->getLanguageIdByLocale($connection, 'en-GB');
-        $deLangId      = $this->getLanguageIdByLocale($connection, 'de-DE');
-        $systemLangId  = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $deLangId = $this->getLanguageIdByLocale($connection, 'de-DE');
+        $systemLangId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $connection->insert('mail_template_type', [
-            'id'                 => Uuid::fromHexToBytes($mailTemplateTypeId),
-            'technical_name'     => 'admin.payment.link',
+            'id' => Uuid::fromHexToBytes($mailTemplateTypeId),
+            'technical_name' => 'admin.payment.link',
             'available_entities' => json_encode(['customer' => 'customer', 'salesChannel' => 'sales_channel']),
-            'created_at'         => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $this->insertMailTemplateTypeTranslation($connection, $mailTemplateTypeId, $defaultLangId);
@@ -89,7 +91,7 @@ class Migration1750340109AddPaymentLinkEmailTemplate extends MigrationStep
         $exists = $connection->fetchOne(
             'SELECT 1 FROM mail_template_type_translation WHERE mail_template_type_id = :id AND language_id = :lang',
             [
-                'id'   => Uuid::fromHexToBytes($mailTemplateTypeId),
+                'id' => Uuid::fromHexToBytes($mailTemplateTypeId),
                 'lang' => $languageId, // already bytes
             ]
         );
@@ -100,9 +102,9 @@ class Migration1750340109AddPaymentLinkEmailTemplate extends MigrationStep
 
         $connection->insert('mail_template_type_translation', [
             'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
-            'language_id'           => $languageId, // already bytes
-            'name'                  => 'Admin Payment Link',
-            'created_at'            => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'language_id' => $languageId, // already bytes
+            'name' => 'Admin Payment Link',
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 
@@ -120,14 +122,14 @@ class Migration1750340109AddPaymentLinkEmailTemplate extends MigrationStep
         $mailTemplateId = Uuid::randomHex();
 
         $defaultLangId = $this->getLanguageIdByLocale($connection, 'en-GB');
-        $deLangId      = $this->getLanguageIdByLocale($connection, 'de-DE');
-        $systemLangId  = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
+        $deLangId = $this->getLanguageIdByLocale($connection, 'de-DE');
+        $systemLangId = Uuid::fromHexToBytes(Defaults::LANGUAGE_SYSTEM);
 
         $connection->insert('mail_template', [
-            'id'                    => Uuid::fromHexToBytes($mailTemplateId),
+            'id' => Uuid::fromHexToBytes($mailTemplateId),
             'mail_template_type_id' => Uuid::fromHexToBytes($mailTemplateTypeId),
-            'system_default'        => true,
-            'created_at'            => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'system_default' => true,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $this->insertMailTemplateTranslation($connection, $mailTemplateId, $defaultLangId, 'en');
@@ -142,7 +144,7 @@ class Migration1750340109AddPaymentLinkEmailTemplate extends MigrationStep
         $exists = $connection->fetchOne(
             'SELECT 1 FROM mail_template_translation WHERE mail_template_id = :id AND language_id = :lang',
             [
-                'id'   => Uuid::fromHexToBytes($mailTemplateId),
+                'id' => Uuid::fromHexToBytes($mailTemplateId),
                 'lang' => $languageId, // already bytes
             ]
         );
@@ -151,18 +153,18 @@ class Migration1750340109AddPaymentLinkEmailTemplate extends MigrationStep
             return;
         }
 
-        $contentHtml  = $langCode === 'de' ? $this->getContentHtmlDe() : $this->getContentHtmlEn();
+        $contentHtml = $langCode === 'de' ? $this->getContentHtmlDe() : $this->getContentHtmlEn();
         $contentPlain = $langCode === 'de' ? $this->getContentPlainDe() : $this->getContentPlainEn();
 
         $connection->insert('mail_template_translation', [
             'mail_template_id' => Uuid::fromHexToBytes($mailTemplateId),
-            'language_id'      => $languageId, // already bytes
-            'sender_name'      => 'Shopware Administration',
-            'subject'          => 'Payment Link for Your Order #{{ orderNumber }}',
-            'description'      => '',
-            'content_html'     => $contentHtml,
-            'content_plain'    => $contentPlain,
-            'created_at'       => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'language_id' => $languageId, // already bytes
+            'sender_name' => 'Shopware Administration',
+            'subject' => 'Payment Link for Your Order #{{ orderNumber }}',
+            'description' => '',
+            'content_html' => $contentHtml,
+            'content_plain' => $contentPlain,
+            'created_at' => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
     }
 

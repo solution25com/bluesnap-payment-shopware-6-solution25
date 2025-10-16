@@ -7,9 +7,9 @@ namespace BlueSnap\Library\Constants;
 enum TransactionStatuses: string
 {
     case PENDING = 'pending';
-    case PAID    = 'paid';
-    case FAIL    = "fail";
-    case REFUND  = "refund";
+    case PAID = 'paid';
+    case FAIL = "fail";
+    case REFUND = "refund";
     case AUTHORIZED = 'authorized';
-    case CANCELLED   = 'cancelled';
+    case CANCELLED = 'cancelled';
 }

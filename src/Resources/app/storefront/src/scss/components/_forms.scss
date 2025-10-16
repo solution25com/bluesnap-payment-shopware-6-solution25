@@ -1,245 +1,273 @@
 #bluesnap-checkout-form {
-    .form-group {
-        input, .form-control {
-            height: 50px;
-            padding: 8px 12px;
-            border-radius: 4px;
-            border: 1px solid $theme-color-botticelli;
-            background: $theme-color-white;
-        }
-        .form-control::placeholder {
-            color: $theme-color-emperor;
-        }
-
-        .helper-text-ccn {
-            color: $theme-color-deep-fir;
-            font-size: 12px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: normal;
-            padding: 4px 0 0 12px;
-            margin: 0;
-
-            span {
-                font-style: italic;
-            }
-        }
+  .form-group {
+    input, .form-control {
+      height: 50px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid $theme-color-botticelli;
+      background: $theme-color-white;
     }
 
-    .secure-payments {
-        flex-direction: row;
-        display: flex;
-        align-items: center;
-        gap: 7px;
-        max-height: 50px;
-        @media (max-width: $media-breakpoint-medium) {
-            margin-bottom:1rem;
-        }
-        p {
-            margin: 0;
-            color: $theme-color-deep-fir;
-            font-size: 12px;
-            font-style: normal;
-            font-weight: 500;
-            line-height: normal;
-        }
-        .icon-lock{
-            width:10px;
-            height:10px;
-            svg{
-                top:0;
-            }
-        }
+    .form-control::placeholder {
+      color: $theme-color-emperor;
     }
 
-    .saved-infos {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 6px;
+    .helper-text-ccn {
+      color: $theme-color-deep-fir;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
+      padding: 4px 0 0 12px;
+      margin: 0;
 
-        p {
-            margin: 0;
-            color: $theme-color-deep-fir;
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: 18px;
-        }
-
-        input {
-            margin: 0;
-        }
+      span {
+        font-style: italic;
+      }
     }
+  }
+
+  .secure-payments {
+    flex-direction: row;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    max-height: 50px;
+    @media (max-width: $media-breakpoint-medium) {
+      margin-bottom: 1rem;
+    }
+
+    p {
+      margin: 0;
+      color: $theme-color-deep-fir;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: normal;
+    }
+
+    .icon-lock {
+      width: 10px;
+      height: 10px;
+
+      svg {
+        top: 0;
+      }
+    }
+  }
+
+  .saved-infos {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+
+    p {
+      margin: 0;
+      color: $theme-color-deep-fir;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 18px;
+    }
+
+    input {
+      margin: 0;
+    }
+  }
 }
 
 .payment-methods {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    .payment-method {
-        border-radius: 4px;
-        border: 1px solid $theme-color-silver-chalice;
-        background: $theme-color-white;
-        padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 
-        #bluesnap-credit-card {
-            border: none;
-            box-shadow:none;
-            margin: 0;
-        }
-        .payment-form-group{
-            margin: 0;
+  .payment-method {
+    border-radius: 4px;
+    border: 1px solid $theme-color-silver-chalice;
+    background: $theme-color-white;
+    padding: 5px;
+
+    #bluesnap-credit-card {
+      border: none;
+      box-shadow: none;
+      margin: 0;
     }
-        p{
-            color:$theme-color-silver-chalice;
-            font-size: 12px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: normal;
-        }
+
+    .payment-form-group {
+      margin: 0;
     }
-    .collapse{
-        .payment-method{
-            margin-bottom:10px;
-        }
+
+    p {
+      color: $theme-color-silver-chalice;
+      font-size: 12px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
     }
+  }
+
+  .collapse {
+    .payment-method {
+      margin-bottom: 10px;
+    }
+  }
 }
 
 #error-message {
-    color: $theme-color-deep-fir;
-    font-size: 12px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 14px;
-    border-radius: 4px;
-    background: $theme-color-pippin;
+  color: $theme-color-deep-fir;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 14px;
+  border-radius: 4px;
+  background: $theme-color-pippin;
 
-    .error-alert {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
+  .error-alert {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 
-        p {
-            width: 90%;
-            margin: 0;
-            padding: 4px 8px;
-        }
-        .svg-icon {
-            background: $theme-color-persimmon;
-            padding: 0 10px;
-            border-radius: 4px;
-            .icon-alert {
-                color: transparent;
-                margin-right: 0;
-                margin-left: 0;
-                svg {
-                    height: 49px;
-                }
-            }
-        }
+    p {
+      width: 90%;
+      margin: 0;
+      padding: 4px 8px;
     }
+
+    .svg-icon {
+      background: $theme-color-persimmon;
+      padding: 0 10px;
+      border-radius: 4px;
+
+      .icon-alert {
+        color: transparent;
+        margin-right: 0;
+        margin-left: 0;
+
+        svg {
+          height: 49px;
+        }
+      }
+    }
+  }
 }
 
 .bluesnap-loader {
-    border: 16px solid #f3f3f3;
-    border-radius: 50%;
-    border-top: 16px solid #3498db;
-    width: 50px;
-    height: 50px;
-    -webkit-animation: spin 2s linear infinite; /* Safari */
-    animation: spin 2s linear infinite;
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 50px;
+  height: 50px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
 }
 
 @-webkit-keyframes spin {
-    0% { -webkit-transform: rotate(0deg); }
-    100% { -webkit-transform: rotate(360deg); }
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 
-#bluesnap-saved-card-form{
-    padding: 0;
-    margin: 20px 0;
-    width:97%;
-    .form-group {
-        position: relative;
+#bluesnap-saved-card-form {
+  padding: 0;
+  margin: 20px 0;
+  width: 97%;
 
-        p {
-            height: 50px;
-            padding: 8px 12px;
-            border-radius: 4px;
-            border: 1px solid $theme-color-botticelli;
-            margin: 0;
-            display: flex;
-            align-items: center;
-            color: $theme-color-gull-gray;
-            font-size: 14px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: normal;
-        }
+  .form-group {
+    position: relative;
 
-        #bluesnap-card-number {
-            padding-left: 70px;
-        }
-            img {
-                width: 50px;
-                height: 32px;
-                position: absolute;
-                top: 50%;
-                left: 12px;
-                transform: translateY(-50%);
-            }
-        }
-
-
-
-    .name-surname{
-        display:flex;
-        justify-content: space-between;
-        #bluesnap-card-holder{
-            width:45%;
-        }
-        #bluesnap-card-holder-lastname{
-            width: 45%;
-        }
+    p {
+      height: 50px;
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid $theme-color-botticelli;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      color: $theme-color-gull-gray;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: normal;
     }
+
+    #bluesnap-card-number {
+      padding-left: 70px;
+    }
+
+    img {
+      width: 50px;
+      height: 32px;
+      position: absolute;
+      top: 50%;
+      left: 12px;
+      transform: translateY(-50%);
+    }
+  }
+
+
+  .name-surname {
+    display: flex;
+    justify-content: space-between;
+
+    #bluesnap-card-holder {
+      width: 45%;
+    }
+
+    #bluesnap-card-holder-lastname {
+      width: 45%;
+    }
+  }
 }
 
 .quantity-selector-group-input {
-    height: inherit;
+  height: inherit;
 }
 
 .panel {
-    width: 100%;
+  width: 100%;
 }
+
 .panel-body {
-    width: 95%;
+  width: 95%;
 }
+
 .helper-text {
-    color: $theme-color-amaranth;
-    font-size: 12px;
-    margin-top: 5px;
-    height: 12px;
-    display: block;
+  color: $theme-color-amaranth;
+  font-size: 12px;
+  margin-top: 5px;
+  height: 12px;
+  display: block;
 }
+
 .helper-text-green {
-    color: green;
+  color: green;
 }
+
 /* Hosted Payment Fields styles*/
 .hosted-field-focus {
-    border: 1px solid $theme-color-cornflower-blue;
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+  border: 1px solid $theme-color-cornflower-blue;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(102, 175, 233, .6);
 }
+
 .hosted-field-invalid {
-    border: 1px solid $theme-color-amaranth;
-    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(233,49,67, 0.8);
+  border: 1px solid $theme-color-amaranth;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 8px rgba(233, 49, 67, 0.8);
 }
+
 .hosted-field-valid {
-    border: 1px solid $theme-color-malachite;
+  border: 1px solid $theme-color-malachite;
 }

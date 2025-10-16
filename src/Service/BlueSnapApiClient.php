@@ -29,16 +29,16 @@ class BlueSnapApiClient extends Endpoints
     public function __construct(BlueSnapConfig $blueSnapConfig, LoggerInterface $logger)
     {
         $this->blueSnapConfig = $blueSnapConfig;
-        $this->logger         = $logger;
+        $this->logger = $logger;
     }
 
     private function setupClient(string $salesChannelId = ''): void
     {
-        $mode   = $this->blueSnapConfig->getConfig('mode', $salesChannelId);
+        $mode = $this->blueSnapConfig->getConfig('mode', $salesChannelId);
         $isLive = $mode === 'live';
 
-        $baseUrl     = $isLive ? EnvironmentUrl::LIVE : EnvironmentUrl::SANDBOX;
-        $apiKey      = $this->blueSnapConfig->getConfig($isLive ? 'apiKeyLive' : 'apiKeySandbox', $salesChannelId);
+        $baseUrl = $isLive ? EnvironmentUrl::LIVE : EnvironmentUrl::SANDBOX;
+        $apiKey = $this->blueSnapConfig->getConfig($isLive ? 'apiKeyLive' : 'apiKeySandbox', $salesChannelId);
         $apiPassword = $this->blueSnapConfig->getConfig($isLive ? 'apiPasswordLive' : 'apiPasswordSandbox', $salesChannelId);
 
         if (empty($apiKey)) {
@@ -49,7 +49,7 @@ class BlueSnapApiClient extends Endpoints
         }
 
         $this->client = new Client(['base_uri' => $baseUrl->value]);
-        $this->token  = base64_encode(trim($apiKey) . ':' . trim($apiPassword));
+        $this->token = base64_encode(trim($apiKey) . ':' . trim($apiPassword));
     }
 
     private function getDefaultOptions($body): array
@@ -57,7 +57,7 @@ class BlueSnapApiClient extends Endpoints
         return [
             'headers' => [
                 'Authorization' => 'Basic ' . $this->token,
-                'Content-Type'  => 'application/json'
+                'Content-Type' => 'application/json'
             ],
             'body' => json_encode($body)
         ];
@@ -71,16 +71,16 @@ class BlueSnapApiClient extends Endpoints
         } catch (GuzzleException $e) {
             if ($e->hasResponse()) {
                 $responseBody = $e->getResponse()->getBody()->getContents();
-                $decodedBody  = json_decode($responseBody, true);
+                $decodedBody = json_decode($responseBody, true);
                 return [
-                    'error'   => true,
-                    'code'    => $e->getCode(),
+                    'error' => true,
+                    'code' => $e->getCode(),
                     'message' => $decodedBody['message'] ?? $decodedBody,
                 ];
             } else {
                 return [
-                    'error'   => true,
-                    'code'    => $e->getCode(),
+                    'error' => true,
+                    'code' => $e->getCode(),
                     'message' => $e->getMessage(),
                 ];
             }
@@ -105,14 +105,14 @@ class BlueSnapApiClient extends Endpoints
             return $splitLocation[count($splitLocation) - 1];
         } catch (BlueSnapTokenRequestException $e) {
             return [
-                'error'   => true,
-                'code'    => $e->getCode(),
+                'error' => true,
+                'code' => $e->getCode(),
                 'message' => $e->getMessage()
             ];
         }
     }
 
-    public function capture(array $body, string $salesChannelId = ''): string | array
+    public function capture(array $body, string $salesChannelId = ''): string|array
     {
         $this->setupClient($salesChannelId);
         $options = $this->getDefaultOptions($body);
@@ -123,43 +123,42 @@ class BlueSnapApiClient extends Endpoints
             }
             return $response->getBody()->getContents();
         } catch (CreditCardCaptureRequestException $e) {
-            return  [
-                "error"   => true,
-                'code'    => $e->getCode(),
+            return [
+                "error" => true,
+                'code' => $e->getCode(),
                 "message" => $e->getMessage()
             ];
         }
     }
 
-  public function captureTransactionOrVoid(array $body, string $salesChannelId = ''): string|array
-  {
-    $this->setupClient($salesChannelId);
-    $options = $this->getDefaultOptions($body);
+    public function captureTransactionOrVoid(array $body, string $salesChannelId = ''): string|array
+    {
+        $this->setupClient($salesChannelId);
+        $options = $this->getDefaultOptions($body);
 
-    try {
-      $response = $this->request(self::getEndpoint(self::CAPTURE_TRANSACTION_OR_VOID), $options);
+        try {
+            $response = $this->request(self::getEndpoint(self::CAPTURE_TRANSACTION_OR_VOID), $options);
 
-      if (is_array($response) && isset($response['error'])) {
-        throw new BaseException(
-          $this->logger,
-          json_encode($response['message']),
-          $response['code']
-        );
-      }
+            if (is_array($response) && isset($response['error'])) {
+                throw new BaseException(
+                    $this->logger,
+                    json_encode($response['message']),
+                    $response['code']
+                );
+            }
 
-      return $response->getBody()->getContents();
-
-    } catch (BaseException $e) {
-      return [
-        'error'   => true,
-        'code'    => $e->getCode(),
-        'message' => $e->getMessage(),
-      ];
+            return $response->getBody()->getContents();
+        } catch (BaseException $e) {
+            return [
+                'error' => true,
+                'code' => $e->getCode(),
+                'message' => $e->getMessage(),
+            ];
+        }
     }
-  }
 
 
-  public function appleWalletRequest(array $body, string $salesChannelId = ''): string|array
+    public function appleWalletRequest(array $body, string $salesChannelId = ''): string|array
     {
         $this->setupClient($salesChannelId);
         $options = $this->getDefaultOptions($body);
@@ -171,12 +170,13 @@ class BlueSnapApiClient extends Endpoints
             return $response->getBody()->getContents();
         } catch (AppleWalletCaptureException $e) {
             return [
-                'error'   => true,
-                'code'    => $e->getCode(),
+                'error' => true,
+                'code' => $e->getCode(),
                 'message' => $e->getMessage()
             ];
         }
     }
+
     public function getVaultedShopper(string $id, $salesChannelId = ''): string|array
     {
         $this->setupClient($salesChannelId);
@@ -185,8 +185,8 @@ class BlueSnapApiClient extends Endpoints
         $options = [
             'headers' => [
                 'Authorization' => 'Basic ' . $this->token,
-                'Content-Type'  => 'application/json',
-                'Accept'        => 'application/json'
+                'Content-Type' => 'application/json',
+                'Accept' => 'application/json'
             ],
         ];
         try {
@@ -197,12 +197,13 @@ class BlueSnapApiClient extends Endpoints
             return $response->getBody()->getContents();
         } catch (VaultedShopperException $e) {
             return [
-                'error'   => true,
-                'code'    => $e->getCode(),
+                'error' => true,
+                'code' => $e->getCode(),
                 'message' => $e->getMessage()
             ];
         }
     }
+
     public function hostedCheckout(array $body, $salesChannelId = ''): string|array
     {
         $this->setupClient($salesChannelId);
@@ -215,12 +216,13 @@ class BlueSnapApiClient extends Endpoints
             return $response->getBody()->getContents();
         } catch (HostedCheckoutException $e) {
             return [
-                'error'   => true,
-                'code'    => $e->getCode(),
+                'error' => true,
+                'code' => $e->getCode(),
                 'message' => $e->getMessage()
             ];
         }
     }
+
     public function updateVaultedShopper(string $id, $body, string $salesChannelId = ''): string|array
     {
         $this->setupClient($salesChannelId);
@@ -233,8 +235,8 @@ class BlueSnapApiClient extends Endpoints
             return $response->getBody()->getContents();
         } catch (UpdateVaultedShopperException $e) {
             return [
-                'error'   => true,
-                'code'    => $e->getCode(),
+                'error' => true,
+                'code' => $e->getCode(),
                 'message' => $e->getMessage()
             ];
         }
@@ -270,8 +272,8 @@ class BlueSnapApiClient extends Endpoints
             return $response->getBody()->getContents();
         } catch (RefundException $e) {
             return [
-                'error'   => true,
-                'code'    => $e->getCode(),
+                'error' => true,
+                'code' => $e->getCode(),
                 'message' => $e->getMessage()
             ];
         }

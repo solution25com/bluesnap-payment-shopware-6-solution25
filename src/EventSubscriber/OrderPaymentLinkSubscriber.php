@@ -28,17 +28,17 @@ class OrderPaymentLinkSubscriber implements EventSubscriberInterface
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger
     ) {
-        $this->orderService               = $orderService;
-        $this->paymentLinkService         = $paymentLinkService;
+        $this->orderService = $orderService;
+        $this->paymentLinkService = $paymentLinkService;
         $this->blueSnapTransactionService = $blueSnapTransactionService;
-        $this->dispatcher                 = $dispatcher;
-        $this->logger                     = $logger;
+        $this->dispatcher = $dispatcher;
+        $this->logger = $logger;
     }
 
     public static function getSubscribedEvents()
     {
         return [
-          OrderEvents::ORDER_WRITTEN_EVENT => 'onOrderWritten',
+            OrderEvents::ORDER_WRITTEN_EVENT => 'onOrderWritten',
         ];
     }
 
@@ -57,13 +57,13 @@ class OrderPaymentLinkSubscriber implements EventSubscriberInterface
 
             $orderId = $event->getIds()[0];
             if ($orderId) {
-                $order             = $this->orderService->getOrderDetailsById($orderId, $context);
+                $order = $this->orderService->getOrderDetailsById($orderId, $context);
                 $paymentLinkRecord = $this->paymentLinkService->searchPaymentLink($orderId, $context);
 
                 if (!$paymentLinkRecord && $order->getTransactions()->first()->getPaymentMethod()->getHandlerIdentifier() == LinkPayment::class) {
                     $this->dispatcher->removeSubscriber($this);
                     $this->blueSnapTransactionService->addTransaction($orderId, $order->getTransactions()->first()->getPaymentMethod()->getName(), $orderId, TransactionStatuses::PENDING->value, $context);
-                    $paymentLink = $this->paymentLinkService->generatePaymentLink($order, 'payment-link-success', 'payment-link-fail', $context,false, $salesChannelId);
+                    $paymentLink = $this->paymentLinkService->generatePaymentLink($order, 'payment-link-success', 'payment-link-fail', $context, false, $salesChannelId);
                     $this->paymentLinkService->storePaymentLink($orderId, $paymentLink, $context);
                     $this->paymentLinkService->sendEmail($paymentLink, $order, $salesChannelId, $context);
                 }
