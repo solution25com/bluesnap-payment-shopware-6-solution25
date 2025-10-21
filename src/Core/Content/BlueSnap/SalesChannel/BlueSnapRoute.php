@@ -103,7 +103,13 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     if (count($errors) > 0) {
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
     }
+
     $response = $this->refundService->handelRefunds($data, $context);
+
+    if($response['error']){
+      $this->logger->error('Refund error: ' . json_encode($response));
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $response['message']), $response['code']);
+    }
 
     return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(true, $response));
   }

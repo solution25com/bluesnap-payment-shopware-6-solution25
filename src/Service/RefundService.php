@@ -49,11 +49,11 @@ class RefundService
 
   public function handelRefunds($data, Context $context)
   {
-    if($this->orderReturnRepository === null) {
+    if ($this->orderReturnRepository === null) {
       $this->logger->error('OrderReturnRepository is not available');
-      return null;
+      $parsedResponse['message'] = 'OrderReturnRepository is not available';
+      return $parsedResponse;
     }
-
 
     $criteria = new Criteria();
     $criteria->addAssociation('order');
@@ -95,17 +95,34 @@ class RefundService
     $transaction = $this->blueSnapTransactionService->getTransactionByOrderId($data['orderId'], $context);
     $order = $this->orderService->getOrderDetailsById($data['orderId'], $context);
 
-    if ($transaction) {
+      if (!$transaction) {
+        $this->logger->error('Transaction not found for this order');
+        $parsedResponse['message'] = 'Transaction not found';
+        return $parsedResponse;
+      }
+
       $response = $this->blueSnapApiClient->refund($transaction->getTransactionId(), $body, $orderReturn->getOrder()->getSalesChannelID());
-      $parsedResponse = json_decode($response, true);
+      $parsedResponse = is_string($response) ? json_decode($response, true) : $response;
 
-      if ($parsedResponse['refundStatus'] == 'SUCCESS') {
+      if (!empty($parsedResponse['error'])) {
+        $this->logger->error('BlueSnap refund failed', $parsedResponse);
+        return $parsedResponse;
+      }
 
-        // TODO: Fix this by calculating every return order
-        // -> add every amount and if it matches the order amount
-        // -> then is fully returned
+      $criteria = new Criteria();
+      $criteria->addFilter(new EqualsFilter('orderId', $data['orderId']));
+      $allReturns = $this->orderReturnRepository->search($criteria, $context);
+
+      $totalRefundedAmount = 0;
+      foreach ($allReturns->getElements() as $return) {
+        $totalRefundedAmount += (int) round($return->getAmountTotal() * 100);
+      }
+
+      $orderTotalCents = (int) round($order->getAmountTotal() * 100);
+
+      if (($parsedResponse['refundStatus'] ?? null) === 'SUCCESS') {
         try{
-          if ($order->getAmountTotal() == $orderReturn->getAmountTotal()) {
+          if ($orderTotalCents == $totalRefundedAmount) {
             $this->transactionStateHandler->refund($orderTransactionId, $context);
           } else {
             $this->transactionStateHandler->refundPartially($orderTransactionId, $context);
@@ -127,7 +144,6 @@ class RefundService
           $this->logger->error('Error while changing transaction status');
           $this->logger->error($e->getMessage());
         }
-
 
         try{
           $this->stateMachineRegistry->transition(
@@ -156,13 +172,7 @@ class RefundService
           $this->logger->error('Error while changing return item status');
           $this->logger->error($e->getMessage());
         }
-
-        // TODO: if order line item status needs to be updated to partial return
-        // and if complete quantity eq true then mark as full return -> function to be used:
       }
       return $parsedResponse;
     }
-    return null;
-  }
-
 }
