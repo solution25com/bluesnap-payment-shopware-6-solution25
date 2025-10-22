@@ -71,6 +71,11 @@ class BlueSnapController extends StorefrontController
   #[Route(path: '/google-capture', name: 'frontend.bluesnap.googleCapture', methods: ['POST'])]
   public function googleCapture(Cart $cart, Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
+
+    if($cart->getErrors()->count() > 0){
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, 'Cart has errors'), 400);
+    }
+
     $price = $cart->getPrice()->getTotalPrice();
     $request->request->set('amount', (string)$price);
 
