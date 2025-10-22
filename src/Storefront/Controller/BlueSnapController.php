@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BlueSnap\Storefront\Controller;
 
+use BlueSnap\Core\Content\BlueSnap\BlueSnapApiResponseStruct;
 use BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapApiResponse;
 use BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
@@ -43,6 +44,11 @@ class BlueSnapController extends StorefrontController
   #[Route(path: '/apple-capture', name: 'frontend.bluesnap.apple-capture', methods: ['POST'])]
   public function appleCapture(Cart $cart, Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
+
+    if($cart->getErrors()->count() > 0 && $cart->getErrors()){
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, 'Cart has errors'), 400);
+    }
+
     $price = $cart->getPrice()->getTotalPrice();
     $request->request->set('amount', (string)$price);
 
@@ -57,6 +63,11 @@ class BlueSnapController extends StorefrontController
   #[Route(path: '/capture', name: 'frontend.bluesnap.capture', methods: ['POST'])]
   public function capture(Cart $cart, Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
+
+    if($cart->getErrors()->count() > 0 && $cart->getErrors()){
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, 'Cart has errors'), 400);
+    }
+
     $price = $cart->getPrice()->getTotalPrice();
     $request->request->set('amount', (string)$price);
 
@@ -71,11 +82,6 @@ class BlueSnapController extends StorefrontController
   #[Route(path: '/google-capture', name: 'frontend.bluesnap.googleCapture', methods: ['POST'])]
   public function googleCapture(Cart $cart, Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
-
-    if($cart->getErrors()->count() > 0){
-      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, 'Cart has errors'), 400);
-    }
-
     $price = $cart->getPrice()->getTotalPrice();
     $request->request->set('amount', (string)$price);
 
