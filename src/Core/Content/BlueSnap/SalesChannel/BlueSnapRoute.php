@@ -20,7 +20,6 @@ use BlueSnap\Service\RefundService;
 use BlueSnap\Service\VaultedShopperService;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
-use Shopware\Core\Content\Product\Cart\ProductOutOfStockError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -125,7 +124,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     $outOfStockError = false;
 
     foreach ($errors as $error) {
-      if($error instanceof ProductOutOfStockError) {
+      if($error) {
         $outOfStockError = true;
         break;
       }
@@ -256,7 +255,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     $outOfStockError = false;
 
     foreach ($errors as $error) {
-      if($error instanceof ProductOutOfStockError) {
+      if($error) {
         $outOfStockError = true;
         break;
       }
@@ -342,7 +341,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     $outOfStockError = false;
 
     foreach ($errors as $error) {
-      if($error instanceof ProductOutOfStockError) {
+      if($error) {
         $outOfStockError = true;
         break;
       }
