@@ -122,16 +122,18 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
 
     $errors = $cart->getErrors();
     $outOfStockError = false;
+    $errorMessage = [];
 
     foreach ($errors as $error) {
       if($error) {
+        $errorMessage[] = $error->getMessage() ?? '';
         $outOfStockError = true;
         break;
       }
     }
 
     if($outOfStockError) {
-      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errorMessage), 400);
     }
 
     $salesChannelId = $context->getSalesChannel()->getId();
