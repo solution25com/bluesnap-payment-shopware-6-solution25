@@ -121,19 +121,22 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     $cart = $this->cartService->getCart($context->getToken(), $context);
 
     $errors = $cart->getErrors();
-    $outOfStockError = false;
-    $errorMessage = [];
+    $cartErrors = false;
+    $errorMessages = [];
 
     foreach ($errors as $error) {
       if($error) {
-        $errorMessage[] = $error->getMessage() ?? '';
-        $outOfStockError = true;
+        $errorMessages = [$error->getMessage() ?? ''];
+        $cartErrors = true;
         break;
       }
     }
 
-    if($outOfStockError) {
-      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errorMessage), 400);
+    if (empty($cart->getData()->getElements()) || $cartErrors ) {
+      return new BlueSnapApiResponse(
+        new BlueSnapApiResponseStruct(false, $errorMessages),
+        400
+      );
     }
 
     $salesChannelId = $context->getSalesChannel()->getId();
@@ -254,17 +257,22 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     $cart = $this->cartService->getCart($context->getToken(), $context);
 
     $errors = $cart->getErrors();
-    $outOfStockError = false;
+    $cartErrors = false;
+    $errorMessages = [];
 
     foreach ($errors as $error) {
       if($error) {
-        $outOfStockError = true;
+        $errorMessages = [$error->getMessage() ?? ''];
+        $cartErrors = true;
         break;
       }
     }
 
-    if($outOfStockError) {
-      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
+    if (empty($cart->getData()->getElements()) || $cartErrors ) {
+      return new BlueSnapApiResponse(
+        new BlueSnapApiResponseStruct(false, $errorMessages),
+        400
+      );
     }
 
     $data = $request->request->all();
@@ -340,17 +348,22 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     $cart = $this->cartService->getCart($context->getToken(), $context);
 
     $errors = $cart->getErrors();
-    $outOfStockError = false;
+    $cartErrors = false;
+    $errorMessages = [];
 
     foreach ($errors as $error) {
       if($error) {
-        $outOfStockError = true;
+        $errorMessages = [$error->getMessage() ?? ''];
+        $cartErrors = true;
         break;
       }
     }
 
-    if($outOfStockError) {
-      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
+    if (empty($cart->getData()->getElements()) || $cartErrors ) {
+      return new BlueSnapApiResponse(
+        new BlueSnapApiResponseStruct(false, $errorMessages),
+        400
+      );
     }
 
     $data = $request->request->all();
