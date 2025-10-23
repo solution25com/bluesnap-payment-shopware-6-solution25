@@ -20,6 +20,7 @@ use BlueSnap\Service\RefundService;
 use BlueSnap\Service\VaultedShopperService;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
+use Shopware\Core\Content\Product\Cart\ProductOutOfStockError;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 use Shopware\Core\Framework\Validation\DataBag\RequestDataBag;
@@ -118,6 +119,22 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   public function capture(Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
 
+    $cart = $this->cartService->getCart($context->getToken(), $context);
+
+    $errors = $cart->getErrors();
+    $outOfStockError = false;
+
+    foreach ($errors as $error) {
+      if($error instanceof ProductOutOfStockError) {
+        $outOfStockError = true;
+        break;
+      }
+    }
+
+    if($outOfStockError) {
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
+    }
+
     $salesChannelId = $context->getSalesChannel()->getId();
     $is3DSEnabled = $this->blueSnapConfig->getConfig('threeDS', $salesChannelId);
     $data = $request->request->all();
@@ -210,7 +227,6 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       }
     }
 
-    $cart = $this->cartService->getCart($context->getToken(), $context);
     $orderResponse = $this->cartOrderRoute->order($cart, $context, new RequestDataBag());
 
     $order = $orderResponse->getOrder();
@@ -233,6 +249,22 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   #[Route(path: '/store-api/bluesnap/google-capture', name: 'store-api.bluesnap.googleCapture', methods: ['POST'])]
   public function googleCapture(Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
+
+    $cart = $this->cartService->getCart($context->getToken(), $context);
+
+    $errors = $cart->getErrors();
+    $outOfStockError = false;
+
+    foreach ($errors as $error) {
+      if($error instanceof ProductOutOfStockError) {
+        $outOfStockError = true;
+        break;
+      }
+    }
+
+    if($outOfStockError) {
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
+    }
 
     $data = $request->request->all();
     $cardTransactionType = $this->blueSnapConfig->getCardTransactionType($context->getSalesChannelId());
@@ -281,7 +313,6 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
 
     $responseDecoded = json_decode($response, true);
 
-    $cart = $this->cartService->getCart($context->getToken(), $context);
     $orderResponse = $this->cartOrderRoute->order($cart, $context, new RequestDataBag());
 
     $order = $orderResponse->getOrder();
@@ -304,6 +335,23 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   #[Route(path: '/store-api/bluesnap/apple-capture', name: 'store-api.bluesnap.appleCapture', methods: ['POST'])]
   public function appleCapture(Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
+
+    $cart = $this->cartService->getCart($context->getToken(), $context);
+
+    $errors = $cart->getErrors();
+    $outOfStockError = false;
+
+    foreach ($errors as $error) {
+      if($error instanceof ProductOutOfStockError) {
+        $outOfStockError = true;
+        break;
+      }
+    }
+
+    if($outOfStockError) {
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
+    }
+
     $data = $request->request->all();
     $cardTransactionType = $this->blueSnapConfig->getCardTransactionType($context->getSalesChannelId());
 
@@ -351,7 +399,6 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
 
     $responseDecoded = json_decode($response, true);
 
-    $cart = $this->cartService->getCart($context->getToken(), $context);
     $orderResponse = $this->cartOrderRoute->order($cart, $context, new RequestDataBag());
 
     $order = $orderResponse->getOrder();
