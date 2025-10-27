@@ -292,6 +292,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
     }
 
+
     $body = [
       "amount" => round((float)$data['amount'], 2),
       "softDescriptor" => "Google Pay",
@@ -434,6 +435,29 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
   #[Route(path: '/store-api/bluesnap/apple-create-wallet', name: 'store-api.bluesnap.appleCreateWallet', methods: ['POST'])]
   public function appleCreateWallet(Request $request, SalesChannelContext $context): BlueSnapApiResponse
   {
+
+    $cart = $this->cartService->getCart($context->getToken(), $context);
+
+    $errors = $cart->getErrors();
+    $cartErrors = false;
+    $errorMessages = [];
+
+    foreach ($errors as $error) {
+      if($error) {
+        $errorMessages = [$error->getMessage() ?? ''];
+        $cartErrors = true;
+        break;
+      }
+    }
+
+    if (empty($cart->getData()->getElements()) || $cartErrors ) {
+      return new BlueSnapApiResponse(
+        new BlueSnapApiResponseStruct(false, $errorMessages),
+        400
+      );
+    }
+
+
     $data = $request->request->all();
     $constraints = new Assert\Collection([
       'validationUrl' => [new Assert\NotBlank(), new Assert\Type('string')],
