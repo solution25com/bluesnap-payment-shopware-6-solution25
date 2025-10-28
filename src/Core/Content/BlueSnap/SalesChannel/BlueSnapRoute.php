@@ -367,6 +367,7 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
       );
     }
 
+
     $data = $request->request->all();
     $cardTransactionType = $this->blueSnapConfig->getCardTransactionType($context->getSalesChannelId());
 
@@ -386,6 +387,15 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
     if (count($errors) > 0) {
       return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $errors), 400);
     }
+
+
+    if($cart->getPrice()->getTotalPrice() != round((float)$data['amount'], 2)) {
+        return new BlueSnapApiResponse(
+            new BlueSnapApiResponseStruct(false, 'Payment failed.'),
+            400
+        );
+    }
+
     $body = [
       "amount" => round((float)$data['amount'], 2),
       "softDescriptor" => "Apple Pay",
