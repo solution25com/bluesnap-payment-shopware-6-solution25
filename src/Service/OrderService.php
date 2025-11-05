@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 
@@ -203,6 +204,33 @@ class OrderService
       'taxRate' => $taxRate,
       'lineItems' => $items,
     ];
+  }
+
+  public function validateCartForOOS($cart, $context): array
+  {
+    $outOfStockErrors = [];
+    foreach ($cart->getLineItems() as $lineItem) {
+      if ($lineItem->getType() === LineItem::PRODUCT_LINE_ITEM_TYPE) {
+        $productId = $lineItem->getId();
+        if(!Uuid::isValid($productId)){
+          $outOfStockErrors[] = 'product with id ' . $productId . ' not found';
+          continue;
+        }
+
+        $product = $this->productRepository->search(new Criteria([$productId]), $context);
+        if (!$product || !$product->first()) {
+          $outOfStockErrors[] = 'product with id ' . $productId . ' not found';
+          continue;
+        }
+
+        $availableStock = $product->first()->getAvailableStock();
+        if ($lineItem->getQuantity() > $availableStock) {
+          $productNumber  = $product->first()->getProductNumber();
+          $outOfStockErrors[] = 'product number ' . $productNumber . ' is out of stock';
+        }
+      }
+    }
+    return $outOfStockErrors;
   }
 
 }

@@ -390,10 +390,10 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
 
 
     if($cart->getPrice()->getTotalPrice() != round((float)$data['amount'], 2)) {
-        return new BlueSnapApiResponse(
-            new BlueSnapApiResponseStruct(false, 'Payment failed.'),
-            400
-        );
+      return new BlueSnapApiResponse(
+        new BlueSnapApiResponseStruct(false, 'Payment failed.'),
+        400
+      );
     }
 
     $body = [
@@ -416,6 +416,12 @@ class BlueSnapRoute extends AbstractBlueSnapRoute
         $body['level3Data'] = $level3Data;
       }
     }
+
+    $OOSErrors = $this->orderService->validateCartForOOS($cart, $context->getContext());
+    if (count($OOSErrors) > 0) {
+      return new BlueSnapApiResponse(new BlueSnapApiResponseStruct(false, $OOSErrors), 400);
+    }
+
 
     $response = $this->blueSnapClient->capture($body, $context->getSalesChannelId());
     if (isset($response['error'])) {
