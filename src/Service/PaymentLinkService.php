@@ -2,6 +2,7 @@
 
 namespace BlueSnap\Service;
 
+use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use BlueSnap\Library\Constants\EnvironmentUrl;
@@ -37,7 +38,8 @@ class PaymentLinkService
     EntityRepository    $mailTemplateRepository,
     SystemConfigService $systemConfigService,
     EntityRepository    $orderRepository,
-    OrderService        $orderService
+    OrderService        $orderService,
+    LoggerInterface     $logger
   )
   {
     $this->paymentLinkRepository = $paymentLinkRepository;
@@ -49,6 +51,7 @@ class PaymentLinkService
     $this->systemConfigService = $systemConfigService;
     $this->orderRepository = $orderRepository;
     $this->orderService = $orderService;
+    $this->logger = $logger;
   }
 
   public function storePaymentLink(string $orderId, string $paymentLink, Context $context): void
@@ -192,7 +195,12 @@ class PaymentLinkService
       "lineItems" => $lineItems,
     ], $salesChannelId);
 
-    $responseData = json_decode($response, true);
+    $responseData = is_string($response) ? json_decode($response, true) : $response;
+
+    if (!empty($responseData['error'])) {
+      $this->logger->error('BlueSnap link payment failed', $responseData);;
+      return $responseData;
+    }
 
     $checkoutLink = $this->blueSnapConfig->getConfig('mode', $salesChannelId) === 'live' ? EnvironmentUrl::CHECKOUT_LINK_LIVE->value : EnvironmentUrl::CHECKOUT_LINK_SANDBOX->value;
     $jwt = $responseData['jwt'];
@@ -287,7 +295,7 @@ class PaymentLinkService
       }
 
       $discountIndicator = $listPrice && $listPrice->getPrice() > $price->getUnitPrice() ? 'Y' : 'N';
-      
+
       $product = $this->orderService->getProduct($productId, $context);
       $unitOfMeasure = $product->getUnit()?->getShortCode() ?? 'N/A';
 
