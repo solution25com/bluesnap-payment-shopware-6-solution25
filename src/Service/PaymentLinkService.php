@@ -28,6 +28,7 @@ class PaymentLinkService
   private SystemConfigService $systemConfigService;
   private EntityRepository $orderRepository;
   private OrderService $orderService;
+  private LoggerInterface $logger;
 
   public function __construct(
     EntityRepository    $paymentLinkRepository,
@@ -79,87 +80,91 @@ class PaymentLinkService
     $taxRule = $this->blueSnapConfig->getConfig('taxRule', $salesChannelId);
     $lineItems = [];
 
+    $totalBundles = 0;
     foreach ($order->getLineItems() as $lineItem) {
       $payload = $lineItem->getPayload();
 
-      // fix for bundle product plugin (ignore line items)
+      if (isset($payload['AvalaraLineItemChildTax'])) {
+        continue;
+      }
+
       if (isset($payload['zeobvCustomLineItemType']) && $payload['zeobvCustomLineItemType'] === 'bundle_product_item') {
         continue;
       }
 
-      $product = $lineItem->getReferencedId();
-      $quantity = $lineItem->getQuantity();
-      $unitPrice = $lineItem->getPrice()->getUnitPrice();
       $productName = $lineItem->getLabel();
       $productDescription = $lineItem->getDescription() ?? 'No description available';
 
+      $amount = round($lineItem->getTotalPrice(), 2);
+      $totalBundles += $amount;
+
       $lineItems[] = [
-        "payload" => $payload,
-        "id" => (string)$product,
-        "quantity" => $quantity,
+        "id" => (string) $lineItem->getReferencedId(),
+        "quantity" => $lineItem->getQuantity(),
         "label" => $productName,
         "description" => $productDescription,
-        "amount" => round($unitPrice * $quantity, 2),
+        "amount" => $amount,
       ];
-
-      if ($taxRule === 'EU') {
-        $shippingCost = $order->getShippingCosts()->getTotalPrice();
-        if ($shippingCost > 0) {
-          $lineItems[] = [
-            "id" => Uuid::randomHex(),
-            "quantity" => 1,
-            "label" => 'Shipping Cost',
-            "amount" => round($shippingCost, 2),
-          ];
-        }
-      } else {
-        $calculatedTax = $order->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
-        $shippingTax = $order->getShippingCosts()->getCalculatedTaxes()->getAmount();
-
-        if ($shippingTax && $calculatedTax) {
-          $lineItems[] = [
-            "id" => Uuid::randomHex(),
-            "quantity" => 1,
-            "label" => 'Tax',
-            "amount" => round($calculatedTax + $shippingTax, 2),
-          ];
-        } elseif ($shippingTax != 0) {
-          $lineItems[] = [
-            "id" => Uuid::randomHex(),
-            "quantity" => 1,
-            "label" => 'Tax',
-            "amount" => round($shippingTax, 2),
-          ];
-        } elseif ($calculatedTax != 0) {
-          $lineItems[] = [
-            "id" => Uuid::randomHex(),
-            "quantity" => 1,
-            "label" => 'Tax',
-            "amount" => round($calculatedTax, 2),
-          ];
-        }
-
-        $shippingCost = $order->getShippingCosts()->getTotalPrice();
-        if ($shippingCost > 0) {
-          $lineItems[] = [
-            "id" => Uuid::randomHex(),
-            "quantity" => 1,
-            "label" => 'Shipping Cost',
-            "amount" => round($shippingCost, 2),
-          ];
-        }
-      }
-
     }
 
+    if ($taxRule === 'EU') {
+      $shippingCost = $order->getShippingCosts()->getTotalPrice();
+      if ($shippingCost > 0) {
+        $lineItems[] = [
+          "id" => Uuid::randomHex(),
+          "quantity" => 1,
+          "label" => 'Shipping Cost',
+          "amount" => round($shippingCost, 2),
+        ];
+      }
+    } else {
+      $shippingCost = $order->getShippingCosts()->getTotalPrice();
+      $calculatedTax = $order->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
+      $shippingTax = $order->getShippingCosts()->getCalculatedTaxes()->getAmount();
+      $orderAmountTotal = $order->getAmountTotal();
+      $orderPositionPrice = $order->getPositionPrice();
+      $findTax = $orderAmountTotal - $orderPositionPrice - $shippingCost;
+
+      if ($shippingTax && $calculatedTax) {
+        $lineItems[] = [
+          "id" => Uuid::randomHex(),
+          "quantity" => 1,
+          "label" => 'Tax',
+          "amount" => round($calculatedTax + $shippingTax, 2),
+        ];
+      } elseif ($shippingTax != 0) {
+        $lineItems[] = [
+          "id" => Uuid::randomHex(),
+          "quantity" => 1,
+          "label" => 'Tax',
+          "amount" => round($shippingTax, 2),
+        ];
+      } elseif ($calculatedTax != 0) {
+        $lineItems[] = [
+          "id" => Uuid::randomHex(),
+          "quantity" => 1,
+          "label" => 'Tax',
+          "amount" => round($findTax, 2),
+        ];
+      }
+
+      if ($shippingCost > 0) {
+        $lineItems[] = [
+          "id" => Uuid::randomHex(),
+          "quantity" => 1,
+          "label" => 'Shipping Cost',
+          "amount" => round($shippingCost, 2),
+        ];
+      }
+    }
 
     $request = $this->requestStack->getCurrentRequest();
-
     if (!$api) {
       $baseUrl = '';
       if ($request) {
         $baseUrl = $request->getSchemeAndHttpHost();
       }
+
       $successUrl = "$baseUrl/" . $successUrl;
       $cancelUrl = "$baseUrl/" . $cancelUrl;
 
@@ -170,7 +175,10 @@ class PaymentLinkService
       }
     }
 
-    $includeLevelTwoThreeData = $this->blueSnapConfig->Level23DataConfigs($salesChannelId, $order->getOrderCustomer()->getCustomer()->getGroupId());
+    $includeLevelTwoThreeData = $this->blueSnapConfig->Level23DataConfigs(
+      $salesChannelId,
+      $order->getOrderCustomer()->getCustomer()->getGroupId()
+    );
 
     if ($includeLevelTwoThreeData) {
       $displayData = $this->buildLevel3DisplayData($order, $context);
@@ -198,12 +206,16 @@ class PaymentLinkService
     $responseData = is_string($response) ? json_decode($response, true) : $response;
 
     if (!empty($responseData['error'])) {
-      $this->logger->error('BlueSnap link payment failed', $responseData);;
-      return $responseData;
+      echo json_encode($responseData, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+      exit;
     }
 
-    $checkoutLink = $this->blueSnapConfig->getConfig('mode', $salesChannelId) === 'live' ? EnvironmentUrl::CHECKOUT_LINK_LIVE->value : EnvironmentUrl::CHECKOUT_LINK_SANDBOX->value;
+    $checkoutLink = $this->blueSnapConfig->getConfig('mode', $salesChannelId) === 'live'
+      ? EnvironmentUrl::CHECKOUT_LINK_LIVE->value
+      : EnvironmentUrl::CHECKOUT_LINK_SANDBOX->value;
+
     $jwt = $responseData['jwt'];
+
     return $checkoutLink . '/checkout/?jwt=' . $jwt . '&displaydata=' . urlencode($displayDataEncoded);
   }
 
