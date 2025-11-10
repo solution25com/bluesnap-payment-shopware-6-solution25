@@ -223,7 +223,7 @@ class OrderService
           continue;
         }
 
-        $availableStock = $product->first()->getAvailableStock();
+        $availableStock = $product->first()->getStock();
         if ($lineItem->getQuantity() > $availableStock) {
           $productNumber  = $product->first()->getProductNumber();
           $outOfStockErrors[] = 'product number ' . $productNumber . ' is out of stock';
