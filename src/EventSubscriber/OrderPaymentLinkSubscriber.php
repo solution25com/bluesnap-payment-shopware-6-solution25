@@ -60,6 +60,10 @@ class OrderPaymentLinkSubscriber implements EventSubscriberInterface
                 $order             = $this->orderService->getOrderDetailsById($orderId, $context);
                 $paymentLinkRecord = $this->paymentLinkService->searchPaymentLink($orderId, $context);
 
+                if (!$salesChannelId && $order && $order->getSalesChannelId()) {
+                  $salesChannelId = $order->getSalesChannelId();
+                }
+
                 if (!$paymentLinkRecord && $order->getTransactions()->first()->getPaymentMethod()->getHandlerIdentifier() == LinkPayment::class) {
                     $this->dispatcher->removeSubscriber($this);
                     $this->blueSnapTransactionService->addTransaction($orderId, $order->getTransactions()->first()->getPaymentMethod()->getName(), $orderId, TransactionStatuses::PENDING->value, $context);
