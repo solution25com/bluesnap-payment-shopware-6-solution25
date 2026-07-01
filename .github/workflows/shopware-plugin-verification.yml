@@ -29,9 +29,9 @@ jobs:
       - name: Validate Extension (${{ matrix.version-selection }})
         shell: bash
         run: |
-          if shopware-cli extension validate --full --check-against ${{ matrix.version-selection }} ${{ steps.zip.outputs.zip }}; then
-            echo "### ✅ Extension Validator Passed (${{ matrix.version-selection }})"
-          else
-            echo "### ❌ Extension Validator Failed (${{ matrix.version-selection }})"
-            exit 1
-          fi
+            if shopware-cli extension validate --full --check-against ${{ matrix.version-selection }} --reporter summary ${{ steps.zip.outputs.zip }}; then
+              echo "### ✅ Extension Validator Passed (${{ matrix.version-selection }})"
+            else
+              echo "### ❌ Extension Validator Failed (${{ matrix.version-selection }})"
+              exit 1
+            fi
