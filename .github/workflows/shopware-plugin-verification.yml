@@ -25,6 +25,7 @@ jobs:
         with:
           path: .
           output-directory: .build
+          disable-git: true
 
       - name: Validate Extension (${{ matrix.version-selection }})
         shell: bash
