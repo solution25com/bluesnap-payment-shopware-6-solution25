@@ -1,4 +1,4 @@
-# 1.0.4
+# 1.1.0
 
 ## Fixed
 - Fixed "Change card" payment failures ("card type does not match initial request") when switching from a saved card to a new one during checkout.
