@@ -34,11 +34,11 @@ class BluesnapTransactionDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-          (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
-          (new StringField('order_id', 'orderId'))->addFlags(new ApiAware()),
-          (new StringField('payment_method_name', 'paymentMethodName'))->addFlags(new ApiAware()),
-          (new StringField('transaction_id', 'transactionId'))->addFlags(new ApiAware(), new Required()),
-          (new StringField('status', 'status'))->addFlags(new ApiAware(), new Required()),
+            (new IdField('id', 'id'))->addFlags(new ApiAware(), new Required(), new PrimaryKey()),
+            (new StringField('order_id', 'orderId'))->addFlags(new ApiAware()),
+            (new StringField('payment_method_name', 'paymentMethodName'))->addFlags(new ApiAware()),
+            (new StringField('transaction_id', 'transactionId'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('status', 'status'))->addFlags(new ApiAware(), new Required()),
         ]);
     }
 }

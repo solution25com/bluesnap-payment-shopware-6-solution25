@@ -2,6 +2,7 @@
 
 namespace BlueSnap\Service;
 
+use BlueSnap\Core\Content\VaultedShopper\VaultedShopperEntity;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -14,44 +15,44 @@ class VaultedShopperService
 {
     private EntityRepository $vaultedShopperRepository;
     private LoggerInterface $logger;
+
     public function __construct(EntityRepository $vaultedShopperRepository, LoggerInterface $logger)
     {
         $this->vaultedShopperRepository = $vaultedShopperRepository;
-        $this->logger                   = $logger;
+        $this->logger = $logger;
     }
-    public function store(SalesChannelContext $salesChannelContext, string $vaultedShopperId, string $cardType): void
-    {
-        $context                = $salesChannelContext->getContext();
-        $salesChannelCustomerId = $salesChannelContext->getCustomer()->getId();
 
+    public function store(string $vaultedShopperId, string $cardType, string $customerId, Context $context): void
+    {
         try {
+            /** @var VaultedShopperEntity|null $existingShopper */
             $existingShopper = $this->vaultedShopperRepository->search(
-                (new Criteria())->addFilter(new EqualsFilter('customerId', $salesChannelCustomerId)),
+                (new Criteria())->addFilter(new EqualsFilter('customerId', $customerId)),
                 $context
             )->first();
             if ($existingShopper) {
                 $this->vaultedShopperRepository->upsert(
                     [
-                      [
-                        'id'               => $existingShopper->getId(),
-                        'customerId'       => $salesChannelCustomerId,
-                        'vaultedShopperId' => $vaultedShopperId,
-                        'cardType'         => $cardType,
-                        'updatedAt'        => (new \DateTime())->format('Y-m-d H:i:s'),
-                      ]
+                        [
+                            'id' => $existingShopper->getId(),
+                            'customerId' => $customerId,
+                            'vaultedShopperId' => $vaultedShopperId,
+                            'cardType' => $cardType,
+                            'updatedAt' => (new \DateTime())->format('Y-m-d H:i:s'),
+                        ]
                     ],
                     $context
                 );
             } else {
                 $this->vaultedShopperRepository->upsert(
                     [
-                      [
-                        'id'               => Uuid::randomHex(),
-                        'customerId'       => $salesChannelCustomerId,
-                        'vaultedShopperId' => $vaultedShopperId,
-                        'cardType'         => $cardType,
-                        'createdAt'        => (new \DateTime())->format('Y-m-d H:i:s'),
-                      ]
+                        [
+                            'id' => Uuid::randomHex(),
+                            'customerId' => $customerId,
+                            'vaultedShopperId' => $vaultedShopperId,
+                            'cardType' => $cardType,
+                            'createdAt' => (new \DateTime())->format('Y-m-d H:i:s'),
+                        ]
                     ],
                     $context
                 );
@@ -60,13 +61,16 @@ class VaultedShopperService
             $this->logger->error('Error storing vaulted shopper data: ' . $e->getMessage());
         }
     }
+
     public function getVaultedShopperIdByCustomerId(Context $context, string $customerId): ?string
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
+        /** @var VaultedShopperEntity|null $res */
         $res = $this->vaultedShopperRepository->search($criteria, $context)->first();
         return $res ? $res->getVaultedShopperId() : null;
     }
+
     public function vaultedShopperExist(Context $context, string $customerId): bool
     {
         $criteria = new Criteria();

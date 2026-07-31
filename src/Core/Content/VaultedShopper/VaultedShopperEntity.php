@@ -5,31 +5,21 @@ declare(strict_types=1);
 namespace BlueSnap\Core\Content\VaultedShopper;
 
 use Shopware\Core\Checkout\Customer\CustomerDefinition;
+use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
+use Swag\PayPal\RestApi\V2\Api\Order\PaymentSource\Common\Attributes\Customer;
 use Symfony\Component\String\ByteString;
 
 class VaultedShopperEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected $id;
-
     protected ?string $customerId;
 
-    protected $vaultedShopperId;
-
-    protected $cardType;
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
+    protected string $vaultedShopperId;
+    protected string $cardType;
+    protected ?CustomerEntity $customer;
 
     public function getCustomerId(): ?string
     {
@@ -39,6 +29,16 @@ class VaultedShopperEntity extends Entity
     public function setCustomerId(?string $customerId): void
     {
         $this->customerId = $customerId;
+    }
+
+    public function getCustomer(): ?CustomerEntity
+    {
+        return $this->customer;
+    }
+
+    public function setCustomer(CustomerEntity $customer): void
+    {
+        $this->customer = $customer;
     }
 
     public function getVaultedShopperId()
@@ -55,6 +55,7 @@ class VaultedShopperEntity extends Entity
     {
         return $this->cardType;
     }
+
     public function setCardType(string $cardType): void
     {
         $this->cardType = $cardType;

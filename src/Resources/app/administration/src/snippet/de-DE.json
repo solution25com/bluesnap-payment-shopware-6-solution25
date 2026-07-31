@@ -1,0 +1,17 @@
+{
+  "Bluesnap": {
+    "order": {
+      "paymentSurcharge": "Zahlungsaufschlag"
+    },
+    "apiTest": {
+      "success": {
+        "title": "BlueSnap API-Test",
+        "message": "Verbindung erfolgreich!"
+      },
+      "error": {
+        "title": "BlueSnap API-Test",
+        "message": "Verbindungstest fehlgeschlagen! Bitte überprüfen Sie die API-Zugangsdaten."
+      }
+    }
+  }
+}

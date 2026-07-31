@@ -8,6 +8,8 @@ use BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapApiResponse;
 use BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Storefront\Controller\StorefrontController;
+use BlueSnap\Service\BlueSnapConfig;
+use BlueSnap\Service\OrderService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -17,10 +19,18 @@ use Shopware\Core\Checkout\Cart\Cart;
 class BlueSnapController extends StorefrontController
 {
     private BlueSnapRoute $route;
+    private OrderService $orderService;
 
-    public function __construct(BlueSnapRoute $route)
-    {
+    private BlueSnapConfig $blueSnapConfig;
+
+    public function __construct(
+        BlueSnapRoute $route,
+        OrderService $orderService,
+        BlueSnapConfig $blueSnapConfig
+    ) {
         $this->route = $route;
+        $this->orderService = $orderService;
+        $this->blueSnapConfig = $blueSnapConfig;
     }
 
     #[Route(path: '/apple-create-wallet', name: 'frontend.bluesnap.apple-create-wallet', methods: ['POST'])]
@@ -29,20 +39,58 @@ class BlueSnapController extends StorefrontController
         return $this->route->appleCreateWallet($request, $context);
     }
 
+    #[Route(path: '/get-pf-token', name: 'frontend.bluesnap.get-pf-token', methods: ['GET'])]
+    public function getPfToken(Request $request, SalesChannelContext $context): BlueSnapApiResponse
+    {
+        return $this->route->getPfToken($request, $context);
+    }
+
     #[Route(path: '/apple-capture', name: 'frontend.bluesnap.apple-capture', methods: ['POST'])]
     public function appleCapture(Cart $cart, Request $request, SalesChannelContext $context): BlueSnapApiResponse
     {
         $price = $cart->getPrice()->getTotalPrice();
         $request->request->set('amount', (string)$price);
+
+        if ($this->blueSnapConfig->level23DataConfigs($context->getSalesChannel()->getId(), $context->getCustomer()->getGroupId())) {
+            $cartData = $this->orderService->extractLVL2And3DataFromCart($cart, $context);
+            $request->request->set('cartData', $cartData);
+        }
+
         return $this->route->appleCapture($request, $context);
     }
 
     #[Route(path: '/capture', name: 'frontend.bluesnap.capture', methods: ['POST'])]
     public function capture(Cart $cart, Request $request, SalesChannelContext $context): BlueSnapApiResponse
     {
-        $price = $cart->getPrice()->getTotalPrice();
-        $request->request->set('amount', (string)$price);
+        $content = json_decode($request->getContent(), true);
+        if (is_array($content)) {
+            foreach ($content as $key => $value) {
+                $request->request->set($key, $value);
+            }
+        }
+        if (!empty($content['surchargeAmount']) && is_numeric($content['surchargeAmount'])) {
+            $price = $cart->getPrice()->getTotalPrice() + (float)$content['surchargeAmount'];
+            $request->request->set('amount', (string)$price);
+        } else {
+            $price = $cart->getPrice()->getTotalPrice();
+            $request->request->set('amount', (string)$price);
+        }
+
+
+        if ($this->blueSnapConfig->level23DataConfigs($context->getSalesChannel()->getId(), $context->getCustomer()->getGroupId())) {
+            $cartData = $this->orderService->extractLVL2And3DataFromCart($cart, $context);
+            $request->request->set('cartData', $cartData);
+        }
+
         return $this->route->capture($request, $context);
+    }
+
+    #[Route(path: '/calculate-surcharge', name: 'frontend.bluesnap.calculateSurcharge', methods: ['POST'])]
+    public function calculateSurcharge(Cart $cart, Request $request, SalesChannelContext $context): BlueSnapApiResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        $data['amount'] = $data['amount'] ?? $cart->getPrice()->getTotalPrice();
+        return $this->route->calculateSurcharge($request, $context);
     }
 
     #[Route(path: '/google-capture', name: 'frontend.bluesnap.googleCapture', methods: ['POST'])]
@@ -50,14 +98,31 @@ class BlueSnapController extends StorefrontController
     {
         $price = $cart->getPrice()->getTotalPrice();
         $request->request->set('amount', (string)$price);
+
+        if ($this->blueSnapConfig->level23DataConfigs($context->getSalesChannel()->getId(), $context->getCustomer()->getGroupId())) {
+            $cartData = $this->orderService->extractLVL2And3DataFromCart($cart, $context);
+            $request->request->set('cartData', $cartData);
+        }
+
         return $this->route->googleCapture($request, $context);
     }
 
     #[Route(path: '/vaulted-shopper', name: 'frontend.bluesnap.vaultedShopper', methods: ['POST'])]
     public function vaultedShopper(Cart $cart, Request $request, SalesChannelContext $context): BlueSnapApiResponse
     {
-        $price = $cart->getPrice()->getTotalPrice();
-        $request->request->set('amount', (string)$price);
+        $data = $request->request->all();
+        if (!empty($data['surchargeAmount']) && is_numeric($data['surchargeAmount'])) {
+            $price = $cart->getPrice()->getTotalPrice() + (float)$data['surchargeAmount'];
+            $request->request->set('amount', (string)$price);
+        } else {
+            $price = $cart->getPrice()->getTotalPrice();
+            $request->request->set('amount', (string)$price);
+        }
+
+        if ($this->blueSnapConfig->level23DataConfigs($context->getSalesChannel()->getId(), $context->getCustomer()->getGroupId())) {
+            $cartData = $this->orderService->extractLVL2And3DataFromCart($cart, $context);
+            $request->request->set('cartData', $cartData);
+        }
         return $this->route->vaultedShopper($request, $context);
     }
 

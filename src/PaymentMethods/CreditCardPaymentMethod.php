@@ -3,7 +3,6 @@
 namespace BlueSnap\PaymentMethods;
 
 use BlueSnap\Gateways\CreditCard;
-use BlueSnap\PaymentMethods\PaymentMethodInterface;
 
 class CreditCardPaymentMethod implements PaymentMethodInterface
 {

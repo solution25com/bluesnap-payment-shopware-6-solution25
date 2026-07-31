@@ -5,14 +5,20 @@
     },
     "credit-card": {
       "fields": {
+        "first-name-placeholder": "First Name",
+        "last-name-placeholder": "Last Name",
         "saved-card-text": "Use Saved Card",
         "helper-text": "16 digits on your card, <span>e.g., 1234 5678 9123 4567</span>",
         "secure-payments": "Secure payments",
-        "save-card-info": "Save card for future payment"
+        "save-card-info": "Save card for future payment",
+        "logo": "Logo"
       }
     },
     "button": {
-    "debit-card-btn-text": "Submit order"
+      "debit-card-btn-text": "Submit order"
+    },
+    "surcharge": {
+      "label": "Payment Surcharge"
     },
     "paymentFail": {
       "paymentFail-text": "Unfortunately you payment did not go through",

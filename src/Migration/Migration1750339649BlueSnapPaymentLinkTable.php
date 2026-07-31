@@ -11,12 +11,11 @@ use Shopware\Core\Framework\Migration\MigrationStep;
 /**
  * @internal
  */
-#[Package('core')]
-class Migration1731282481BlueSnapPaymentLinkTable extends MigrationStep
+class Migration1750339649BlueSnapPaymentLinkTable extends MigrationStep
 {
     public function getCreationTimestamp(): int
     {
-        return 1731282481;
+        return 1750339649;
     }
 
     public function update(Connection $connection): void

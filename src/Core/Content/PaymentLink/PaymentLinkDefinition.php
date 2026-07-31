@@ -22,9 +22,9 @@ class PaymentLinkDefinition extends EntityDefinition
     protected function defineFields(): FieldCollection
     {
         return new FieldCollection([
-          (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
-          (new StringField('order_id', 'order_id'))->addFlags(new Required()),
-          (new LongTextField('link', 'link'))->addFlags(new Required()),
+            (new IdField('id', 'id'))->addFlags(new Required(), new PrimaryKey()),
+            (new StringField('order_id', 'order_id'))->addFlags(new Required()),
+            (new LongTextField('link', 'link'))->addFlags(new Required()),
         ]);
     }
 }

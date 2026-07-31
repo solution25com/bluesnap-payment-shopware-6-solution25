@@ -9,21 +9,9 @@ class PaymentLinkEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected $id;
-
     protected string $order_id;
 
     protected string $link;
-
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
-    {
-        $this->id = $id;
-    }
 
     public function getOrderId(): string
     {

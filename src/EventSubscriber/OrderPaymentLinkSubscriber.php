@@ -2,6 +2,7 @@
 
 namespace BlueSnap\EventSubscriber;
 
+use BlueSnap\Core\Checkout\Cart\BlueSnapSurchargeContext;
 use BlueSnap\Gateways\LinkPayment;
 use BlueSnap\Library\Constants\TransactionStatuses;
 use BlueSnap\Service\BlueSnapTransactionService;
@@ -18,6 +19,7 @@ class OrderPaymentLinkSubscriber implements EventSubscriberInterface
     private OrderService $orderService;
     private PaymentLinkService $paymentLinkService;
     private BlueSnapTransactionService $blueSnapTransactionService;
+    private BlueSnapSurchargeContext $surchargeContext;
     private EventDispatcherInterface $dispatcher;
     private LoggerInterface $logger;
 
@@ -25,25 +27,31 @@ class OrderPaymentLinkSubscriber implements EventSubscriberInterface
         OrderService $orderService,
         PaymentLinkService $paymentLinkService,
         BlueSnapTransactionService $blueSnapTransactionService,
+        BlueSnapSurchargeContext $surchargeContext,
         EventDispatcherInterface $dispatcher,
         LoggerInterface $logger
     ) {
-        $this->orderService               = $orderService;
-        $this->paymentLinkService         = $paymentLinkService;
+        $this->orderService = $orderService;
+        $this->paymentLinkService = $paymentLinkService;
         $this->blueSnapTransactionService = $blueSnapTransactionService;
-        $this->dispatcher                 = $dispatcher;
-        $this->logger                     = $logger;
+        $this->surchargeContext = $surchargeContext;
+        $this->dispatcher = $dispatcher;
+        $this->logger = $logger;
     }
 
     public static function getSubscribedEvents()
     {
         return [
-          OrderEvents::ORDER_WRITTEN_EVENT => 'onOrderWritten',
+            OrderEvents::ORDER_WRITTEN_EVENT => 'onOrderWritten',
         ];
     }
 
     public function onOrderWritten(EntityWrittenEvent $event): void
     {
+        $this->surchargeContext->clearSurchargeData();
+        $this->surchargeContext->clearVaultedCustomerId();
+        $this->surchargeContext->clearPfToken();
+
         $context = $event->getContext();
         if ($context->getScope() === "crud") {
             $salesChannelId = '';
@@ -51,19 +59,20 @@ class OrderPaymentLinkSubscriber implements EventSubscriberInterface
                 $payload = $writeResult->getPayload();
                 if (isset($payload['salesChannelId'])) {
                     $salesChannelId = $payload['salesChannelId'];
+                    $this->logger->info("Sales channel ID: " . $salesChannelId);
                     break;
                 }
             }
 
             $orderId = $event->getIds()[0];
             if ($orderId) {
-                $order             = $this->orderService->getOrderDetailsById($orderId, $context);
+                $order = $this->orderService->getOrderDetailsById($orderId, $context);
                 $paymentLinkRecord = $this->paymentLinkService->searchPaymentLink($orderId, $context);
 
                 if (!$paymentLinkRecord && $order->getTransactions()->first()->getPaymentMethod()->getHandlerIdentifier() == LinkPayment::class) {
                     $this->dispatcher->removeSubscriber($this);
                     $this->blueSnapTransactionService->addTransaction($orderId, $order->getTransactions()->first()->getPaymentMethod()->getName(), $orderId, TransactionStatuses::PENDING->value, $context);
-                    $paymentLink = $this->paymentLinkService->generatePaymentLink($order, 'payment-link-success', 'payment-link-fail', false, $salesChannelId);
+                    $paymentLink = $this->paymentLinkService->generatePaymentLink($order, 'payment-link-success', 'payment-link-fail', $context, false, $salesChannelId);
                     $this->paymentLinkService->storePaymentLink($orderId, $paymentLink, $context);
                     $this->paymentLinkService->sendEmail($paymentLink, $order, $salesChannelId, $context);
                 }

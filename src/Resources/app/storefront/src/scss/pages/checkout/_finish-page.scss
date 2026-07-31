@@ -1,35 +1,38 @@
-.is-ctl-bluesnap{
-    .finish-order-info{
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap:24px;
-        .finish-header{
-            color: $theme-color-black;
-            font-size: 36px;
-            font-style: normal;
-            font-weight: 700;
-            line-height: 14px;
-            display: flex;
-            align-items: center;
-            gap:10px;
-            margin: 0;
-        }
-        .order-number{
-            color: $theme-color-black;
-            font-size: 16px;
-            font-style: normal;
-            font-weight: 700;
-            line-height: 14px;
-            margin: 0;
-        }
-        .order-confirmation{
-            color: $theme-color-black;
-            font-size: 16px;
-            font-style: normal;
-            font-weight: 400;
-            line-height: 14px;
-            margin: 0;
-        }
+.is-ctl-bluesnap {
+  .finish-order-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+
+    .finish-header {
+      color: $theme-color-black;
+      font-size: 36px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
     }
+
+    .order-number {
+      color: $theme-color-black;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: 14px;
+      margin: 0;
+    }
+
+    .order-confirmation {
+      color: $theme-color-black;
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 400;
+      line-height: 14px;
+      margin: 0;
+    }
+  }
 }

@@ -1,0 +1,14 @@
+{% sw_extends '@Storefront/storefront/page/checkout/summary/summary-tax.html.twig' %}
+
+{% block page_checkout_summary_tax_label %}
+    <dt class="col-7 checkout-aside-summary-label summary-tax">
+        {% if taxItem.label == 'surcharge' %}
+            {{ 'Bluesnap.surcharge.label'|trans|sw_sanitize }}
+        {% else %}
+            {{ (taxItem.label ? 'checkout.summaryTaxLabeled' : 'checkout.summaryTax')|trans({
+                '%rate%': taxItem.taxRate,
+                '%label%': taxItem.label
+            })|sw_sanitize }}
+        {% endif %}
+    </dt>
+{% endblock %}

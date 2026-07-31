@@ -1,0 +1,9 @@
+{% sw_extends '@Storefront/storefront/component/line-item/type/generic.html.twig' %}
+
+{% block component_line_item_type_generic_col_remove %}
+  {% if lineItem.type == 'bluesnap_surcharge' %}
+      <div class="line-item-remove"></div>
+  {% else %}
+      {{ parent() }}
+  {% endif %}
+{% endblock %}
