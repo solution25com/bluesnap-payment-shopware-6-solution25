@@ -1,6 +1,13 @@
-# 1.1.0
+# Changelog
 
-## Fixed
+## 1.1.1 - 18/08/2026
+### Fixed
+- BlueSnap storefront icon override
+- Extension Verifier errors
+
+## 1.1.0
+
+### Fixed
 - Fixed "Change card" payment failures ("card type does not match initial request") when switching from a saved card to a new one during checkout.
 - Fixed a saved card being stored even when the "Save card" checkbox was left unchecked.
 - Fixed the surcharge amount compounding on repeated calculations (e.g. increasing slightly on every recalculation instead of staying stable).
