@@ -26,6 +26,7 @@ class VaultedShopperService
     {
         try {
             /** @var VaultedShopperEntity|null $existingShopper */
+            /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
             $existingShopper = $this->vaultedShopperRepository->search(
                 (new Criteria())->addFilter(new EqualsFilter('customerId', $customerId)),
                 $context
@@ -67,6 +68,7 @@ class VaultedShopperService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
         /** @var VaultedShopperEntity|null $res */
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $res = $this->vaultedShopperRepository->search($criteria, $context)->first();
         return $res ? $res->getVaultedShopperId() : null;
     }
@@ -75,6 +77,7 @@ class VaultedShopperService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('customerId', $customerId));
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $vaultedShopper = $this->vaultedShopperRepository->search($criteria, $context)->first();
         return $vaultedShopper !== null;
     }

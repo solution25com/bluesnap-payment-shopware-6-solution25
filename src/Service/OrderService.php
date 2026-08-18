@@ -40,6 +40,7 @@ class OrderService
         $criteria = new Criteria([$productId]);
         $criteria->addAssociation('unit');
         /** @var ProductEntity|null $product */
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $product = $this->productRepository->search($criteria, $context)->first();
         return $product;
     }
@@ -52,6 +53,7 @@ class OrderService
         $criteria->addAssociation('transactions.paymentMethod');
         $criteria->addAssociation('currency');
         $criteria->addAssociation('orderCustomer.customer');
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         return $this->orderRepository->search($criteria, $context)->first();
     }
 
@@ -68,6 +70,7 @@ class OrderService
         $criteria->addAssociation('order.billingAddress.country');
         $criteria->addAssociation('paymentMethod');
 
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         return $this->orderTransactionRepository->search($criteria, $context)->first();
     }
 
@@ -76,6 +79,7 @@ class OrderService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
         /** @var OrderTransactionEntity|null $orderTransaction */
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->first();
         if ($orderTransaction) {
             return $orderTransaction->getId();

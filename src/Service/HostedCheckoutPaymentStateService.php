@@ -56,6 +56,7 @@ class HostedCheckoutPaymentStateService
         $criteria->addAssociation('stateMachineState');
 
         /** @var OrderTransactionEntity|null $transaction */
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $transaction = $this->orderTransactionRepository->search($criteria, $context)->first();
 
         return $transaction?->getStateMachineState()?->getTechnicalName();

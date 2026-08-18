@@ -57,6 +57,7 @@ class RefundService
         $criteria = new Criteria([$data['returnId']]);
         $criteria->addAssociation('order');
         $criteria->addAssociation('lineItems');
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $orderReturn = $this->orderReturnRepository->search($criteria, $context)->first();
         $orderTransactionId = $this->orderService->getOrderTransactionIdByOrderId($data['orderId'], $context);
 

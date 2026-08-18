@@ -57,6 +57,7 @@ class OrderPaymentStatusChangeSubscriber implements EventSubscriberInterface
         $criteria->addAssociation('paymentMethod');
 
         /** @var OrderTransactionEntity|null $orderTransaction */
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $orderTransaction = $this->orderTransactionRepository->search($criteria, $context)->first();
 
         if (!$orderTransaction) {
@@ -119,6 +120,7 @@ class OrderPaymentStatusChangeSubscriber implements EventSubscriberInterface
     {
         $criteria = new Criteria([$orderId]);
         /** @var OrderEntity|null $order */
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $order = $this->orderRepository->search($criteria, $context)->first();
 
         if (!$order) {
@@ -156,6 +158,7 @@ class OrderPaymentStatusChangeSubscriber implements EventSubscriberInterface
     {
         $criteria = new Criteria([$orderId]);
         /** @var OrderEntity|null $order */
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $order = $this->orderRepository->search($criteria, $context)->first();
 
         if (!$order) {
@@ -192,6 +195,7 @@ class OrderPaymentStatusChangeSubscriber implements EventSubscriberInterface
     private function handleRefund(string $orderId, Context $context, string $blueSnapTransactionId): void
     {
         $criteria = new Criteria([$orderId]);
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $order = $this->orderRepository->search($criteria, $context)->first();
 
         if (!$order) {

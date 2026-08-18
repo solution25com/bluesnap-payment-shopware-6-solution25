@@ -69,6 +69,7 @@ class PaymentLinkService
     {
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('order_id', $orderId));
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         return $this->paymentLinkRepository->search($criteria, $context)->first();
     }
 
@@ -220,6 +221,7 @@ class PaymentLinkService
         $criteria->addFilter(new EqualsFilter('mailTemplateType.technicalName', 'admin.payment.link'));
         $criteria->setLimit(1);
         /** @var MailTemplateEntity $mailTemplate */
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $mailTemplate = $this->mailTemplateRepository->search($criteria, $context)->first();
 
         $data->set('recipients', [$order->getOrderCustomer()->getEmail() => $fullName]);
@@ -245,6 +247,7 @@ class PaymentLinkService
         $criteria = new Criteria([$order->getId()]);
         $criteria->addAssociation('billingAddress.country');
         /** @var OrderEntity|null $orderEntity */
+        /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
         $orderEntity = $this->orderRepository->search($criteria, $context)->first();
         if (!$orderEntity) {
             throw new \RuntimeException('Order not found: ' . $order->getId());

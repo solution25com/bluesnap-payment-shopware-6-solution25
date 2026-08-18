@@ -80,6 +80,7 @@ class BlueSnapTransactionService
         $criteria = new Criteria();
         $criteria->addFilter(new EqualsFilter('orderId', $orderId));
         try {
+            /* @phpstan-ignore-next-line Shopware 6.8 EntitySearchResult hierarchy change */
             return $this->blueSnapTransactionRepository->search($criteria, $context)->first();
         } catch (\Exception $e) {
             return null;
