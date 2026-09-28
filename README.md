@@ -21,7 +21,12 @@ The Bluesnap Shopware 6 Plugin is a reliable payment solution that connects Blue
 - **Payment Surcharge**: Optionally add a configurable surcharge to credit card payments, calculated dynamically at checkout and shown to the customer before the order is placed.
 
 ## Compatibility
-- ✅ Shopware 6.6.x
+  - ✅ Shopware 6.7.x
+
+  | Shopware | Branch | Plugin version |
+  |---|---|---|
+  | 6.6.x | `main` | 1.3.0 |
+  | 6.7.x | `main-6.7` | 2.0.0 |
 
 ## Get Started
 
