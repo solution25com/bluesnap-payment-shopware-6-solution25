@@ -18,6 +18,7 @@ use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Framework\Struct\ArrayStruct;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Symfony\Component\HttpFoundation\RequestStack;
+use BlueSnap\Service\SavedCardService;
 use BlueSnap\Service\VaultedShopperService;
 use BlueSnap\Gateways\CreditCard;
 
@@ -32,7 +33,8 @@ class BlueSnapSurchargeCartProcessor implements CartDataCollectorInterface, Cart
         private readonly BlueSnapConfig $blueSnapConfig,
         private readonly BlueSnapSurchargeContext $surchargeContext,
         private readonly RequestStack $requestStack,
-        private readonly VaultedShopperService $vaultedShopperService
+        private readonly VaultedShopperService $vaultedShopperService,
+        private readonly SavedCardService $savedCardService
     ) {
     }
 
@@ -59,8 +61,12 @@ class BlueSnapSurchargeCartProcessor implements CartDataCollectorInterface, Cart
             return;
         }
 
+        $selectedCardKey = $this->surchargeContext->getSelectedCardKey();
+        $useNewCard = $selectedCardKey === BlueSnapSurchargeContext::NEW_CARD;
+        $surchargeCardKey = $useNewCard ? null : $selectedCardKey;
+
         $customer = $context->getCustomer();
-        if ($customer && $context->getPaymentMethod()->getHandlerIdentifier() === CreditCard::class && $this->blueSnapConfig->getConfig('vaultedShopper', $salesChannelId) && !$this->surchargeContext->getVaultedCustomerId() && !$this->surchargeContext->getPfToken()) {
+        if ($customer && !$useNewCard && $context->getPaymentMethod()->getHandlerIdentifier() === CreditCard::class && $this->blueSnapConfig->getConfig('vaultedShopper', $salesChannelId) && !$this->surchargeContext->getVaultedCustomerId() && !$this->surchargeContext->getPfToken()) {
             $vaultedShopperId = $this->vaultedShopperService->getVaultedShopperIdByCustomerId(
                 $context->getContext(),
                 $customer->getId()
@@ -70,11 +76,20 @@ class BlueSnapSurchargeCartProcessor implements CartDataCollectorInterface, Cart
             }
         }
 
-        $vaultedShopperId = $this->surchargeContext->getVaultedCustomerId();
+        $vaultedShopperId = $useNewCard ? null : $this->surchargeContext->getVaultedCustomerId();
         $pfToken = $this->surchargeContext->getPfToken();
 
         if (!$vaultedShopperId && !$pfToken) {
             return;
+        }
+
+        if ($vaultedShopperId && $surchargeCardKey === null) {
+            $preferredCard = $this->savedCardService->getPreferredCard($customer, $salesChannelId, $context->getContext());
+            $surchargeCardKey = $preferredCard?->getCardKey();
+
+            if ($surchargeCardKey === null) {
+                return;
+            }
         }
 
         $existingSurcharge = $this->surchargeContext->getSurchargeData();
@@ -82,10 +97,15 @@ class BlueSnapSurchargeCartProcessor implements CartDataCollectorInterface, Cart
             is_array($existingSurcharge)
             && ($existingSurcharge['bluesnap_surcharge_base_amount'] ?? 0) === $baseAmount
             && ($existingSurcharge['bluesnap_surcharge_pfToken'] ?? '') === ($pfToken ?? '')
+            && ($existingSurcharge['bluesnap_surcharge_card_key'] ?? '') === ($surchargeCardKey ?? '')
         ) {
             $amount = (float)$existingSurcharge['bluesnap_surcharge_amount'];
             $token = (string)$existingSurcharge['bluesnap_surcharge_token'];
             $reference = $existingSurcharge['bluesnap_surcharge_reference'] ?? null;
+
+            if ($token === '') {
+                return;
+            }
         } else {
             $body = [
                 'currency' => $context->getCurrency()->getIsoCode(),
@@ -95,6 +115,19 @@ class BlueSnapSurchargeCartProcessor implements CartDataCollectorInterface, Cart
 
             if ($vaultedShopperId) {
                 $body['vaultedShopperId'] = $vaultedShopperId;
+
+                $cardSelector = $this->savedCardService->getCardSelector(
+                    $customer,
+                    (string) $surchargeCardKey,
+                    $salesChannelId,
+                    $context->getContext()
+                );
+
+                if ($cardSelector === null) {
+                    return;
+                }
+
+                $body['creditCard'] = $cardSelector;
             } elseif ($pfToken) {
                 $body['pfToken'] = $pfToken;
             }
@@ -110,7 +143,7 @@ class BlueSnapSurchargeCartProcessor implements CartDataCollectorInterface, Cart
             $token = (string)($info['surchargeToken'] ?? '');
             $reference = $info['surchargeReference'] ?? null;
 
-            if ($amount <= 0 || $token === '') {
+            if ($token === '') {
                 return;
             }
 
@@ -120,6 +153,7 @@ class BlueSnapSurchargeCartProcessor implements CartDataCollectorInterface, Cart
                 'bluesnap_surcharge_reference' => $reference,
                 'bluesnap_surcharge_base_amount' => $baseAmount,
                 'bluesnap_surcharge_pfToken' => $pfToken,
+                'bluesnap_surcharge_card_key' => $surchargeCardKey,
             ]);
         }
 
@@ -147,6 +181,17 @@ class BlueSnapSurchargeCartProcessor implements CartDataCollectorInterface, Cart
         $reference = $calculation['reference'] ?? null;
         $pfToken = $calculation['pfToken'] ?? null;
 
+        $toCalculate->getPrice()->addExtension('bluesnap_surcharge', new ArrayStruct([
+            'token' => $token,
+            'amount' => $amount,
+            'reference' => $reference,
+            'pfToken' => $pfToken,
+        ]));
+
+        if ($amount <= 0) {
+            return;
+        }
+
         $lineItem = new LineItem(self::SURCHARGE_LINE_ITEM_ID, self::SURCHARGE_LINE_ITEM_TYPE, null, 1);
         $lineItem->setLabel('Payment Surcharge');
         $lineItem->setGood(false);
@@ -167,13 +212,6 @@ class BlueSnapSurchargeCartProcessor implements CartDataCollectorInterface, Cart
         ]);
 
         $toCalculate->add($lineItem);
-        $toCalculate->getPrice()->addExtension('bluesnap_surcharge', new ArrayStruct([
-            'token' => $token,
-            'amount' => $amount,
-            'reference' => $reference,
-            'pfToken' => $pfToken,
-        ]));
-
         $toCalculate->markModified();
     }
 
@@ -189,8 +227,10 @@ class BlueSnapSurchargeCartProcessor implements CartDataCollectorInterface, Cart
             return true;
         }
 
-        if (str_starts_with($route, 'frontend.checkout.') || str_starts_with($route, 'store-api.checkout.')) {
-            return true;
+        foreach (['frontend.checkout.', 'store-api.checkout.', 'frontend.bluesnap.', 'store-api.bluesnap.'] as $prefix) {
+            if (str_starts_with($route, $prefix)) {
+                return true;
+            }
         }
 
         return false;

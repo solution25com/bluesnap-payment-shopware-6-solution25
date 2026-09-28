@@ -1,0 +1,15 @@
+{% sw_extends '@Storefront/storefront/page/account/sidebar.html.twig' %}
+
+{% block page_account_sidebar_menu_inner %}
+    {{ parent() }}
+
+    {% block bluesnap_account_sidebar_link_saved_cards %}
+        {% if context.customer and not context.customer.guest and config('BlueSnap.config.vaultedShopper') %}
+            <a href="{{ path('frontend.bluesnap.savedCards') }}"
+               title="{{ 'Bluesnap.savedCards.title'|trans|striptags }}"
+               class="list-group-item list-group-item-action account-aside-item bluesnap-account-aside-item{% if activeRoute is same as('frontend.bluesnap.savedCards') %} is-active{% endif %}">
+                {{ 'Bluesnap.savedCards.title'|trans|sw_sanitize }}
+            </a>
+        {% endif %}
+    {% endblock %}
+{% endblock %}

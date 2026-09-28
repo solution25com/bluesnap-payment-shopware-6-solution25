@@ -15,6 +15,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\DataBag\DataBag;
+use Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainEntity;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -23,33 +24,78 @@ class PaymentLinkService
     private EntityRepository $paymentLinkRepository;
     private BlueSnapApiClient $blueSnapApiClient;
     private BlueSnapConfig $blueSnapConfig;
-    private RequestStack $requestStack;
+    private EntityRepository $salesChannelDomainRepository;
     private AbstractMailService $mailService;
     private EntityRepository $mailTemplateRepository;
     private SystemConfigService $systemConfigService;
     private EntityRepository $orderRepository;
     private OrderService $orderService;
+    private RequestStack $requestStack;
 
     public function __construct(
         EntityRepository $paymentLinkRepository,
         BlueSnapApiClient $blueSnapApiClient,
         BlueSnapConfig $blueSnapConfig,
-        RequestStack $requestStack,
+        EntityRepository $salesChannelDomainRepository,
         AbstractMailService $mailService,
         EntityRepository $mailTemplateRepository,
         SystemConfigService $systemConfigService,
         EntityRepository $orderRepository,
-        OrderService $orderService
+        OrderService $orderService,
+        RequestStack $requestStack
     ) {
         $this->paymentLinkRepository = $paymentLinkRepository;
         $this->blueSnapApiClient = $blueSnapApiClient;
         $this->blueSnapConfig = $blueSnapConfig;
-        $this->requestStack = $requestStack;
+        $this->salesChannelDomainRepository = $salesChannelDomainRepository;
         $this->mailService = $mailService;
         $this->mailTemplateRepository = $mailTemplateRepository;
         $this->systemConfigService = $systemConfigService;
         $this->orderRepository = $orderRepository;
         $this->orderService = $orderService;
+        $this->requestStack = $requestStack;
+    }
+
+    /**
+     * A sales channel can carry several domains, and only the one the shopper is browsing keeps their
+     * session on the way back from the gateway. The current host therefore decides, but it is matched
+     * against the registered domains, so a forged Host header cannot introduce a destination.
+     */
+    private function resolveSalesChannelBaseUrl(string $salesChannelId, Context $context): string
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('salesChannelId', $salesChannelId));
+        $domains = $this->salesChannelDomainRepository->search($criteria, $context)->getEntities();
+
+        if ($domains->count() === 0) {
+            return '';
+        }
+
+        $host = $this->requestStack->getCurrentRequest()?->getHost();
+        $languageId = $context->getLanguageId();
+        $languageMatch = null;
+
+        /** @var SalesChannelDomainEntity $domain */
+        foreach ($domains as $domain) {
+            $url = rtrim((string) $domain->getUrl(), '/');
+
+            if ($host !== null && strcasecmp((string) parse_url($url, PHP_URL_HOST), $host) === 0) {
+                return $url;
+            }
+
+            if ($languageMatch === null && $domain->getLanguageId() === $languageId) {
+                $languageMatch = $url;
+            }
+        }
+
+        if ($languageMatch !== null) {
+            return $languageMatch;
+        }
+
+        /** @var SalesChannelDomainEntity|null $first */
+        $first = $domains->first();
+
+        return $first ? rtrim((string) $first->getUrl(), '/') : '';
     }
 
     public function storePaymentLink(string $orderId, string $paymentLink, Context $context): void
@@ -100,53 +146,53 @@ class PaymentLinkService
                 "description" => $productDescription,
                 "amount" => round($unitPrice * $quantity, 2),
             ];
+        }
 
-            if ($taxRule === 'EU') {
-                $shippingCost = $order->getShippingCosts()->getTotalPrice();
-                if ($shippingCost > 0) {
-                    $lineItems[] = [
-                        "id" => Uuid::randomHex(),
-                        "quantity" => 1,
-                        "label" => 'Shipping Cost',
-                        "amount" => round($shippingCost, 2),
-                    ];
-                }
-            } else {
-                $calculatedTax = $order->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
-                $shippingTax = $order->getShippingCosts()->getCalculatedTaxes()->getAmount();
+        if ($taxRule === 'EU') {
+            $shippingCost = $order->getShippingCosts()->getTotalPrice();
+            if ($shippingCost > 0) {
+                $lineItems[] = [
+                    "id" => Uuid::randomHex(),
+                    "quantity" => 1,
+                    "label" => 'Shipping Cost',
+                    "amount" => round($shippingCost, 2),
+                ];
+            }
+        } else {
+            $calculatedTax = $order->getLineItems()->getPrices()->getCalculatedTaxes()->getAmount();
+            $shippingTax = $order->getShippingCosts()->getCalculatedTaxes()->getAmount();
 
-                if ($shippingTax && $calculatedTax) {
-                    $lineItems[] = [
-                        "id" => Uuid::randomHex(),
-                        "quantity" => 1,
-                        "label" => 'Tax',
-                        "amount" => round($calculatedTax + $shippingTax, 2),
-                    ];
-                } elseif ($shippingTax != 0) {
-                    $lineItems[] = [
-                        "id" => Uuid::randomHex(),
-                        "quantity" => 1,
-                        "label" => 'Tax',
-                        "amount" => round($shippingTax, 2),
-                    ];
-                } elseif ($calculatedTax != 0) {
-                    $lineItems[] = [
-                        "id" => Uuid::randomHex(),
-                        "quantity" => 1,
-                        "label" => 'Tax',
-                        "amount" => round($calculatedTax, 2),
-                    ];
-                }
+            if ($shippingTax && $calculatedTax) {
+                $lineItems[] = [
+                    "id" => Uuid::randomHex(),
+                    "quantity" => 1,
+                    "label" => 'Tax',
+                    "amount" => round($calculatedTax + $shippingTax, 2),
+                ];
+            } elseif ($shippingTax != 0) {
+                $lineItems[] = [
+                    "id" => Uuid::randomHex(),
+                    "quantity" => 1,
+                    "label" => 'Tax',
+                    "amount" => round($shippingTax, 2),
+                ];
+            } elseif ($calculatedTax != 0) {
+                $lineItems[] = [
+                    "id" => Uuid::randomHex(),
+                    "quantity" => 1,
+                    "label" => 'Tax',
+                    "amount" => round($calculatedTax, 2),
+                ];
+            }
 
-                $shippingCost = $order->getShippingCosts()->getTotalPrice();
-                if ($shippingCost > 0) {
-                    $lineItems[] = [
-                        "id" => Uuid::randomHex(),
-                        "quantity" => 1,
-                        "label" => 'Shipping Cost',
-                        "amount" => round($shippingCost, 2),
-                    ];
-                }
+            $shippingCost = $order->getShippingCosts()->getTotalPrice();
+            if ($shippingCost > 0) {
+                $lineItems[] = [
+                    "id" => Uuid::randomHex(),
+                    "quantity" => 1,
+                    "label" => 'Shipping Cost',
+                    "amount" => round($shippingCost, 2),
+                ];
             }
         }
 
@@ -161,14 +207,11 @@ class PaymentLinkService
             ];
         }
 
+        $lineItems = $this->reconcileLineItemsToOrderTotal($lineItems, $order, $surchargeAmount);
 
-        $request = $this->requestStack->getCurrentRequest();
 
         if (!$api) {
-            $baseUrl = '';
-            if ($request) {
-                $baseUrl = $request->getSchemeAndHttpHost();
-            }
+            $baseUrl = $this->resolveSalesChannelBaseUrl($salesChannelId, $context);
             $successUrl = "$baseUrl/" . $successUrl;
             $cancelUrl = "$baseUrl/" . $cancelUrl;
 
@@ -276,6 +319,12 @@ class PaymentLinkService
         $cartDiscountAmount = 0.0;
         $isItemGross = $order->getTaxStatus() === CartPrice::TAX_STATE_GROSS;
 
+        $referencedIds = [];
+        foreach ($order->getLineItems() as $lineItem) {
+            $referencedIds[] = $lineItem->getReferencedId();
+        }
+        $products = $this->orderService->getProducts($referencedIds, $context);
+
         foreach ($order->getLineItems() as $lineItem) {
             $productId = $lineItem->getReferencedId();
             $quantity = $lineItem->getQuantity();
@@ -301,8 +350,8 @@ class PaymentLinkService
 
             $discountIndicator = $listPrice && $listPrice->getPrice() > $price->getUnitPrice() ? 'Y' : 'N';
 
-            $product = $this->orderService->getProduct($productId, $context);
-            $unitOfMeasure = $product->getUnit()?->getShortCode() ?? 'N/A';
+            $product = $products[$productId] ?? null;
+            $unitOfMeasure = $product?->getUnit()?->getShortCode() ?? 'N/A';
 
 
             $level3DataItems[] = [
@@ -313,7 +362,7 @@ class PaymentLinkService
                 'grossNetIndicator' => $isItemGross ? 'Y' : 'N',
                 'itemQuantity' => $quantity,
                 'lineItemTotal' => $price->getTotalPrice(),
-                'productCode' => $product->getProductNumber(),
+                'productCode' => $product?->getProductNumber() ?? '',
                 'taxAmount' => $itemTaxAmount,
                 'taxRate' => $itemTaxRate,
                 'taxType' => $taxType,
@@ -336,6 +385,27 @@ class PaymentLinkService
                 'level3DataItems' => $level3DataItems,
             ],
         ];
+    }
+
+    /**
+     * BlueSnap charges whatever the lineItems sum to. Collapse to one order-total line
+     * if the breakdown ever doesn't match exactly, instead of risking a wrong charge.
+     */
+    private function reconcileLineItemsToOrderTotal(array $lineItems, OrderEntity $order, float $surchargeAmount): array
+    {
+        $expectedTotal = round((float) $order->getAmountTotal() + $surchargeAmount, 2);
+        $actualSum = round(array_sum(array_column($lineItems, 'amount')), 2);
+
+        if (abs($expectedTotal - $actualSum) < 0.01) {
+            return $lineItems;
+        }
+
+        return [[
+            "id" => Uuid::randomHex(),
+            "quantity" => 1,
+            "label" => 'Order ' . $order->getOrderNumber(),
+            "amount" => $expectedTotal,
+        ]];
     }
 
     private function resolveOrderSurchargeAmount(OrderEntity $order): float

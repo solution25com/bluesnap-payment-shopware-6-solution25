@@ -8,6 +8,12 @@ class BlueSnapApi {
         updateVaultedShopper: async (vaultedShopperId, body) => await this._makeRequest(`/update-vaulted-shopper/` + vaultedShopperId, 'PUT', body),
         calculateSurcharge: async (body) => await this._makeRequest('/calculate-surcharge', 'POST', body),
         getPfToken: async () => await this._makeRequest('/get-pf-token', 'GET'),
+        selectSavedCard: async (cardKey) => await this._makeRequest('/bluesnap/saved-cards/select', 'POST', { cardKey }),
+        listSavedCards: async () => await this._makeRequest('/bluesnap/saved-cards', 'GET'),
+        createSavedCardToken: async () => await this._makeRequest('/bluesnap/saved-cards/token', 'POST', {}),
+        addSavedCard: async (pfToken) => await this._makeRequest('/bluesnap/saved-cards', 'POST', { pfToken }),
+        removeSavedCard: async (cardKey) => await this._makeRequest(`/bluesnap/saved-cards/${cardKey}/delete`, 'POST', {}),
+        setPreferredSavedCard: async (cardKey) => await this._makeRequest(`/bluesnap/saved-cards/${cardKey}/preferred`, 'POST', {}),
     };
 
     async _makeRequest(url, method, body) {
@@ -23,7 +29,13 @@ class BlueSnapApi {
         }
         try {
             const response = await fetch(url, requestOptions);
-            return await response.json();
+            const data = await response.json();
+
+            if (data && typeof data === 'object') {
+                data.status = response.status;
+            }
+
+            return data;
         } catch (err) {
             console.error(JSON.stringify(err, null, 2));
         }

@@ -81,7 +81,7 @@ class HostedCheckout extends AbstractPaymentHandler
         $paymentMethodName = $orderTransaction->getPaymentMethod()->getName();
 
 
-        $this->blueSnapTransactionService->addTransaction($orderId, $paymentMethodName, $orderId, TransactionStatuses::PENDING->value, $context);
+        $this->blueSnapTransactionService->addTransaction($orderId, $paymentMethodName, $orderId, TransactionStatuses::PENDING->value, $context, null, $orderTransaction->getId());
         $this->hostedCheckoutPaymentStateService->hold($orderTransaction->getId(), $context);
 
         return $this->paymentLinkService->generatePaymentLink($orderDetail, $successUrl, $failedUrl, $context, false, $salesChannelId);

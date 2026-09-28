@@ -28,13 +28,29 @@ abstract class AbstractBlueSnapRoute
 
     abstract public function updateVaultedShopper(string $vaultedShopperId, Request $request, SalesChannelContext $context): BlueSnapApiResponse;
 
+    abstract public function listSavedCards(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+
+    abstract public function createSavedCardToken(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+
+    abstract public function addSavedCard(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+
+    abstract public function removeSavedCard(string $cardKey, Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+
+    abstract public function setPreferredSavedCard(string $cardKey, Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+
+    abstract public function selectSavedCard(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+
     abstract public function hostedPagesLink(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
 
     abstract public function createTransaction(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
 
-    abstract public function refund(Request $request, Context $context): BlueSnapApiResponse;
+    abstract public function refund(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+
+    abstract public function adminRefund(Request $request, Context $context): BlueSnapApiResponse;
 
     abstract public function handlePayment(Request $request, SalesChannelContext $context): BlueSnapApiResponse|HandlePaymentMethodRouteResponse;
 
-    abstract public function reSendPaymentLink(Request $request, Context $context): BlueSnapApiResponse;
+    abstract public function reSendPaymentLink(Request $request, SalesChannelContext $context): BlueSnapApiResponse;
+
+    abstract public function adminReSendPaymentLink(Request $request, Context $context): BlueSnapApiResponse;
 }

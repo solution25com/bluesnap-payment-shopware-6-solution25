@@ -39,6 +39,5 @@ class Migration1750339649BlueSnapPaymentLinkTable extends MigrationStep
 
     public function updateDestructive(Connection $connection): void
     {
-        $connection->executeStatement('DROP TABLE IF EXISTS `bluesnap_payment_link`');
     }
 }

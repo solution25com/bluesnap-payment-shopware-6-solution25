@@ -1,0 +1,446 @@
+.bluesnap-saved-cards-choice {
+    margin-bottom: 20px;
+}
+
+.bluesnap-saved-cards-choice-title {
+    margin-bottom: 10px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.bluesnap-saved-card-option {
+    margin-bottom: 6px;
+}
+
+.bluesnap-saved-card-label {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: baseline;
+    cursor: pointer;
+}
+
+.bluesnap-saved-card-brand {
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.bluesnap-saved-card-number {
+    letter-spacing: 1px;
+}
+
+.bluesnap-saved-card-expiry {
+    font-size: 13px;
+}
+
+.bluesnap-saved-card-preferred-badge,
+.bluesnap-saved-card-expired-badge {
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.bluesnap-saved-card-preferred-badge {
+    color: #20252b;
+    background: #ffd339;
+}
+
+.bluesnap-saved-card-expired-badge {
+    color: #fff;
+    background: #c70020;
+}
+
+.bluesnap-saved-card-option--expired .bluesnap-saved-card-label {
+    cursor: not-allowed;
+    opacity: .6;
+}
+
+/* Account area - saved card management */
+
+.bluesnap-saved-cards {
+    max-width: 980px;
+}
+
+.bluesnap-saved-cards-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.bluesnap-saved-cards-title {
+    margin: 0 0 8px;
+    color: #20252b;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.bluesnap-saved-cards-subtitle {
+    max-width: 560px;
+    margin: 0;
+    color: #69707a;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+.bluesnap-saved-cards-alert {
+    margin-bottom: 20px;
+}
+
+.bluesnap-saved-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 320px);
+    gap: 16px;
+    justify-content: start;
+}
+
+.bluesnap-saved-cards-empty {
+    grid-column: 1 / -1;
+    padding: 28px;
+    color: #525a64;
+    background: #fff;
+    border: 1px dashed #c7cdd4;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.bluesnap-saved-cards-empty-icon {
+    width: 54px;
+    height: 34px;
+    margin: 0 auto 16px;
+    background:
+        linear-gradient(90deg, #d9a441 0 18%, transparent 18% 100%),
+        linear-gradient(#1f364d 0 0);
+    background-repeat: no-repeat;
+    background-size: 22px 14px, 54px 34px;
+    background-position: 8px 10px, 0 0;
+    border-radius: 6px;
+}
+
+.bluesnap-saved-cards-empty-title,
+.bluesnap-saved-cards-empty-text {
+    display: block;
+}
+
+.bluesnap-saved-cards-empty-title {
+    margin-bottom: 6px;
+    color: #20252b;
+    font-size: 16px;
+}
+
+.bluesnap-saved-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 320px;
+    max-width: 100%;
+    min-height: 188px;
+    padding: 18px;
+    color: #fff;
+    background: linear-gradient(135deg, #0a3d62 0%, #10508a 48%, #1673b5 100%);
+    border-radius: 12px;
+    box-shadow: 0 10px 24px rgba(20, 35, 52, .14);
+}
+
+.bluesnap-saved-card--expired {
+    background: linear-gradient(135deg, #4a5560 0%, #5d6874 48%, #707b87 100%);
+}
+
+.bluesnap-saved-card .bluesnap-saved-card-top,
+.bluesnap-saved-card .bluesnap-saved-card-meta,
+.bluesnap-saved-card .bluesnap-saved-card-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+    align-items: center;
+}
+
+.bluesnap-saved-card-chip {
+    width: 36px;
+    height: 26px;
+    background: linear-gradient(135deg, #f1d389, #c38c2e);
+    border-radius: 5px;
+}
+
+.bluesnap-saved-card .bluesnap-saved-card-brand {
+    color: rgba(255, 255, 255, .82);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.bluesnap-saved-card .bluesnap-saved-card-number {
+    display: flex;
+    gap: 10px;
+    margin: 32px 0 20px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0;
+}
+
+.bluesnap-saved-card-meta {
+    margin-top: auto;
+    color: rgba(255, 255, 255, .72);
+    font-size: 12px;
+    text-transform: uppercase;
+}
+
+.bluesnap-saved-card-holder {
+    padding-right: 42px;
+}
+
+.bluesnap-saved-card-meta-value {
+    display: block;
+    margin-top: 3px;
+    color: #fff;
+    font-size: 14px;
+    text-transform: none;
+}
+
+.bluesnap-saved-card .bluesnap-saved-card-expiry {
+    margin-top: 8px;
+    color: rgba(255, 255, 255, .65);
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.bluesnap-saved-card .bluesnap-saved-card-expiry-value {
+    margin-left: 6px;
+    color: #fff;
+    font-size: 12px;
+    text-transform: none;
+}
+
+.bluesnap-saved-card-preferred {
+    align-self: flex-end;
+    padding: 4px 8px;
+    color: #20252b;
+    background: #ffd339;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: none;
+}
+
+.bluesnap-saved-card .bluesnap-saved-card-expired {
+    margin-left: 8px;
+    padding: 2px 7px;
+    color: #fff;
+    background: #c70020;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.bluesnap-saved-card-actions {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    gap: 8px;
+}
+
+.bluesnap-saved-card-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    color: rgba(255, 255, 255, .92);
+    background: rgba(255, 255, 255, .14);
+    border: 1px solid rgba(255, 255, 255, .45);
+    border-radius: 50%;
+    line-height: 1;
+    transition: color .15s ease, background-color .15s ease, border-color .15s ease;
+}
+
+.bluesnap-saved-card-action .icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    color: currentColor;
+}
+
+.bluesnap-saved-card-action .icon > * {
+    position: static;
+    top: auto;
+    width: 14px;
+    height: 14px;
+    color: currentColor;
+}
+
+.bluesnap-saved-card-action:hover {
+    color: #10508a;
+    background: #fff;
+    border-color: #fff;
+}
+
+.bluesnap-saved-card-action:disabled {
+    cursor: not-allowed;
+    opacity: .5;
+}
+
+.bluesnap-saved-card-action-preferred {
+    color: #ffd339;
+    border-color: rgba(255, 211, 57, .55);
+}
+
+.bluesnap-saved-card-action-preferred:hover {
+    color: #10508a;
+}
+
+.bluesnap-saved-card-action-remove:hover {
+    color: #c70020;
+}
+
+.bluesnap-saved-card-action-remove.is-confirming {
+    background: #c70020;
+    color: #fff;
+    box-shadow: 0 0 0 3px rgba(199, 0, 32, .25);
+}
+
+.bluesnap-saved-cards-toggle {
+    margin-top: 28px;
+    white-space: nowrap;
+}
+
+.bluesnap-saved-cards-form {
+    margin-top: 24px;
+    padding: 22px;
+    background: #fff;
+    border: 1px solid #e4e7eb;
+    border-radius: 8px;
+}
+
+.bluesnap-saved-cards-form-title {
+    margin: 0 0 18px;
+    color: #20252b;
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.bluesnap-saved-cards-form-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 22px;
+    row-gap: 14px;
+    max-width: 620px;
+}
+
+.bluesnap-saved-cards-form-fields .form-group {
+    margin-bottom: 0;
+}
+
+.bluesnap-saved-cards-field-wide {
+    grid-column: 1 / -1;
+}
+
+.bluesnap-saved-cards-field .form-label {
+    margin-bottom: 4px;
+    color: #525a64;
+    font-size: 13px;
+}
+
+.bluesnap-hosted-field {
+    height: 42px;
+    padding: 6px 12px;
+}
+
+.bluesnap-hosted-field.is-invalid {
+    border-color: #c70020;
+}
+
+.bluesnap-field-error {
+    margin-top: 4px;
+    color: #c70020;
+    font-size: 13px;
+}
+
+.bluesnap-saved-cards-secure {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 18px 0 0;
+    color: #69707a;
+    font-size: 13px;
+}
+
+.bluesnap-saved-cards-form-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 18px;
+}
+
+@media (max-width: 991.98px) {
+    .bluesnap-saved-cards-header,
+    .bluesnap-saved-cards-form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .bluesnap-saved-cards-toggle {
+        width: 100%;
+    }
+
+    .bluesnap-saved-cards-grid,
+    .bluesnap-saved-cards-form-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .bluesnap-saved-card {
+        width: 100%;
+    }
+}
+
+/* Checkout - new card entry and surcharge disclosure */
+
+.bluesnap-credit-card {
+    width: 100%;
+}
+
+.bluesnap-new-card {
+    width: 95%;
+    margin-top: 12px;
+}
+
+.bluesnap-surcharge-confirm {
+    margin-top: 16px;
+    padding: 16px 18px;
+    background: #eefaf3;
+    border: 1px solid #7fc9a4;
+    border-radius: 8px;
+}
+
+.bluesnap-surcharge-confirm-text {
+    margin: 0 0 14px;
+    color: #20252b;
+    font-size: 15px;
+    line-height: 1.45;
+}
+
+.bluesnap-surcharge-confirm-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+@media (max-width: 575.98px) {
+    .bluesnap-new-card {
+        width: 100%;
+    }
+
+    .bluesnap-surcharge-confirm-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

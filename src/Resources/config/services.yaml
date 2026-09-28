@@ -1,0 +1,278 @@
+services:
+    BlueSnap\Gateways\LinkPayment:
+        tags:
+            - { name: shopware.payment.method }
+
+    BlueSnap\Gateways\HostedCheckout:
+        arguments:
+            - '@BlueSnap\Service\OrderService'
+            - '@BlueSnap\Service\PaymentLinkService'
+            - '@BlueSnap\Service\BlueSnapTransactionService'
+            - '@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler'
+            - '@BlueSnap\Service\HostedCheckoutPaymentStateService'
+            - '@Bluesnap.logger'
+        tags:
+            - { name: shopware.payment.method }
+
+    BlueSnap\Gateways\CreditCard:
+        arguments:
+            - '@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler'
+            - '@BlueSnap\Service\BlueSnapTransactionService'
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@BlueSnap\Service\VaultedShopperService'
+            - '@BlueSnap\Service\BlueSnapConfig'
+            - '@BlueSnap\Service\OrderService'
+            - '@BlueSnap\Service\SavedCardService'
+            - '@BlueSnap\Service\OrderSurchargeService'
+            - '@Bluesnap.logger'
+        tags:
+            - { name: shopware.payment.method }
+
+    BlueSnap\Gateways\GooglePay:
+        arguments:
+            - '@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler'
+            - '@BlueSnap\Service\BlueSnapTransactionService'
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@BlueSnap\Service\BlueSnapConfig'
+            - '@BlueSnap\Service\OrderService'
+            - '@Bluesnap.logger'
+        tags:
+            - { name: shopware.payment.method }
+
+    BlueSnap\Gateways\ApplePay:
+        arguments:
+            - '@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler'
+            - '@BlueSnap\Service\BlueSnapTransactionService'
+            - '@BlueSnap\Service\BlueSnapConfig'
+            - '@BlueSnap\Service\OrderService'
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@Bluesnap.logger'
+        tags:
+            - { name: shopware.payment.method }
+
+    BlueSnap\Storefront\Controller\TestApiConnectionController:
+        public: true
+        arguments:
+            - '@BlueSnap\Service\BlueSnapApiClient'
+        calls:
+            - [setContainer, ['@service_container']]
+
+    BlueSnap\Service\BlueSnapConfig:
+        arguments:
+            - '@Shopware\Core\System\SystemConfig\SystemConfigService'
+
+    BlueSnap\Service\BlueSnapApiClient:
+        arguments:
+            - '@BlueSnap\Service\BlueSnapConfig'
+            - '@Bluesnap.logger'
+
+    BlueSnap\Core\Checkout\Cart\BlueSnapSurchargeContext:
+        arguments:
+            - '@request_stack'
+
+    BlueSnap\Core\Checkout\Cart\BlueSnapSurchargeCartProcessor:
+        arguments:
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@BlueSnap\Service\BlueSnapConfig'
+            - '@BlueSnap\Core\Checkout\Cart\BlueSnapSurchargeContext'
+            - '@Symfony\Component\HttpFoundation\RequestStack'
+            - '@BlueSnap\Service\VaultedShopperService'
+            - '@BlueSnap\Service\SavedCardService'
+        tags:
+            - { name: shopware.cart.collector, priority: 4800 }
+            - { name: shopware.cart.processor, priority: 4800 }
+
+    BlueSnap\Service\VaultedShopperService:
+        arguments:
+            - '@bluesnap_vaulted_shopper.repository'
+            - '@Bluesnap.logger'
+
+    BlueSnap\Service\OrderSurchargeService:
+        arguments:
+            - '@Shopware\Core\Checkout\Cart\Order\RecalculationService'
+            - '@order.repository'
+            - '@order_transaction.repository'
+            - '@order_line_item.repository'
+            - '@Bluesnap.logger'
+
+    BlueSnap\Service\SavedCardService:
+        arguments:
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@BlueSnap\Service\VaultedShopperService'
+            - '@BlueSnap\Service\BlueSnapConfig'
+            - '@Bluesnap.logger'
+
+    BlueSnap\Service\BlueSnapTransactionService:
+        arguments:
+            - '@bluesnap_transaction.repository'
+            - '@order.repository'
+            - '@Bluesnap.logger'
+
+    BlueSnap\Service\OrderService:
+        arguments:
+            - '@order.repository'
+            - '@order_transaction.repository'
+            - '@product.repository'
+            - '@Shopware\Core\System\SystemConfig\SystemConfigService'
+
+    BlueSnap\Service\HostedCheckoutPaymentStateService:
+        arguments:
+            - '@Shopware\Core\System\StateMachine\StateMachineRegistry'
+            - '@order_transaction.repository'
+            - '@Bluesnap.logger'
+
+    BlueSnap\Service\PaymentLinkService:
+        lazy: true
+        arguments:
+            - '@bluesnap_payment_link.repository'
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@BlueSnap\Service\BlueSnapConfig'
+            - '@sales_channel_domain.repository'
+            - '@Shopware\Core\Content\Mail\Service\MailService'
+            - '@mail_template.repository'
+            - '@Shopware\Core\System\SystemConfig\SystemConfigService'
+            - '@order.repository'
+            - '@BlueSnap\Service\OrderService'
+            - '@request_stack'
+
+    BlueSnap\Service\RefundService:
+        arguments:
+            - '@BlueSnap\Service\BlueSnapTransactionService'
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@?order_return.repository'
+            - '@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler'
+            - '@Shopware\Core\System\StateMachine\StateMachineRegistry'
+            - '@?Shopware\Commercial\ReturnManagement\Domain\StateHandler\PositionStateHandler'
+            - '@BlueSnap\Service\OrderService'
+            - '@Bluesnap.logger'
+
+    BlueSnap\Library\ValidatorUtility:
+        arguments:
+            - '@validator'
+
+    BlueSnap\Core\Content\PaymentLink\PaymentLinkDefinition:
+        tags:
+            - { name: shopware.entity.definition, entity: bluesnap_payment_link }
+
+    BlueSnap\Core\Content\VaultedShopper\VaultedShopperDefinition:
+        tags:
+            - { name: shopware.entity.definition, entity: bluesnap_vaulted_shopper }
+
+    BlueSnap\Core\Content\Transaction\BluesnapTransactionDefinition:
+        tags:
+            - { name: shopware.entity.definition, entity: bluesnap_transaction }
+
+    BlueSnap\Extension\Order\OrderExtension:
+        tags:
+            - { name: shopware.entity.extension }
+
+    BlueSnap\Extension\OrderTransaction\OrderTransactionExtension:
+        tags:
+            - { name: shopware.entity.extension }
+
+    BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute:
+        public: true
+        arguments:
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@BlueSnap\Service\BlueSnapConfig'
+            - '@BlueSnap\Library\ValidatorUtility'
+            - '@BlueSnap\Service\VaultedShopperService'
+            - '@BlueSnap\Service\OrderService'
+            - '@BlueSnap\Service\PaymentLinkService'
+            - '@BlueSnap\Service\BlueSnapTransactionService'
+            - '@BlueSnap\Service\RefundService'
+            - '@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler'
+            - '@Shopware\Core\Checkout\Payment\SalesChannel\HandlePaymentMethodRoute'
+            - '@Bluesnap.logger'
+            - '@BlueSnap\Core\Checkout\Cart\BlueSnapSurchargeContext'
+            - '@BlueSnap\Service\SavedCardService'
+            - '@Shopware\Core\Checkout\Cart\SalesChannel\CartService'
+
+    BlueSnap\Storefront\Controller\BlueSnapController:
+        public: true
+        arguments:
+            - '@BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute'
+            - '@BlueSnap\Service\OrderService'
+            - '@BlueSnap\Service\BlueSnapConfig'
+        calls:
+            - [setContainer, ['@service_container']]
+
+    BlueSnap\Storefront\Controller\BlueSnapAccountController:
+        public: true
+        arguments:
+            - '@Shopware\Storefront\Page\GenericPageLoader'
+            - '@BlueSnap\Service\SavedCardService'
+            - '@BlueSnap\Service\BlueSnapConfig'
+        calls:
+            - [setContainer, ['@service_container']]
+
+    BlueSnap\Storefront\Controller\BlueSnapApiController:
+        public: true
+        arguments:
+            - '@BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute'
+        calls:
+            - [setContainer, ['@service_container']]
+
+    BlueSnap\Storefront\Controller\WebhookController:
+        public: true
+        arguments:
+            - '@BlueSnap\Service\OrderService'
+            - '@Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler'
+            - '@BlueSnap\Service\BlueSnapTransactionService'
+            - '@BlueSnap\Service\BlueSnapConfig'
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@Shopware\Core\System\StateMachine\StateMachineRegistry'
+            - '@BlueSnap\Service\OrderSurchargeService'
+            - '@Bluesnap.logger'
+
+    Bluesnap.logger:
+        class: Monolog\Logger
+        arguments:
+            - BlueSnap
+            -
+                - '@blueSnap.rotatingHandler'
+
+    blueSnap.rotatingHandler:
+        class: Monolog\Handler\RotatingFileHandler
+        arguments:
+            - '%kernel.logs_dir%/BlueSnap-log-%kernel.environment%.log'
+
+    BlueSnap\EventSubscriber\CheckoutConfirmEventSubscriber:
+        arguments:
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@BlueSnap\Service\BlueSnapConfig'
+            - '@BlueSnap\Service\VaultedShopperService'
+            - '@BlueSnap\Core\Checkout\Cart\BlueSnapSurchargeContext'
+            - '@BlueSnap\Service\SavedCardService'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    BlueSnap\EventSubscriber\AccountEditOrderEventSubscriber:
+        arguments:
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@BlueSnap\Service\BlueSnapConfig'
+            - '@BlueSnap\Service\VaultedShopperService'
+            - '@BlueSnap\Service\SavedCardService'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    BlueSnap\EventSubscriber\OrderPaymentLinkSubscriber:
+        arguments:
+            - '@BlueSnap\Service\OrderService'
+            - '@BlueSnap\Service\PaymentLinkService'
+            - '@BlueSnap\Service\BlueSnapTransactionService'
+            - '@BlueSnap\Core\Checkout\Cart\BlueSnapSurchargeContext'
+            - '@Symfony\Component\EventDispatcher\EventDispatcherInterface'
+            - '@Bluesnap.logger'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    BlueSnap\EventSubscriber\OrderPaymentStatusChangeSubscriber:
+        arguments:
+            - '@BlueSnap\Service\BlueSnapTransactionService'
+            - '@BlueSnap\Service\BlueSnapApiClient'
+            - '@order.repository'
+            - '@order_transaction.repository'
+            - '@Bluesnap.logger'
+        tags:
+            - { name: kernel.event_subscriber }

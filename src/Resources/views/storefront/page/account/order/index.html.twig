@@ -1,0 +1,10 @@
+{% sw_extends '@Storefront/storefront/page/account/order/index.html.twig' %}
+
+{% block page_checkout_confirm_form_submit %}
+    {% if page.extensions.bluesnap and page.extensions.bluesnap.gateway == 'creditCard' %}
+        <input id="paymentData" type="hidden" name="paymentData" value=""/>
+        <input id="bluesnap-transaction-id" type="hidden" name="bluesnap_transaction_id" value=""/>
+    {% endif %}
+
+    {{ parent() }}
+{% endblock %}

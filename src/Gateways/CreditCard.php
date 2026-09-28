@@ -6,6 +6,9 @@ use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\AbstractPaymentHandler;
 use Shopware\Core\Checkout\Payment\Cart\PaymentHandler\PaymentHandlerType;
 use Shopware\Core\Checkout\Payment\Cart\PaymentTransactionStruct;
 use Shopware\Core\Framework\Context;
+use BlueSnap\Core\Checkout\Cart\BlueSnapSurchargeCartProcessor;
+use BlueSnap\Core\Content\BlueSnap\SalesChannel\BlueSnapRoute;
+use BlueSnap\Library\CardHolderInfo;
 use BlueSnap\Library\Constants\TransactionStatuses;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionEntity;
 use BlueSnap\Service\BlueSnapApiClient;
@@ -15,6 +18,8 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Struct\Struct;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStateHandler;
 use BlueSnap\Service\OrderService;
+use BlueSnap\Service\OrderSurchargeService;
+use BlueSnap\Service\SavedCardService;
 use BlueSnap\Service\VaultedShopperService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -27,6 +32,10 @@ class CreditCard extends AbstractPaymentHandler
     private VaultedShopperService $vaultedShopperService;
     private BlueSnapConfig $blueSnapConfig;
     private OrderService $orderService;
+    private SavedCardService $savedCardService;
+    private OrderSurchargeService $orderSurchargeService;
+    /** @var array<string, mixed> */
+    private array $amountTrace = [];
     private LoggerInterface $logger;
 
 
@@ -37,6 +46,8 @@ class CreditCard extends AbstractPaymentHandler
         VaultedShopperService $vaultedShopperService,
         BlueSnapConfig $blueSnapConfig,
         OrderService $orderService,
+        SavedCardService $savedCardService,
+        OrderSurchargeService $orderSurchargeService,
         LoggerInterface $logger
     ) {
         $this->transactionStateHandler = $transactionStateHandler;
@@ -45,6 +56,8 @@ class CreditCard extends AbstractPaymentHandler
         $this->vaultedShopperService = $vaultedShopperService;
         $this->blueSnapConfig = $blueSnapConfig;
         $this->orderService = $orderService;
+        $this->savedCardService = $savedCardService;
+        $this->orderSurchargeService = $orderSurchargeService;
         $this->logger = $logger;
     }
 
@@ -68,36 +81,75 @@ class CreditCard extends AbstractPaymentHandler
             throw new \RuntimeException('Missing paymentData');
         }
         $paymentData = json_decode($request->request->get('paymentData'), true);
+        $orderTransaction = $this->applySurchargeToOrder($order, $orderTransaction, $paymentData, $context);
+        $order = $orderTransaction->getOrder();
+
+        $amount = $orderTransaction->getAmount()->getTotalPrice();
+        $this->amountTrace = [
+            'amount' => $amount,
+            'surchargeOnOrder' => $this->orderSurchargeService->getSurchargeOnOrder($order),
+        ];
+
+        $saveCard = !empty($paymentData['saveCard']) && !$isGuestCustomer;
+        $existingVaultedShopperId = $saveCard && empty($paymentData['vaultedId'])
+            ? $this->vaultedShopperService->getVaultedShopperIdByCustomerId($context, $customer->getId())
+            : null;
+
         if (isset($paymentData['vaultedId'])) {
             $body = [
-                "amount" => $orderTransaction->getAmount()->getTotalPrice(),
+                "amount" => $amount,
                 "vaultedShopperId" => $paymentData['vaultedId'],
                 "softDescriptor" => "Card Capture",
                 "currency" => $currency->getIsoCode(),
                 "cardTransactionType" => $cardTransactionType,
             ];
+            $cardKey = (string) ($paymentData['cardKey'] ?? '');
+            if ($cardKey !== '') {
+                $cardSelector = $this->savedCardService->getCardSelector($customer, $cardKey, $salesChannelId, $context);
+
+                if ($cardSelector === null) {
+                    $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
+                    throw new \RuntimeException('Selected saved card not found');
+                }
+
+                $body['creditCard'] = $cardSelector;
+            }
         } else {
             $body = [
-                "amount" => $orderTransaction->getAmount()->getTotalPrice(),
+                "amount" => $amount,
                 "softDescriptor" => "Card Capture",
                 "currency" => $currency->getIsoCode(),
-                "cardHolderInfo" => [
-                    "firstName" => $paymentData['firstName'],
-                    "lastName" => $paymentData['lastName'],
-                    "zip" => $billingAddress->getZipCode(),
-                    "country" => strtolower($billingAddress->getCountry()->getIso()),
-                    "city" => $billingAddress->getCity(),
-                    "email" => $customer->getEmail(),
-                ],
+                "cardHolderInfo" => CardHolderInfo::build(
+                    $billingAddress,
+                    (string) $paymentData['firstName'],
+                    (string) $paymentData['lastName'],
+                    $customer->getEmail()
+                ),
                 "pfToken" => $paymentData['pfToken'],
                 "cardTransactionType" => $cardTransactionType,
                 "transactionInitiator" => "SHOPPER"
             ];
+
+            if ($existingVaultedShopperId !== null) {
+                $body['vaultedShopperId'] = $existingVaultedShopperId;
+            }
         }
 
         $is3DSEnabled = $this->blueSnapConfig->getConfig('threeDS', $salesChannelId);
         /* @phpstan-ignore-next-line */
-        if ($is3DSEnabled && !empty($paymentData['authResult']) && !empty($paymentData['threeDSecureReferenceId'])) {
+        if ($is3DSEnabled) {
+            if (!BlueSnapRoute::isAcceptable3DSecureResult((string) ($paymentData['authResult'] ?? ''))) {
+                $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
+                $this->logger->error('3D Secure authentication did not succeed', [
+                    'orderId' => $order->getId(),
+                    'authResult' => $paymentData['authResult'] ?? null,
+                ]);
+
+                throw new \RuntimeException('3D Secure authentication required');
+            }
+        }
+
+        if ($is3DSEnabled && !empty($paymentData['threeDSecureReferenceId'])) {
             $body['threeDSecure'] = [
                 "authResult" => $paymentData['authResult'],
                 "threeDSecureReferenceId" => $paymentData['threeDSecureReferenceId']
@@ -118,11 +170,23 @@ class CreditCard extends AbstractPaymentHandler
             }
         }
 
-        $response = $this->blueSnapApiClient->capture($body, $salesChannelId);
+        $response = $this->blueSnapApiClient->capture($body, $salesChannelId, $transaction->getOrderTransactionId());
 
         if (isset($response['error'])) {
             $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
-            $this->logger->error('BlueSnap capture API error', ['response' => $response]);
+            $this->logger->error('BlueSnap capture API error', [
+                'response' => $response,
+                'request' => [
+                    'amount' => $body['amount'],
+                    'currency' => $body['currency'],
+                    'cardTransactionType' => $body['cardTransactionType'],
+                    'hasSurchargeToken' => isset($body['surchargeInfo']),
+                    'hasVaultedShopper' => isset($body['vaultedShopperId']),
+                    'hasCardSelector' => isset($body['creditCard']),
+                    'hasThreeDSecure' => isset($body['threeDSecure']),
+                    'amountTrace' => $this->amountTrace,
+                ],
+            ]);
             throw new \RuntimeException($response['error']);
         }
 
@@ -130,21 +194,74 @@ class CreditCard extends AbstractPaymentHandler
         if ($responseData && $responseData['vaultedShopperId']) {
             $vaultedShopperId = $responseData['vaultedShopperId'];
 
-            if (!empty($paymentData['saveCard']) && !$isGuestCustomer) {
-                $this->vaultedShopperService->store($vaultedShopperId, $paymentData['cardType'], $customer->getId(), $context);
+            if ($saveCard) {
+                $this->vaultedShopperService->store($vaultedShopperId, $paymentData['cardType'] ?? null, $customer->getId(), $context);
             }
         }
 
+        $this->blueSnapTransactionService->addTransaction($order->getId(), $orderTransaction->getPaymentMethod()->getName(), $responseData['transactionId'], $transactionStatus, $context, BlueSnapApiClient::extractVerificationCodes($responseData), $transaction->getOrderTransactionId());
         $this->transactionStateHandler->{$handlerMethodName}($transaction->getOrderTransactionId(), $context);
-        $this->blueSnapTransactionService->addTransaction($order->getId(), $orderTransaction->getPaymentMethod()->getName(), $responseData['transactionId'], $transactionStatus, $context);
     }
 
-    private function paymentFirstFlow(Request $request, PaymentTransactionStruct $transaction, OrderTransactionEntity $orderTransaction, string $handlerMethodName, string $transactionStatus, Context $context): void
+    private function applySurchargeToOrder(
+        \Shopware\Core\Checkout\Order\OrderEntity $order,
+        OrderTransactionEntity $orderTransaction,
+        array $paymentData,
+        Context $context
+    ): OrderTransactionEntity {
+        $token = (string) ($paymentData['surchargeToken'] ?? '');
+        $amount = (float) ($paymentData['surchargeAmount'] ?? 0);
+
+        if ($token === '') {
+            return $orderTransaction;
+        }
+
+        $this->orderSurchargeService->applyToOrder($order, $token, $amount, $context, $orderTransaction->getId());
+
+        $reloaded = $this->orderService->getOrderTransactionsById($orderTransaction->getId(), $context);
+
+        return $reloaded ?? $orderTransaction;
+    }
+
+    private function paymentFirstFlow(Request $request, PaymentTransactionStruct $transaction, OrderTransactionEntity $orderTransaction, string $handlerMethodName, string $transactionStatus, string $salesChannelId, Context $context): void
     {
-        $bluesnapTransactionId = $request->request->get('bluesnap_transaction_id');
-        $orderId = $orderTransaction->getOrder()->getId();
+        $bluesnapTransactionId = (string) $request->request->get('bluesnap_transaction_id');
+        $order = $orderTransaction->getOrder();
+        $orderId = $order->getId();
+        $expectedAmount = $orderTransaction->getAmount()->getTotalPrice();
+        $expectedCurrency = $order->getCurrency()->getIsoCode();
+
+        $verifiedData = $bluesnapTransactionId !== ''
+            ? $this->blueSnapApiClient->fetchTransactionData($bluesnapTransactionId, $salesChannelId)
+            : null;
+
+        if (
+            $bluesnapTransactionId === ''
+            || $this->blueSnapTransactionService->transactionIdAlreadyUsed($bluesnapTransactionId, $context)
+            || !$this->blueSnapApiClient->isVerifiedTransactionData($verifiedData, $bluesnapTransactionId, $expectedAmount, $expectedCurrency)
+        ) {
+            $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
+            $this->logger->error('BlueSnap transaction reference could not be verified', [
+                'orderId' => $orderId,
+                'orderTransactionId' => $transaction->getOrderTransactionId(),
+                'hasTransactionId' => $bluesnapTransactionId !== '',
+                'expectedAmount' => $expectedAmount,
+                'expectedCurrency' => $expectedCurrency,
+            ]);
+
+            throw new \RuntimeException('BlueSnap transaction verification failed');
+        }
+
+        $this->blueSnapTransactionService->addTransaction(
+            $orderId,
+            $orderTransaction->getPaymentMethod()->getName(),
+            $bluesnapTransactionId,
+            $transactionStatus,
+            $context,
+            BlueSnapApiClient::extractVerificationCodes($verifiedData),
+            $transaction->getOrderTransactionId()
+        );
         $this->transactionStateHandler->{$handlerMethodName}($transaction->getOrderTransactionId(), $context);
-        $this->blueSnapTransactionService->addTransaction($orderId, $orderTransaction->getPaymentMethod()->getName(), $bluesnapTransactionId, $transactionStatus, $context);
     }
 
     public function pay(Request $request, PaymentTransactionStruct $transaction, Context $context, ?Struct $validateStruct): ?RedirectResponse
@@ -163,8 +280,10 @@ class CreditCard extends AbstractPaymentHandler
             throw new \RuntimeException('OrderTransaction not found for ID ' . $transaction->getOrderTransactionId());
         }
 
-        if ($flow == 'payment_order') {
-            $this->paymentFirstFlow($request, $transaction, $orderTransaction, $transactionMethodName, $transactionStatus, $context);
+        $hasPaymentData = (bool) $request->request->get('paymentData');
+
+        if ($flow == 'payment_order' && !$hasPaymentData) {
+            $this->paymentFirstFlow($request, $transaction, $orderTransaction, $transactionMethodName, $transactionStatus, $salesChannelId, $context);
         } else {
             $this->orderFirstFlow($request, $transaction, $orderTransaction, $authorizeOption, $transactionMethodName, $transactionStatus, $salesChannelId, $context);
         }

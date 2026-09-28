@@ -10,43 +10,8 @@
                 value=""
                 name="bluesnap_transaction_id"
         >
-        <input
-                type="hidden"
-                id="bluesnap-surcharge-token"
-                form="confirmOrderForm"
-                value="{{ page.extensions.bluesnap.surchargeToken|default('') }}"
-                name="bluesnap_surcharge_token"
-        >
-        <input
-                type="hidden"
-                id="bluesnap-surcharge-amount"
-                form="confirmOrderForm"
-                value="{{ page.extensions.bluesnap.surchargeAmount|default('') }}"
-                name="bluesnap_surcharge_amount"
-        >
-        <input
-                type="hidden"
-                id="bluesnap-pf-token-surcharge"
-                form="confirmOrderForm"
-                value="{{ page.extensions.bluesnap.surchargePfToken|default('') }}"
-        >
-        <input
-                type="hidden"
-                id="bluesnap-card-type-surcharge"
-                form="confirmOrderForm"
-                value="{{ page.extensions.bluesnap.surchargeCardType|default('') }}"
-        >
-        <input
-                type="hidden"
-                id="bluesnap-save-card-surcharge"
-                form="confirmOrderForm"
-                value=""
-                name="bluesnap_save_card_surcharge"
-        >
     {% endif %}
-
 {% endblock %}
-
 
  {% block page_checkout_confirm_payment_shipping %}
      <div class="confirm-payment-shipping">

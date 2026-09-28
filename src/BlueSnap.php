@@ -143,7 +143,9 @@ class BlueSnap extends Plugin
             'DROP TABLE IF EXISTS
         `bluesnap_payment_link`,
         `bluesnap_transaction`,
-        `bluesnap_vaulted_shopper`;'
+        `bluesnap_vaulted_shopper`,
+        `bluesnap_vaulted_shopper_duplicate_backup`,
+        `bluesnap_transaction_duplicate_backup`;'
         );
 
         // Delete migrations

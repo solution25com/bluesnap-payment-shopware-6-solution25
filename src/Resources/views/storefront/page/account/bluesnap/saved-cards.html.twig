@@ -1,0 +1,175 @@
+{% sw_extends '@Storefront/storefront/page/account/_page.html.twig' %}
+
+{% block page_account_main_content %}
+    {% set bluesnapSavedCardsOptions = {
+        scriptUrl: bluesnapScriptUrl,
+        showFormLabel: 'Bluesnap.savedCards.showForm'|trans|striptags,
+        hideFormLabel: 'Bluesnap.savedCards.hideForm'|trans|striptags,
+        removeConfirm: 'Bluesnap.savedCards.removeConfirm'|trans|striptags,
+        requestFailed: 'Bluesnap.savedCards.requestFailed'|trans|striptags,
+        tokenFailed: 'Bluesnap.savedCards.error.tokenFailed'|trans|striptags,
+        errorAlreadySaved: 'Bluesnap.savedCards.error.alreadySaved'|trans|striptags,
+        errorNotFound: 'Bluesnap.savedCards.error.notFound'|trans|striptags,
+        ccnPlaceholder: 'Bluesnap.savedCards.form.cardNumber'|trans|striptags,
+        expPlaceholder: 'Bluesnap.savedCards.form.expDate'|trans|striptags,
+        cvvPlaceholder: 'Bluesnap.savedCards.form.cvv'|trans|striptags
+    } %}
+
+    {% block bluesnap_saved_cards %}
+        <div class="bluesnap-saved-cards"
+             id="bluesnap-saved-cards"
+             data-bluesnap-saved-cards
+             data-bluesnap-saved-cards-plugin-options="{{ bluesnapSavedCardsOptions|json_encode|escape('html_attr') }}">
+
+            {% block bluesnap_saved_cards_header %}
+                <div class="bluesnap-saved-cards-header">
+                    <div>
+                        <h1 class="bluesnap-saved-cards-title">{{ 'Bluesnap.savedCards.title'|trans|sw_sanitize }}</h1>
+                        <p class="bluesnap-saved-cards-subtitle">{{ 'Bluesnap.savedCards.subtitle'|trans|sw_sanitize }}</p>
+                    </div>
+                </div>
+            {% endblock %}
+
+            {% block bluesnap_saved_cards_message %}
+                <div class="bluesnap-saved-cards-alert alert d-none"
+                     role="alert"
+                     aria-live="polite"
+                     data-bluesnap-message></div>
+            {% endblock %}
+
+            {% block bluesnap_saved_cards_list %}
+                <div class="bluesnap-saved-cards-grid" data-bluesnap-card-list>
+                    {% if bluesnapCards is empty %}
+                        <div class="bluesnap-saved-cards-empty" data-bluesnap-empty>
+                            <div class="bluesnap-saved-cards-empty-icon" aria-hidden="true"></div>
+                            <strong class="bluesnap-saved-cards-empty-title">{{ 'Bluesnap.savedCards.emptyTitle'|trans|sw_sanitize }}</strong>
+                            <span class="bluesnap-saved-cards-empty-text">{{ 'Bluesnap.savedCards.emptyText'|trans|sw_sanitize }}</span>
+                        </div>
+                    {% else %}
+                        {% for card in bluesnapCards %}
+                            {% set cardHolder = card.cardHolderName ?: bluesnapCustomerName %}
+                            <article class="bluesnap-saved-card{{ card.expired ? ' bluesnap-saved-card--expired' : '' }}"
+                                     data-bluesnap-card
+                                     data-bluesnap-card-key="{{ card.cardKey }}">
+                                <div class="bluesnap-saved-card-top">
+                                    <span class="bluesnap-saved-card-chip" aria-hidden="true"></span>
+                                    <span class="bluesnap-saved-card-brand">{{ card.cardType }}</span>
+                                </div>
+
+                                <div class="bluesnap-saved-card-number">
+                                    <span>&bull;&bull;&bull;&bull;</span>
+                                    <span>&bull;&bull;&bull;&bull;</span>
+                                    <span>&bull;&bull;&bull;&bull;</span>
+                                    <span>{{ card.lastFourDigits }}</span>
+                                </div>
+
+                                <div class="bluesnap-saved-card-meta bluesnap-saved-card-holder">
+                                    <div>
+                                        <span>{{ 'Bluesnap.savedCards.cardHolder'|trans|sw_sanitize }}</span>
+                                        <strong class="bluesnap-saved-card-meta-value">{{ cardHolder ?: '-' }}</strong>
+                                    </div>
+                                    {% if card.preferred %}
+                                        <span class="bluesnap-saved-card-preferred">{{ 'Bluesnap.savedCards.preferred'|trans|sw_sanitize }}</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="bluesnap-saved-card-expiry">
+                                    <span>{{ 'Bluesnap.savedCards.expires'|trans|sw_sanitize }}</span>
+                                    <strong class="bluesnap-saved-card-expiry-value">{{ card.expirationDate ?: '-' }}</strong>
+                                    {% if card.expired %}
+                                        <span class="bluesnap-saved-card-expired">{{ 'Bluesnap.savedCards.expired'|trans|sw_sanitize }}</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="bluesnap-saved-card-actions">
+                                    {% if not card.preferred and not card.expired %}
+                                        <button type="button"
+                                                class="bluesnap-saved-card-action bluesnap-saved-card-action-preferred"
+                                                title="{{ 'Bluesnap.savedCards.makePreferred'|trans|striptags }}"
+                                                aria-label="{{ 'Bluesnap.savedCards.makePreferred'|trans|striptags }}"
+                                                data-bluesnap-preferred-card>
+                                            {% sw_icon 'star' style { size: 'xs', pack: 'solid' } %}
+                                        </button>
+                                    {% endif %}
+                                    <button type="button"
+                                            class="bluesnap-saved-card-action bluesnap-saved-card-action-remove"
+                                            title="{{ 'Bluesnap.savedCards.remove'|trans|striptags }}"
+                                            aria-label="{{ 'Bluesnap.savedCards.remove'|trans|striptags }}"
+                                            data-bluesnap-remove-card>
+                                        {% sw_icon 'trash' style { size: 'xs' } %}
+                                    </button>
+                                </div>
+                            </article>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            {% endblock %}
+
+            {% block bluesnap_saved_cards_toggle %}
+                <button type="button"
+                        id="bluesnap-saved-cards-toggle"
+                        class="btn btn-primary bluesnap-saved-cards-toggle"
+                        data-bluesnap-toggle-form>
+                    {{ 'Bluesnap.savedCards.showForm'|trans|sw_sanitize }}
+                </button>
+            {% endblock %}
+
+            {% block bluesnap_saved_cards_form %}
+                <section class="bluesnap-saved-cards-form d-none" data-bluesnap-form>
+                    <h2 class="bluesnap-saved-cards-form-title">{{ 'Bluesnap.savedCards.addCard'|trans|sw_sanitize }}</h2>
+
+                    <div class="bluesnap-saved-cards-form-fields">
+                        <div class="form-group bluesnap-saved-cards-field bluesnap-saved-cards-field-wide">
+                            <label class="form-label" for="bluesnap-account-card-number">
+                                {{ 'Bluesnap.savedCards.form.cardNumber'|trans|sw_sanitize }} *
+                            </label>
+                            <div class="form-control bluesnap-hosted-field"
+                                 id="bluesnap-account-card-number"
+                                 data-bluesnap="ccn"></div>
+                            <div class="bluesnap-field-error d-none" data-bluesnap-error="ccn" aria-live="polite"></div>
+                        </div>
+
+                        <div class="form-group bluesnap-saved-cards-field">
+                            <label class="form-label" for="bluesnap-account-exp-date">
+                                {{ 'Bluesnap.savedCards.form.expDate'|trans|sw_sanitize }} *
+                            </label>
+                            <div class="form-control bluesnap-hosted-field"
+                                 id="bluesnap-account-exp-date"
+                                 data-bluesnap="exp"></div>
+                            <div class="bluesnap-field-error d-none" data-bluesnap-error="exp" aria-live="polite"></div>
+                        </div>
+
+                        <div class="form-group bluesnap-saved-cards-field">
+                            <label class="form-label" for="bluesnap-account-cvv">
+                                {{ 'Bluesnap.savedCards.form.cvv'|trans|sw_sanitize }} *
+                            </label>
+                            <div class="form-control bluesnap-hosted-field"
+                                 id="bluesnap-account-cvv"
+                                 data-bluesnap="cvv"></div>
+                            <div class="bluesnap-field-error d-none" data-bluesnap-error="cvv" aria-live="polite"></div>
+                        </div>
+                    </div>
+
+                    <p class="bluesnap-saved-cards-secure">
+                        {% sw_icon 'lock' style {'pack':'customsvg'} %}
+                        {{ 'Bluesnap.savedCards.secureNotice'|trans|sw_sanitize }}
+                    </p>
+
+                    <div class="bluesnap-saved-cards-form-actions">
+                        <button type="button"
+                                id="bluesnap-saved-cards-submit"
+                                class="btn btn-primary"
+                                data-bluesnap-submit-card>
+                            {{ 'Bluesnap.savedCards.saveCard'|trans|sw_sanitize }}
+                        </button>
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                data-bluesnap-cancel-form>
+                            {{ 'Bluesnap.savedCards.cancel'|trans|sw_sanitize }}
+                        </button>
+                    </div>
+                </section>
+            {% endblock %}
+        </div>
+    {% endblock %}
+{% endblock %}

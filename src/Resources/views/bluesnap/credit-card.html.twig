@@ -1,117 +1,118 @@
 {% block solu1_bluesnap_credit_card %}
-    <div id="bluesnap-credit-card" class="panel panel-default bootstrap-basic"
+    <div id="bluesnap-credit-card" class="bluesnap-credit-card"
          data-bluesnap-credit-card="true"
          data-pf-token="{{ page.extensions.bluesnap.pfToken is iterable ? '' : page.extensions.bluesnap.pfToken }}"
-         data-surcharge-pf-token="{{ page.extensions.bluesnap.surchargePfToken is iterable ? '' : page.extensions.bluesnap.surchargePfToken }}"
-         data-saved-card="{{ page.extensions.bluesnap.isSavedCard }}"
-         data-change-card="{{ page.extensions.bluesnap.isCardChanged }}"
          data-vaulted-shopper-id="{{ page.extensions.bluesnap.vaultedShopperId }}"
+         data-preferred-card-key="{{ page.extensions.bluesnap.preferredCardKey }}"
+         data-selected-card-key="{{ page.extensions.bluesnap.selectedCardKey }}"
+         data-has-saved-cards="{{ page.extensions.bluesnap.hasSavedCards ? '1' : '0' }}"
          data-secured-firstName="{{ page.extensions.bluesnap.securedFirstName }}"
          data-secured-lastName="{{ page.extensions.bluesnap.securedLastName }}"
          data-secured-amount="{{ page.extensions.bluesnap.securedAmount }}"
-         data-secured-base-amount="{{ page.extensions.bluesnap.securedBaseAmount }}"
          data-secured-currency="{{ page.extensions.bluesnap.securedCurrency }}"
-         data-shopper-name="{{ page.extensions.bluesnap.shopperName }}"
-         data-shopper-lastName="{{ page.extensions.bluesnap.shopperLastName }}"
-         data-shopper-last-digits="{{ page.extensions.bluesnap.shopperLast4Digits }}"
-         data-shopper-card-type="{{ page.extensions.bluesnap.shopperCardType }}"
+         data-surcharge-token="{{ page.extensions.bluesnap.surchargeToken|default('') }}"
+         data-surcharge-amount="{{ page.extensions.bluesnap.surchargeAmount|default('') }}"
          data-three-d-secure="{{ page.extensions.bluesnap.threeDS }}"
          data-flow="{{ page.extensions.bluesnap.flow }}"
          data-script-url="{{ page.extensions.bluesnap.js_link }}"
-         data-surcharge-label="{{ 'Bluesnap.surcharge.label'|trans|sw_sanitize }}"
-         data-has-surcharge="{{ page.extensions.bluesnap.surchargeToken ? '1' : '1' }}"
          data-is-surcharge-active="{{ page.extensions.bluesnap.isSurchargeActive ? '1' : '0' }}"
+         data-surcharge-notice-text="{{ 'Bluesnap.surcharge.notice'|trans|striptags }}"
+         data-validation-error-text="{{ 'Bluesnap.credit-card.errors.requiredFields'|trans|striptags }}"
+         data-generic-error-text="{{ 'Bluesnap.credit-card.errors.generic'|trans|striptags }}"
+         data-three-d-secure-failed-text="{{ 'Bluesnap.credit-card.errors.threeDSecureFailed'|trans|striptags }}"
     >
-        {% block solu1_bluesnap_credit_card_saved_card %}
-
-            <div class="form-saved-card {{ page.extensions.bluesnap.isSavedCard ? '' : 'd-none' }}">
-                <form>
-                    <label for="bluesnap-is-save-card">
-                        {{ 'Bluesnap.credit-card.fields.saved-card-text'|trans }}
-                    </label>
-                    <input id="bluesnap-is-save-card"
-                           type="checkbox" {{ page.extensions.bluesnap.isSavedCard ? 'checked' : '' }} />
-                </form>
+        {% block bluesnap_credit_card_error %}
+            <div class="alert alert-danger d-none" id="bluesnap-error-message" role="alert">
+                <div class="error-alert">
+                    <div class="svg-icon">
+                        {% sw_icon 'alert' style {'pack':'customsvg'} %}
+                    </div>
+                    <p></p>
+                </div>
             </div>
         {% endblock %}
 
-        {% block solu1_bluesnap_credit_card_loader %}
-            <div class="bluesnap-loader d-none text-center w-60 h-60" id="bluesnap-loader"></div>
-        {% endblock %}
+        {% block bluesnap_credit_card_saved_cards %}
+            {% if page.extensions.bluesnap.hasSavedCards %}
+                <div class="bluesnap-saved-cards-choice" data-bluesnap-saved-cards-choice>
+                    <p class="bluesnap-saved-cards-choice-title">
+                        {{ 'Bluesnap.savedCards.checkoutTitle'|trans|sw_sanitize }}
+                    </p>
 
-        {% block solu1_bluesnap_credit_card_saved_card_form %}
-            <div id="bluesnap-saved-card-form" class="container mt-5 d-none">
-                <form class="saved-card-form" id="bluesnap-saved-card-form" action="#">
-                    <div class="form-group">
-                        <p id="bluesnap-card-number"></p>
-
-                        {% set cardImages = {
-                            'AMEX': 'https://files.readme.io/97e7acc-Amex.png',
-                            'DINERS': 'https://files.readme.io/8c73810-Diners_Club.png',
-                            'DISCOVER': 'https://files.readme.io/caea86d-Discover.png',
-                            'JCB': 'https://files.readme.io/e076aed-JCB.png',
-                            'MASTERCARD': 'https://files.readme.io/5b7b3de-Mastercard.png',
-                            'VISA': 'https://files.readme.io/9018c4f-Visa.png'
-                        } %}
-
-                        {% if page.extensions.bluesnap.shopperCardType is defined and cardImages[page.extensions.bluesnap.shopperCardType] is defined %}
-                            <img src="{{ cardImages[page.extensions.bluesnap.shopperCardType] }}"
-                                 alt="{{ page.extensions.bluesnap.shopperCardType }} {{ 'Bluesnap.credit-card.fields.logo'|trans }}"
-                                 title="{{ page.extensions.bluesnap.shopperCardType }} {{ 'Bluesnap.credit-card.fields.logo'|trans }}"
-                            >
-                        {% endif %}
-                    </div>
-
-                    <div class="form-group name-surname">
-                        <p id="bluesnap-card-holder"></p>
-                        <p id="bluesnap-card-holder-lastname"></p>
-                    </div>
-                </form>
-            </div>
-        {% endblock %}
-
-        {% block solu1_bluesnap_credit_card_checkout_form %}
-            <form class="panel-body d-none" id="bluesnap-checkout-form" action="#">
-
-                {% block solu1_bluesnap_credit_card_error_message %}
-                    <div class="alert alert-danger d-none" id="error-message" role="alert">
-                        <div class="error-alert">
-                            <div class="svg-icon">
-                                {% sw_icon 'alert' style {'pack':'customsvg'} %}
-                            </div>
-                            <p></p>
+                    {% for card in page.extensions.bluesnap.savedCards %}
+                        <div class="bluesnap-saved-card-option form-check payment-method-radio{{ card.expired ? ' bluesnap-saved-card-option--expired' : '' }}">
+                            <input class="form-check-input bluesnap-saved-card-radio"
+                                   type="radio"
+                                   name="bluesnap_card_choice"
+                                   id="bluesnap-card-{{ card.cardKey }}"
+                                   value="{{ card.cardKey }}"
+                                   data-bluesnap-card-type="{{ card.cardType }}"
+                                   data-bluesnap-card-last-four="{{ card.lastFourDigits }}"
+                                   {{ card.expired ? 'disabled' : '' }}
+                                   {{ card.cardKey == page.extensions.bluesnap.selectedCardKey ? 'checked' : '' }}>
+                            <label class="form-check-label bluesnap-saved-card-label" for="bluesnap-card-{{ card.cardKey }}">
+                                <span class="bluesnap-saved-card-brand">{{ card.cardType }}</span>
+                                <span class="bluesnap-saved-card-number">&bull;&bull;&bull;&bull;&nbsp;{{ card.lastFourDigits }}</span>
+                                {% if card.expirationDate %}
+                                    <span class="bluesnap-saved-card-expiry text-muted">({{ card.expirationDate }})</span>
+                                {% endif %}
+                                {% if card.cardKey == page.extensions.bluesnap.preferredCardKey %}
+                                    <span class="bluesnap-saved-card-preferred-badge">{{ 'Bluesnap.savedCards.preferred'|trans|sw_sanitize }}</span>
+                                {% endif %}
+                                {% if card.expired %}
+                                    <span class="bluesnap-saved-card-expired-badge">{{ 'Bluesnap.savedCards.expired'|trans|sw_sanitize }}</span>
+                                {% endif %}
+                            </label>
                         </div>
-                    </div>
-                {% endblock %}
+                    {% endfor %}
 
-              <div id="controll-display" class="{{ page.extensions.bluesnap.surchargeToken ? 'd-none' : '' }}">
+                    <div class="bluesnap-saved-card-option form-check payment-method-radio">
+                        <input class="form-check-input bluesnap-saved-card-radio"
+                               type="radio"
+                               name="bluesnap_card_choice"
+                               id="bluesnap-card-new"
+                               value="new"
+                               {{ page.extensions.bluesnap.selectedCardKey ? '' : 'checked' }}>
+                        <label class="form-check-label bluesnap-saved-card-label" for="bluesnap-card-new">
+                            {{ 'Bluesnap.savedCards.useNewCard'|trans|sw_sanitize }}
+                        </label>
+                    </div>
+                </div>
+            {% endif %}
+        {% endblock %}
+
+        {% block bluesnap_credit_card_new_card %}
+            <div class="bluesnap-new-card{{ page.extensions.bluesnap.selectedCardKey ? ' d-none' : '' }}"
+                 id="bluesnap-new-card"
+                 data-bluesnap-new-card>
                 <div class="row">
                     <div class="form-group col-md-6">
                         <input type="text" class="form-control" id="bluesnap-first-name"
-                               placeholder="{{ 'Bluesnap.credit-card.fields.first-name-placeholder'|trans }}" required>
+                               autocomplete="cc-given-name"
+                               aria-label="{{ 'Bluesnap.credit-card.fields.first-name-placeholder'|trans|striptags }}"
+                               placeholder="{{ 'Bluesnap.credit-card.fields.first-name-placeholder'|trans }}">
                     </div>
 
                     <div class="form-group col-md-6">
                         <input type="text" class="form-control" id="bluesnap-last-name"
-                               placeholder="{{ 'Bluesnap.credit-card.fields.last-name-placeholder'|trans }}" required>
+                               autocomplete="cc-family-name"
+                               aria-label="{{ 'Bluesnap.credit-card.fields.last-name-placeholder'|trans|striptags }}"
+                               placeholder="{{ 'Bluesnap.credit-card.fields.last-name-placeholder'|trans }}">
                     </div>
 
-                    <!--Hosted Field for CC number-->
                     <div class="form-group col-md-12">
                         <div class="input-group">
-                            <div class="form-control" id="card-number" data-bluesnap="ccn"></div>
+                            <div class="form-control" id="bluesnap-ccn" data-bluesnap="ccn"></div>
                         </div>
                         <p class="helper-text-ccn">{{ 'Bluesnap.credit-card.fields.helper-text'|trans|raw }}</p>
                     </div>
 
-                    <!--Hosted Field for CC EXP-->
                     <div class="form-group col-md-4">
-                        <div class="form-control" id="exp-date" data-bluesnap="exp"></div>
+                        <div class="form-control" id="bluesnap-exp" data-bluesnap="exp"></div>
                     </div>
 
-                    <!--Hosted Field for CC CVV-->
                     <div class="form-group col-md-4">
-                        <div class="form-control" id="cvv" data-bluesnap="cvv"></div>
+                        <div class="form-control" id="bluesnap-cvv" data-bluesnap="cvv"></div>
                     </div>
 
                     <div class="secure-payments col-md-4 col-12">
@@ -120,62 +121,43 @@
                     </div>
                 </div>
 
-                {% if not page.extensions.bluesnap.isGuestLogin and page.extensions.bluesnap.vaultedShopperEnable and not page.extensions.bluesnap.isSurchargeActive %}
-                    <div class="saved-infos saved-infos-pre-surcharge">
+                {% if not page.extensions.bluesnap.isGuestLogin and page.extensions.bluesnap.vaultedShopperEnable %}
+                    <div class="saved-infos">
                         <input type="checkbox" id="bluesnap-save-card" class="bluesnap-save-card-initial">
-                        <p class="bluesnap-save-card">{{ 'Bluesnap.credit-card.fields.save-card-info'|trans }}</p>
+                        <label class="bluesnap-save-card" for="bluesnap-save-card">{{ 'Bluesnap.credit-card.fields.save-card-info'|trans }}</label>
                     </div>
                 {% endif %}
+            </div>
+        {% endblock %}
 
-                {% if page.extensions.bluesnap.isSurchargeActive %}
-                    <div class="calculate-surcharge mt-3">
+        {% block bluesnap_credit_card_surcharge_confirm %}
+            {% if page.extensions.bluesnap.isSurchargeActive %}
+                <div class="bluesnap-surcharge-confirm d-none"
+                     id="bluesnap-surcharge-confirm"
+                     role="alert"
+                     aria-live="polite"
+                     data-bluesnap-surcharge-confirm>
+                    <p class="bluesnap-surcharge-confirm-text" id="bluesnap-surcharge-confirm-text"></p>
+                    <div class="bluesnap-surcharge-confirm-actions">
                         <button type="button"
-                                id="bluesnap-calculate-surcharge"
-                                class="btn btn-primary w-100">
-                            {{ "Calculate surcharge and proceed to payment" }}
+                                class="btn btn-primary"
+                                id="bluesnap-surcharge-confirm-pay"
+                                data-bluesnap-surcharge-pay>
+                            {{ 'Bluesnap.surcharge.confirmPay'|trans|sw_sanitize }}
                         </button>
-
-                        <!-- Hidden inputs for surcharge data -->
-                        <input type="hidden" id="bluesnap-surcharge-token" value="">
-                        <input type="hidden" id="bluesnap-surcharge-amount" value="">
-                        <input type="hidden" id="bluesnap-pf-token-surcharge" value="">
-                        <input type="hidden" id="bluesnap-card-type-surcharge" value="">
-                        <input type="hidden" id="bluesnap-save-card-surcharge" value="">
+                        <button type="button"
+                                class="btn btn-outline-secondary"
+                                id="bluesnap-surcharge-confirm-cancel"
+                                data-bluesnap-surcharge-cancel>
+                            {{ 'Bluesnap.surcharge.confirmCancel'|trans|sw_sanitize }}
+                        </button>
                     </div>
-                {% endif %}
-              </div>
+                </div>
+            {% endif %}
+        {% endblock %}
 
-              {% if page.extensions.bluesnap.isSurchargeActive %}
-                  <div id="bluesnap-surcharge-success"
-                       class="alert alert-success mt-3 {{ page.extensions.bluesnap.surchargeToken ? '' : 'd-none' }}"
-                       role="alert">
-                      {% sw_icon 'checkmark-circle' style { ariaHidden: true } %}
-                      <div class="alert-content-container">
-                          <div class="alert-content">
-                              <span id="bluesnap-surcharge-success-text">
-                                  {% if page.extensions.bluesnap.surchargeAmount is defined and page.extensions.bluesnap.surchargeAmount > 0 %}
-                                      {{ "Surcharge"|trans }} {{ page.extensions.bluesnap.surchargeAmount|currency(page.extensions.bluesnap.securedCurrency|default('EUR')) }} {{ "calculated successfully."|trans }}
-                                  {% else %}
-                                      {{ "Surcharge calculated successfully."|trans }}
-                                  {% endif %}
-                              </span>
-
-                              <div class="form-check mt-2">
-                                  <input type="checkbox" class="form-check-input" id="bluesnap-change-card">
-                                  <label for="bluesnap-change-card" class="custom-control-label">{{ "Change card"|trans }}</label>
-                              </div>
-
-                              {% if not page.extensions.bluesnap.isGuestLogin and page.extensions.bluesnap.vaultedShopperEnable %}
-                                  <div class="form-check">
-                                      <input type="checkbox" class="form-check-input" id="bluesnap-save-card-confirm">
-                                      <label for="bluesnap-save-card-confirm" class="custom-control-label">{{ "Save my card"|trans }}</label>
-                                  </div>
-                              {% endif %}
-                          </div>
-                      </div>
-                  </div>
-              {% endif %}
-            </form>
+        {% block bluesnap_credit_card_loader %}
+            <div class="bluesnap-loader d-none text-center w-60 h-60" id="bluesnap-loader"></div>
         {% endblock %}
     </div>
 {% endblock %}

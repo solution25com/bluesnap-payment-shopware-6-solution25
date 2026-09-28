@@ -8,10 +8,13 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class BlueSnapSurchargeContext
 {
+    public const NEW_CARD = 'new';
+
     private const SESSION_KEY = 'bluesnap_pf_token';
     private const SESSION_KEY_CARD_TYPE = 'bluesnap_surcharge_card_type';
     private const SESSION_KEY_SURCHARGE_DATA = 'bluesnap_surcharge_data';
     private const SESSION_KEY_VAULTED_SHOPPER_ID = 'bluesnap_vaulted_shopper_id';
+    private const SESSION_KEY_SELECTED_CARD_KEY = 'bluesnap_selected_card_key';
 
     public function __construct(
         private readonly RequestStack $requestStack
@@ -130,5 +133,36 @@ class BlueSnapSurchargeContext
         }
 
         $request->getSession()->remove(self::SESSION_KEY_VAULTED_SHOPPER_ID);
+    }
+
+    public function setSelectedCardKey(string $cardKey): void
+    {
+        $request = $this->requestStack->getMainRequest();
+        if ($request === null) {
+            return;
+        }
+
+        $request->getSession()->set(self::SESSION_KEY_SELECTED_CARD_KEY, $cardKey);
+    }
+
+    public function getSelectedCardKey(): ?string
+    {
+        $request = $this->requestStack->getMainRequest();
+        if ($request === null) {
+            return null;
+        }
+
+        $cardKey = $request->getSession()->get(self::SESSION_KEY_SELECTED_CARD_KEY);
+        return is_string($cardKey) && $cardKey !== '' ? $cardKey : null;
+    }
+
+    public function clearSelectedCardKey(): void
+    {
+        $request = $this->requestStack->getMainRequest();
+        if ($request === null) {
+            return;
+        }
+
+        $request->getSession()->remove(self::SESSION_KEY_SELECTED_CARD_KEY);
     }
 }

@@ -3,6 +3,7 @@
 namespace BlueSnap\EventSubscriber;
 
 use BlueSnap\Core\Checkout\Cart\BlueSnapSurchargeContext;
+use BlueSnap\Core\Content\VaultedShopper\SavedCardStruct;
 use BlueSnap\Gateways\ApplePay;
 use BlueSnap\Gateways\CreditCard;
 use BlueSnap\Gateways\GooglePay;
@@ -10,6 +11,7 @@ use BlueSnap\Gateways\LinkPayment;
 use BlueSnap\Library\Constants\EnvironmentUrl;
 use BlueSnap\Service\BlueSnapApiClient;
 use BlueSnap\Service\BlueSnapConfig;
+use BlueSnap\Service\SavedCardService;
 use BlueSnap\Service\VaultedShopperService;
 use BlueSnap\Storefront\Struct\CheckoutTemplateCustomData;
 use Shopware\Core\Checkout\Payment\PaymentMethodEntity;
@@ -23,17 +25,20 @@ class CheckoutConfirmEventSubscriber implements EventSubscriberInterface
     private VaultedShopperService $vaultedShopperService;
     private BlueSnapConfig $blueSnapConfig;
     private BlueSnapSurchargeContext $surchargeContext;
+    private SavedCardService $savedCardService;
 
     public function __construct(
         BlueSnapApiClient $blueSnapClient,
         BlueSnapConfig $blueSnapConfig,
         VaultedShopperService $vaultedShopperService,
-        BlueSnapSurchargeContext $surchargeContext
+        BlueSnapSurchargeContext $surchargeContext,
+        SavedCardService $savedCardService
     ) {
         $this->blueSnapClient = $blueSnapClient;
         $this->blueSnapConfig = $blueSnapConfig;
         $this->vaultedShopperService = $vaultedShopperService;
         $this->surchargeContext = $surchargeContext;
+        $this->savedCardService = $savedCardService;
     }
 
     /**
@@ -61,25 +66,36 @@ class CheckoutConfirmEventSubscriber implements EventSubscriberInterface
         $isCardSaved = false;
         $shopperName = '';
         $shopperLastName = '';
-        $shopperLast4Digits = '';
-        $shopperCardType = '';
         $vaultedShopperId = '';
+        $savedCards = [];
+        $preferredCardKey = '';
+        $selectedCardKey = '';
+
+        $useNewCard = $this->surchargeContext->getSelectedCardKey() === BlueSnapSurchargeContext::NEW_CARD
+            || (bool) $this->surchargeContext->getPfToken();
 
         $vaultedShopperEnable = $this->blueSnapConfig->getConfig('vaultedShopper', $salesChannelId);
-        if ($vaultedShopperEnable && $customerId && !$this->surchargeContext->getPfToken()) {
-            $isCardSaved = $this->vaultedShopperService->vaultedShopperExist($event->getContext(), $customerId);
+        if ($vaultedShopperEnable && $customerId) {
             $vaultedShopperId = $this->vaultedShopperService->getVaultedShopperIdByCustomerId($event->getContext(), $customerId);
             if ($vaultedShopperId) {
-                $this->surchargeContext->setVaultedCustomerId($vaultedShopperId);
+                if (!$useNewCard) {
+                    $this->surchargeContext->setVaultedCustomerId($vaultedShopperId);
+                }
                 $queryParam['shopperId'] = $vaultedShopperId;
 
-                $shopperData = $this->blueSnapClient->getVaultedShopper($vaultedShopperId, $salesChannelId);
-                $decodedData = json_decode($shopperData, true);
+                $savedCards = $this->savedCardService->getCards($customer, $salesChannelId, $event->getContext());
+                $isCardSaved = $savedCards !== [];
 
-                $shopperName = $decodedData['paymentSources']['creditCardInfo'][0]['billingContactInfo']['firstName'] ?? '';
-                $shopperLastName = $decodedData['paymentSources']['creditCardInfo'][0]['billingContactInfo']['lastName'] ?? '';
-                $shopperLast4Digits = $decodedData['paymentSources']['creditCardInfo'][0]['creditCard']['cardLastFourDigits'] ?? '';
-                $shopperCardType = $decodedData['paymentSources']['creditCardInfo'][0]['creditCard']['cardType'] ?? '';
+                foreach ($savedCards as $savedCard) {
+                    if ($savedCard->isPreferred()) {
+                        $preferredCardKey = $savedCard->getCardKey();
+                        $shopperName = $savedCard->getCardHolderFirstName() ?? '';
+                        $shopperLastName = $savedCard->getCardHolderLastName() ?? '';
+                        break;
+                    }
+                }
+
+                $selectedCardKey = $useNewCard ? '' : $this->syncSelectedCardKey($savedCards, $preferredCardKey);
             }
         }
         $surchargeData = $this->surchargeContext->getSurchargeData();
@@ -97,6 +113,11 @@ class CheckoutConfirmEventSubscriber implements EventSubscriberInterface
         $pfToken = ($surchargePfToken !== null && $surchargePfToken !== '') ? $surchargePfToken : (is_array($surcharge) ? ($surcharge['pfToken'] ?? null) : null);
         if (!is_string($pfToken) || $pfToken === '') {
             $pfTokenResponse = $this->blueSnapClient->makeTokenRequest($queryParam, $salesChannelId);
+
+            if (is_array($pfTokenResponse) && $queryParam !== []) {
+                $pfTokenResponse = $this->blueSnapClient->makeTokenRequest([], $salesChannelId);
+            }
+
             $pfToken = is_array($pfTokenResponse) ? null : $pfTokenResponse;
         }
 
@@ -116,8 +137,10 @@ class CheckoutConfirmEventSubscriber implements EventSubscriberInterface
             'securedLastName' => $customer?->getLastName() ?? '',
             'shopperName' => $shopperName,
             'shopperLastName' => $shopperLastName,
-            'shopperLast4Digits' => $shopperLast4Digits,
-            'shopperCardType' => $shopperCardType,
+            'savedCards' => $savedCards,
+            'hasSavedCards' => $savedCards !== [],
+            'preferredCardKey' => $preferredCardKey,
+            'selectedCardKey' => $selectedCardKey,
             'isSurchargeActive' => $isSurchargeActive,
             'surchargeAmount' => $surchargeAmount,
             'surchargeToken' => $surchargeToken,
@@ -154,6 +177,7 @@ class CheckoutConfirmEventSubscriber implements EventSubscriberInterface
             'surchargeAmount' => $surcharge['amount'] ?? null,
             'surchargeToken' => $surcharge['token'] ?? null,
             'surchargeReference' => $surcharge['reference'] ?? null,
+            'countryCode' => $salesChannelContext->getCustomer()?->getActiveBillingAddress()?->getCountry()?->getIso() ?? 'US',
         ];
     }
 
@@ -179,6 +203,8 @@ class CheckoutConfirmEventSubscriber implements EventSubscriberInterface
             'surchargeAmount' => $surcharge['amount'] ?? null,
             'surchargeToken' => $surcharge['token'] ?? null,
             'surchargeReference' => $surcharge['reference'] ?? null,
+            'currencyCode' => $salesChannelContext->getCurrency()->getIsoCode(),
+            'countryCode' => $salesChannelContext->getCustomer()?->getActiveBillingAddress()?->getCountry()?->getIso() ?? 'US',
         ];
     }
 
@@ -241,5 +267,37 @@ class CheckoutConfirmEventSubscriber implements EventSubscriberInterface
         }
         $this->surchargeContext->clearPfToken();
         $this->surchargeContext->clearVaultedCustomerId();
+        $this->surchargeContext->clearSelectedCardKey();
+    }
+
+    /**
+     * @param SavedCardStruct[] $savedCards
+     */
+    private function syncSelectedCardKey(array $savedCards, string $preferredCardKey): string
+    {
+        $selectedCardKey = $this->surchargeContext->getSelectedCardKey();
+
+        $usableCardKeys = [];
+        foreach ($savedCards as $savedCard) {
+            if (!$savedCard->isExpired()) {
+                $usableCardKeys[$savedCard->getCardKey()] = true;
+            }
+        }
+
+        if ($selectedCardKey !== null && isset($usableCardKeys[$selectedCardKey])) {
+            return $selectedCardKey;
+        }
+
+        $fallbackCardKey = isset($usableCardKeys[$preferredCardKey]) ? $preferredCardKey : array_key_first($usableCardKeys);
+
+        if ($fallbackCardKey === null) {
+            $this->surchargeContext->clearSelectedCardKey();
+
+            return '';
+        }
+
+        $this->surchargeContext->setSelectedCardKey($fallbackCardKey);
+
+        return $fallbackCardKey;
     }
 }

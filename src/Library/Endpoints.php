@@ -15,8 +15,10 @@ abstract class Endpoints
     protected const HOSTED_CHECKOUT = 'HOSTED_CHECKOUT';
     protected const ENCRYPT_URL = 'ENCRYPT_URL';
     protected const  UPDATE_SHOPPER = 'UPDATE_SHOPPER';
+    protected const CREATE_VAULTED_SHOPPER = 'CREATE_VAULTED_SHOPPER';
     protected const REFUNDS = 'REFUNDS';
     protected const SURCHARGE = 'SURCHARGE';
+    protected const TRANSACTION_DETAILS = 'TRANSACTION_DETAILS';
 
     private static array $endpoints = [
         self::PAYMENT_FIELD_TOKENS => [
@@ -53,6 +55,10 @@ abstract class Endpoints
             'method' => 'PUT',
             'url' => '/services/2/vaulted-shoppers'
         ],
+        self::CREATE_VAULTED_SHOPPER => [
+            'method' => 'POST',
+            'url' => '/services/2/vaulted-shoppers'
+        ],
         self::REFUNDS => [
             'method' => 'POST',
             'url' => '/services/2/transactions/refund'
@@ -60,6 +66,10 @@ abstract class Endpoints
         self::SURCHARGE => [
             'method' => 'POST',
             'url' => '/services/2/surcharge/calculate'
+        ],
+        self::TRANSACTION_DETAILS => [
+            'method' => 'GET',
+            'url' => '/services/2/transactions'
         ]
     ];
 

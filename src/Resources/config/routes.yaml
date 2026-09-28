@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/symfony/routing/7.4/Loader/schema/routing.schema.json
+core:
+    resource: ../../Core/**/*Route.php
+    type: attribute
+
+storefront_controller:
+    resource: ../../Storefront/Controller/*Controller.php
+    type: attribute

@@ -51,9 +51,10 @@ class OrderPaymentLinkSubscriber implements EventSubscriberInterface
         $this->surchargeContext->clearSurchargeData();
         $this->surchargeContext->clearVaultedCustomerId();
         $this->surchargeContext->clearPfToken();
+        $this->surchargeContext->clearSelectedCardKey();
 
         $context = $event->getContext();
-        if ($context->getScope() === "crud") {
+        if ($context->getScope() === "crud" || $context->getScope() === "system") {
             $salesChannelId = '';
             foreach ($event->getWriteResults() as $writeResult) {
                 $payload = $writeResult->getPayload();
@@ -69,9 +70,12 @@ class OrderPaymentLinkSubscriber implements EventSubscriberInterface
                 $order = $this->orderService->getOrderDetailsById($orderId, $context);
                 $paymentLinkRecord = $this->paymentLinkService->searchPaymentLink($orderId, $context);
 
-                if (!$paymentLinkRecord && $order->getTransactions()->first()->getPaymentMethod()->getHandlerIdentifier() == LinkPayment::class) {
+                $orderTransaction = OrderService::latestTransaction($order);
+                $salesChannelId = $salesChannelId !== '' ? $salesChannelId : (string) $order?->getSalesChannelId();
+
+                if (!$paymentLinkRecord && $salesChannelId !== '' && $orderTransaction?->getPaymentMethod()?->getHandlerIdentifier() === LinkPayment::class) {
                     $this->dispatcher->removeSubscriber($this);
-                    $this->blueSnapTransactionService->addTransaction($orderId, $order->getTransactions()->first()->getPaymentMethod()->getName(), $orderId, TransactionStatuses::PENDING->value, $context);
+                    $this->blueSnapTransactionService->addTransaction($orderId, $orderTransaction->getPaymentMethod()->getName(), $orderId, TransactionStatuses::PENDING->value, $context, null, $orderTransaction->getId());
                     $paymentLink = $this->paymentLinkService->generatePaymentLink($order, 'payment-link-success', 'payment-link-fail', $context, false, $salesChannelId);
                     $this->paymentLinkService->storePaymentLink($orderId, $paymentLink, $context);
                     $this->paymentLinkService->sendEmail($paymentLink, $order, $salesChannelId, $context);

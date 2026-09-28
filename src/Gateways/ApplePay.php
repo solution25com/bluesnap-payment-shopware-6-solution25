@@ -72,7 +72,7 @@ class ApplePay extends AbstractPaymentHandler
         }
 
         if ($flow == 'payment_order') {
-            $this->paymentFirstFlow($request, $transaction, $orderTransaction, $transactionMethodName, $transactionStatus, $context);
+            $this->paymentFirstFlow($request, $transaction, $orderTransaction, $transactionMethodName, $transactionStatus, $salesChannelId, $context);
         } else {
             $this->orderFirstFlow($request, $transaction, $orderTransaction, $authorizeOption, $transactionMethodName, $transactionStatus, $salesChannelId, $context);
         }
@@ -120,21 +120,35 @@ class ApplePay extends AbstractPaymentHandler
             ];
         }
 
-        $response = $this->blueSnapApiClient->capture($body, $salesChannelId);
+        $response = $this->blueSnapApiClient->capture($body, $salesChannelId, $transaction->getOrderTransactionId());
         if (isset($response['error'])) {
             $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
             throw new \RuntimeException($response['error']);
         }
         $responseData = json_decode($response, true);
+        $this->blueSnapTransactionService->addTransaction($order->getId(), $orderTransaction->getPaymentMethod()->getName(), $responseData['transactionId'], $transactionStatus, $context, BlueSnapApiClient::extractVerificationCodes($responseData), $transaction->getOrderTransactionId());
         $this->transactionStateHandler->{$handlerMethodName}($transaction->getOrderTransactionId(), $context);
-        $this->blueSnapTransactionService->addTransaction($order->getId(), $orderTransaction->getPaymentMethod()->getName(), $responseData['transactionId'], $transactionStatus, $context);
     }
 
-    private function paymentFirstFlow(Request $request, PaymentTransactionStruct $transaction, OrderTransactionEntity $orderTransaction, string $handlerMethodName, string $transactionStatus, Context $context): void
+    private function paymentFirstFlow(Request $request, PaymentTransactionStruct $transaction, OrderTransactionEntity $orderTransaction, string $handlerMethodName, string $transactionStatus, string $salesChannelId, Context $context): void
     {
-        $bluesnapTransactionId = $request->request->get('bluesnap_transaction_id');
-        $orderId = $orderTransaction->getOrder()->getId();
+        $bluesnapTransactionId = (string) $request->request->get('bluesnap_transaction_id');
+        $order = $orderTransaction->getOrder();
+        $orderId = $order->getId();
+        $expectedAmount = $orderTransaction->getAmount()->getTotalPrice();
+        $expectedCurrency = $order->getCurrency()->getIsoCode();
+
+        if (
+            $bluesnapTransactionId === ''
+            || $this->blueSnapTransactionService->transactionIdAlreadyUsed($bluesnapTransactionId, $context)
+            || !$this->blueSnapApiClient->verifyTransaction($bluesnapTransactionId, $expectedAmount, $expectedCurrency, $salesChannelId)
+        ) {
+            $this->transactionStateHandler->fail($transaction->getOrderTransactionId(), $context);
+            $this->logger->error('BlueSnap transaction reference could not be verified', ['orderId' => $orderId]);
+            throw new \RuntimeException('BlueSnap transaction verification failed');
+        }
+
+        $this->blueSnapTransactionService->addTransaction($orderId, $orderTransaction->getPaymentMethod()->getName(), $bluesnapTransactionId, $transactionStatus, $context, null, $transaction->getOrderTransactionId());
         $this->transactionStateHandler->{$handlerMethodName}($transaction->getOrderTransactionId(), $context);
-        $this->blueSnapTransactionService->addTransaction($orderId, $orderTransaction->getPaymentMethod()->getName(), $bluesnapTransactionId, $transactionStatus, $context);
     }
 }

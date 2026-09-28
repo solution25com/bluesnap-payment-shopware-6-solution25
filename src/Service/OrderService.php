@@ -45,7 +45,50 @@ class OrderService
         return $product;
     }
 
-    public function getOrderDetailsById(string $orderId, Context $context)
+    /**
+     * @param array<int, string|null> $productIds
+     *
+     * @return array<string, ProductEntity>
+     */
+    public function getProducts(array $productIds, Context $context): array
+    {
+        $productIds = array_values(array_unique(array_filter($productIds)));
+        if ($productIds === []) {
+            return [];
+        }
+
+        $criteria = new Criteria($productIds);
+        $criteria->addAssociation('unit');
+
+        $found = $this->productRepository->search($criteria, $context)->getEntities();
+
+        $products = [];
+        /** @var ProductEntity $product */
+        foreach ($found as $product) {
+            $products[$product->getId()] = $product;
+        }
+
+        return $products;
+    }
+
+    /**
+     * An order that has been retried or had its payment method changed carries several transactions,
+     * and only the newest one describes how it is being paid now.
+     */
+    public static function latestTransaction(?OrderEntity $order): ?OrderTransactionEntity
+    {
+        $transactions = $order?->getTransactions();
+        if ($transactions === null || $transactions->count() === 0) {
+            return null;
+        }
+
+        $sorted = $transactions->getElements();
+        uasort($sorted, static fn (OrderTransactionEntity $a, OrderTransactionEntity $b) => $a->getCreatedAt() <=> $b->getCreatedAt());
+
+        return end($sorted) ?: null;
+    }
+
+    public function getOrderDetailsById(string $orderId, Context $context): ?OrderEntity
     {
         $criteria = new Criteria([$orderId]);
         $criteria->addAssociation('lineItems');
@@ -102,12 +145,14 @@ class OrderService
             'level3DataItems' => [],
         ];
 
+        $products = $this->getProducts(array_column($cartData['lineItems'], 'referencedId'), $context);
+
         foreach ($cartData['lineItems'] as $item) {
             if ($item['type'] === LineItem::PROMOTION_LINE_ITEM_TYPE) {
                 continue;
             }
 
-            $product = $this->getProduct($item['referencedId'], $context);
+            $product = $products[$item['referencedId']] ?? null;
             if (!$product) {
                 continue;
             }

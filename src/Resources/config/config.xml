@@ -32,7 +32,7 @@
             <label lang="de-DE">API-Schlüssel Sandbox</label>
         </input-field>
 
-        <input-field type="text">
+        <input-field type="password">
             <name>apiPasswordSandbox</name>
             <label lang="en-GB">Api Password Sandbox</label>
             <label lang="de-DE">API-Passwort Sandbox</label>
@@ -54,6 +54,14 @@
             <name>merchantId</name>
             <label lang="en-GB">Merchant ID</label>
             <label lang="de-DE">Händler-ID</label>
+        </input-field>
+
+        <input-field type="password">
+            <name>webhookSecret</name>
+            <label lang="en-GB">Webhook Security Header Key</label>
+            <label lang="de-DE">Webhook-Sicherheitsheader-Schlüssel</label>
+            <helpText lang="en-GB">Required. Key shown under Add Security Header in the BlueSnap webhook settings. Webhooks are rejected while this is empty.</helpText>
+            <helpText lang="de-DE">Erforderlich. Schlüssel aus dem Bereich Add Security Header in den BlueSnap-Webhook-Einstellungen. Solange dieses Feld leer ist, werden Webhooks abgelehnt.</helpText>
         </input-field>
 
         <component name="bluesnap-api-test">

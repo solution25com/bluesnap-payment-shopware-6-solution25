@@ -104,7 +104,7 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
 
             function getGoogleTransactionInfo() {
                 return {
-                    countryCode: "US",
+                    countryCode: document.getElementById('bluesnap-google-pay').getAttribute('data-country-code'),
                     currencyCode: document.getElementById('bluesnap-google-pay').getAttribute('data-currency-code'),
                     totalPriceStatus: 'FINAL',
                     totalPrice: document.getElementById('bluesnap-google-pay').getAttribute('data-total-price'),

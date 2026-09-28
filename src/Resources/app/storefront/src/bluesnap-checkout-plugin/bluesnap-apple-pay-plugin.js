@@ -17,8 +17,8 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
 
     _applePayClicked() {
         const request = {
-            countryCode: 'US',
-            currencyCode: 'USD',
+            countryCode: this.countryCode,
+            currencyCode: this.currencyCode,
             supportedNetworks: ['visa', 'masterCard', 'amex', 'discover'],
             merchantCapabilities: ['supports3DS'],
             total: {label: 'BlueSnap', amount: this.totalPrice},
@@ -54,18 +54,20 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
 
             const flow = document.getElementById('bluesnap-apple-pay').getAttribute('data-flow');
 
-            session.completePayment(ApplePaySession.STATUS_SUCCESS);
-
             if (flow === 'order_payment') {
+                session.completePayment(ApplePaySession.STATUS_SUCCESS);
+                document.getElementById('paymentData').value = JSON.stringify(body);
+                document.getElementById('confirmOrderForm').submit()
+            } else {
                 const captureResult = await BlueSnapApi.appleCapture(body)
 
                 if (captureResult && captureResult.success) {
+                    session.completePayment(ApplePaySession.STATUS_SUCCESS);
                     document.getElementById('bluesnap-transaction-id').value = JSON.parse(captureResult.message).transactionId;
                     document.getElementById('confirmOrderForm').submit()
+                } else {
+                    session.completePayment(ApplePaySession.STATUS_FAILURE);
                 }
-            } else {
-                document.getElementById('paymentData').value = JSON.stringify(body);
-                document.getElementById('confirmOrderForm').submit()
             }
         };
         session.begin();
@@ -82,6 +84,8 @@ export default class BluesnapGooglePayPlugin extends window.PluginBaseClass {
         this.pfToken = this.parentCreditCardWrapper.getAttribute('data-pf-token')
         this.merchantID = this.parentCreditCardWrapper.getAttribute('data-merchant-id')
         this.domain = this.parentCreditCardWrapper.getAttribute('data-domain-name')
+        this.currencyCode = this.parentCreditCardWrapper.getAttribute('data-currency-code')
+        this.countryCode = this.parentCreditCardWrapper.getAttribute('data-country-code')
 
         this.errorWrapper = document.getElementById(this.options.errorWrapperId)
     }

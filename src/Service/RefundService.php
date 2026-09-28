@@ -69,6 +69,10 @@ class RefundService
             $this->logger->error('$orderTransactionId is not available');
             return null;
         }
+        if (!$orderReturn->getOrder() || $orderReturn->getOrder()->getId() !== $data['orderId']) {
+            $this->logger->error('returnId does not belong to orderId');
+            return null;
+        }
 
         try {
             $this->stateMachineRegistry->transition(
@@ -94,15 +98,19 @@ class RefundService
         $order = $this->orderService->getOrderDetailsById($data['orderId'], $context);
 
         if ($transaction) {
-            $response = $this->blueSnapApiClient->refund($transaction->getTransactionId(), $body, $orderReturn->getOrder()->getSalesChannelID());
+            $response = $this->blueSnapApiClient->refund($transaction->getTransactionId(), $body, $orderReturn->getOrder()->getSalesChannelID(), $data['returnId']);
+
+            if (is_array($response)) {
+                $this->logger->error('BlueSnap refund failed', ['response' => $response]);
+
+                return null;
+            }
+
             $parsedResponse = json_decode($response, true);
 
-            if ($parsedResponse['refundStatus'] == 'SUCCESS') {
-                // TODO: Fix this by calculating every return order
-                // -> add every amount and if it matches the order amount
-                // -> then is fully returned
+            if (is_array($parsedResponse) && ($parsedResponse['refundStatus'] ?? '') === 'SUCCESS') {
                 try {
-                    if ($order->getAmountTotal() == $orderReturn->getAmountTotal()) {
+                    if ($this->refundedTotalFor($data['orderId'], $context) + 0.005 >= (float) $order->getAmountTotal()) {
                         $this->transactionStateHandler->refund($orderTransactionId, $context);
                     } else {
                         $this->transactionStateHandler->refundPartially($orderTransactionId, $context);
@@ -140,12 +148,15 @@ class RefundService
                 }
 
                 try {
-                    $itemIds = [];
-                    foreach ($orderReturn->getLineItems() as $lineItem) {
-                        $itemIds[] = $lineItem->getId();
+                    // Commercial-only service; absent on installations without Return Management.
+                    if ($this->positionStateHandler !== null) {
+                        $itemIds = [];
+                        foreach ($orderReturn->getLineItems() as $lineItem) {
+                            $itemIds[] = $lineItem->getId();
+                        }
+                        $this->positionStateHandler->transitReturnItems($itemIds, PositionStateHandler::STATE_RETURNED, $context);
                     }
-                    $this->positionStateHandler->transitReturnItems($itemIds, PositionStateHandler::STATE_RETURNED, $context);
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     $this->logger->error('Error while changing return item status');
                     $this->logger->error($e->getMessage());
                 }
@@ -156,5 +167,34 @@ class RefundService
             return $parsedResponse;
         }
         return null;
+    }
+
+    /**
+     * Sum of the returns on the order that were actually processed, so two partial refunds covering
+     * the order mark the transaction fully refunded while a still-open or cancelled return does not.
+     */
+    private function refundedTotalFor(string $orderId, Context $context): float
+    {
+        if ($this->orderReturnRepository === null) {
+            return 0.0;
+        }
+
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('orderId', $orderId));
+        $criteria->addAssociation('stateMachineState');
+
+        $returns = $this->orderReturnRepository->search($criteria, $context)->getEntities();
+
+        $total = 0.0;
+        foreach ($returns as $return) {
+            $state = $return->getStateMachineState()?->getTechnicalName();
+            if ($state === 'open' || $state === 'cancelled') {
+                continue;
+            }
+
+            $total += (float) $return->getAmountTotal();
+        }
+
+        return round($total, 2);
     }
 }

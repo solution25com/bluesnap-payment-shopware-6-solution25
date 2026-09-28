@@ -21,15 +21,15 @@ class BlueSnapApiController extends StorefrontController
         $this->route = $route;
     }
 
-    #[Route(path: '/api/refund', name: 'api.bluesnap.refund', methods: ['POST'])]
+    #[Route(path: '/api/refund', name: 'api.bluesnap.refund', methods: ['POST'], defaults: ['_acl' => ['order.editor']])]
     public function refund(Request $request, Context $context): BlueSnapApiResponse
     {
-        return $this->route->refund($request, $context);
+        return $this->route->adminRefund($request, $context);
     }
 
-    #[Route(path: '/api/re-send-payment-link', name: 'api.bluesnap.reSendPaymentLink', methods: ['POST'])]
+    #[Route(path: '/api/re-send-payment-link', name: 'api.bluesnap.reSendPaymentLink', methods: ['POST'], defaults: ['_acl' => ['order.editor']])]
     public function reSendPaymentLink(Request $request, Context $context)
     {
-        return $this->route->reSendPaymentLink($request, $context);
+        return $this->route->adminReSendPaymentLink($request, $context);
     }
 }

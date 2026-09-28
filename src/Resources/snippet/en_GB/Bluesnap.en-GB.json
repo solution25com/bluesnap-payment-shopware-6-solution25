@@ -7,18 +7,24 @@
       "fields": {
         "first-name-placeholder": "First Name",
         "last-name-placeholder": "Last Name",
-        "saved-card-text": "Use Saved Card",
         "helper-text": "16 digits on your card, <span>e.g., 1234 5678 9123 4567</span>",
         "secure-payments": "Secure payments",
-        "save-card-info": "Save card for future payment",
-        "logo": "Logo"
+        "save-card-info": "Save card for future payment"
+      },
+      "errors": {
+        "requiredFields": "Please fill in all required fields.",
+        "generic": "The payment could not be processed. Please try again.",
+        "threeDSecureFailed": "The card could not be authenticated. Please try another card."
       }
     },
     "button": {
       "debit-card-btn-text": "Submit order"
     },
     "surcharge": {
-      "label": "Payment Surcharge"
+      "label": "Payment Surcharge",
+      "notice": "A surcharge of %surcharge% applies to this card. Your total becomes %total%.",
+      "confirmPay": "Confirm and pay",
+      "confirmCancel": "Use a different card"
     },
     "paymentFail": {
       "paymentFail-text": "Unfortunately you payment did not go through",
@@ -29,6 +35,38 @@
       "paymentSuccess-text": "Thank you for your order with Blue Snap!",
       "order-number": "Your order number:",
       "order-confirmation": "Order confirmation email has been sent."
+    },
+    "savedCards": {
+      "title": "Saved cards",
+      "subtitle": "Manage the cards you use to pay. Card details are stored securely by BlueSnap, never in this shop.",
+      "emptyTitle": "No saved cards yet",
+      "emptyText": "Add a card here, or save one while paying at checkout.",
+      "cardHolder": "Card holder",
+      "expires": "Expires",
+      "expired": "Expired",
+      "preferred": "Preferred",
+      "makePreferred": "Set as preferred card",
+      "remove": "Remove card",
+      "removeConfirm": "Remove this card?",
+      "addCard": "Add a new card",
+      "showForm": "+ Add card",
+      "hideForm": "- Hide form",
+      "cancel": "Cancel",
+      "saveCard": "Save card",
+      "secureNotice": "Your card details are entered directly into BlueSnap's secure fields and are never stored in this shop.",
+      "checkoutTitle": "Pay with a saved card",
+      "useNewCard": "Use a new card",
+      "requestFailed": "The request could not be completed. Please try again.",
+      "error": {
+        "tokenFailed": "The secure card form could not be loaded. Please reload the page and try again.",
+        "alreadySaved": "This card is already saved.",
+        "notFound": "This card could not be found."
+      },
+      "form": {
+        "cardNumber": "Card number",
+        "expDate": "MM / YY",
+        "cvv": "CVV"
+      }
     }
   }
 }

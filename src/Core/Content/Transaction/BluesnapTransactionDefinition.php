@@ -9,7 +9,11 @@ use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\ApiAware;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\PrimaryKey;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\FkField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\IdField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ManyToOneAssociationField;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\StringField;
 
 class BluesnapTransactionDefinition extends EntityDefinition
@@ -39,6 +43,11 @@ class BluesnapTransactionDefinition extends EntityDefinition
             (new StringField('payment_method_name', 'paymentMethodName'))->addFlags(new ApiAware()),
             (new StringField('transaction_id', 'transactionId'))->addFlags(new ApiAware(), new Required()),
             (new StringField('status', 'status'))->addFlags(new ApiAware(), new Required()),
+            (new StringField('cvv_response_code', 'cvvResponseCode'))->addFlags(new ApiAware()),
+            (new StringField('avs_response_code', 'avsResponseCode'))->addFlags(new ApiAware()),
+            (new FkField('order_transaction_id', 'orderTransactionId', OrderTransactionDefinition::class))->addFlags(new ApiAware()),
+            (new ReferenceVersionField(OrderTransactionDefinition::class))->addFlags(new ApiAware(), new Required()),
+            (new ManyToOneAssociationField('orderTransaction', 'order_transaction_id', OrderTransactionDefinition::class, 'id', false))->addFlags(new ApiAware()),
         ]);
     }
 }

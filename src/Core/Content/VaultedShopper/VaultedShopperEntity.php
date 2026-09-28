@@ -4,22 +4,25 @@ declare(strict_types=1);
 
 namespace BlueSnap\Core\Content\VaultedShopper;
 
-use Shopware\Core\Checkout\Customer\CustomerDefinition;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityIdTrait;
-use Swag\PayPal\RestApi\V2\Api\Order\PaymentSource\Common\Attributes\Customer;
-use Symfony\Component\String\ByteString;
 
 class VaultedShopperEntity extends Entity
 {
     use EntityIdTrait;
 
-    protected ?string $customerId;
+    protected ?string $customerId = null;
 
     protected string $vaultedShopperId;
-    protected string $cardType;
-    protected ?CustomerEntity $customer;
+
+    protected ?string $cardType = null;
+
+    protected ?string $preferredCardType = null;
+
+    protected ?string $preferredCardLastFour = null;
+
+    protected ?CustomerEntity $customer = null;
 
     public function getCustomerId(): ?string
     {
@@ -36,12 +39,12 @@ class VaultedShopperEntity extends Entity
         return $this->customer;
     }
 
-    public function setCustomer(CustomerEntity $customer): void
+    public function setCustomer(?CustomerEntity $customer): void
     {
         $this->customer = $customer;
     }
 
-    public function getVaultedShopperId()
+    public function getVaultedShopperId(): string
     {
         return $this->vaultedShopperId;
     }
@@ -51,13 +54,33 @@ class VaultedShopperEntity extends Entity
         $this->vaultedShopperId = $vaultedShopperId;
     }
 
-    public function getCardType()
+    public function getCardType(): ?string
     {
         return $this->cardType;
     }
 
-    public function setCardType(string $cardType): void
+    public function setCardType(?string $cardType): void
     {
         $this->cardType = $cardType;
+    }
+
+    public function getPreferredCardType(): ?string
+    {
+        return $this->preferredCardType;
+    }
+
+    public function setPreferredCardType(?string $preferredCardType): void
+    {
+        $this->preferredCardType = $preferredCardType;
+    }
+
+    public function getPreferredCardLastFour(): ?string
+    {
+        return $this->preferredCardLastFour;
+    }
+
+    public function setPreferredCardLastFour(?string $preferredCardLastFour): void
+    {
+        $this->preferredCardLastFour = $preferredCardLastFour;
     }
 }

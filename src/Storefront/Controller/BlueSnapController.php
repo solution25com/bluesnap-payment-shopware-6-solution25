@@ -68,14 +68,6 @@ class BlueSnapController extends StorefrontController
                 $request->request->set($key, $value);
             }
         }
-        if (!empty($content['surchargeAmount']) && is_numeric($content['surchargeAmount'])) {
-            $price = $cart->getPrice()->getTotalPrice() + (float)$content['surchargeAmount'];
-            $request->request->set('amount', (string)$price);
-        } else {
-            $price = $cart->getPrice()->getTotalPrice();
-            $request->request->set('amount', (string)$price);
-        }
-
 
         if ($this->blueSnapConfig->level23DataConfigs($context->getSalesChannel()->getId(), $context->getCustomer()->getGroupId())) {
             $cartData = $this->orderService->extractLVL2And3DataFromCart($cart, $context);
@@ -110,14 +102,6 @@ class BlueSnapController extends StorefrontController
     #[Route(path: '/vaulted-shopper', name: 'frontend.bluesnap.vaultedShopper', methods: ['POST'])]
     public function vaultedShopper(Cart $cart, Request $request, SalesChannelContext $context): BlueSnapApiResponse
     {
-        $data = $request->request->all();
-        if (!empty($data['surchargeAmount']) && is_numeric($data['surchargeAmount'])) {
-            $price = $cart->getPrice()->getTotalPrice() + (float)$data['surchargeAmount'];
-            $request->request->set('amount', (string)$price);
-        } else {
-            $price = $cart->getPrice()->getTotalPrice();
-            $request->request->set('amount', (string)$price);
-        }
 
         if ($this->blueSnapConfig->level23DataConfigs($context->getSalesChannel()->getId(), $context->getCustomer()->getGroupId())) {
             $cartData = $this->orderService->extractLVL2And3DataFromCart($cart, $context);
@@ -132,10 +116,74 @@ class BlueSnapController extends StorefrontController
         return $this->route->vaultedShopperData($vaultedShopperId, $request, $context);
     }
 
+    /**
+     * @deprecated tag:v2.0.0 - use frontend.bluesnap.savedCards.remove
+     */
     #[Route(path: '/update-vaulted-shopper/{vaultedShopperId}', name: 'frontend.bluesnap.updateVaultedShopper', methods: ['PUT'])]
     public function updateVaultedShopper(string $vaultedShopperId, Request $request, SalesChannelContext $context): BlueSnapApiResponse
     {
         return $this->route->updateVaultedShopper($vaultedShopperId, $request, $context);
+    }
+
+    #[Route(
+        path: '/bluesnap/saved-cards/token',
+        name: 'frontend.bluesnap.savedCards.token',
+        defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => false],
+        methods: ['POST']
+    )]
+    public function createSavedCardToken(Request $request, SalesChannelContext $context): BlueSnapApiResponse
+    {
+        return $this->route->createSavedCardToken($request, $context);
+    }
+
+    #[Route(
+        path: '/bluesnap/saved-cards',
+        name: 'frontend.bluesnap.savedCards.add',
+        defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => false],
+        methods: ['POST']
+    )]
+    public function addSavedCard(Request $request, SalesChannelContext $context): BlueSnapApiResponse
+    {
+        $this->mergeJsonBody($request);
+
+        return $this->route->addSavedCard($request, $context);
+    }
+
+    #[Route(
+        path: '/bluesnap/saved-cards/{cardKey}/delete',
+        name: 'frontend.bluesnap.savedCards.remove',
+        requirements: ['cardKey' => '[0-9a-f]{32}'],
+        defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => false],
+        methods: ['POST']
+    )]
+    public function removeSavedCard(string $cardKey, Request $request, SalesChannelContext $context): BlueSnapApiResponse
+    {
+        return $this->route->removeSavedCard($cardKey, $request, $context);
+    }
+
+    #[Route(
+        path: '/bluesnap/saved-cards/{cardKey}/preferred',
+        name: 'frontend.bluesnap.savedCards.preferred',
+        requirements: ['cardKey' => '[0-9a-f]{32}'],
+        defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => false],
+        methods: ['POST']
+    )]
+    public function setPreferredSavedCard(string $cardKey, Request $request, SalesChannelContext $context): BlueSnapApiResponse
+    {
+        return $this->route->setPreferredSavedCard($cardKey, $request, $context);
+    }
+
+    #[Route(
+        path: '/bluesnap/saved-cards/select',
+        name: 'frontend.bluesnap.savedCards.select',
+        defaults: ['XmlHttpRequest' => true, '_loginRequired' => true, '_loginRequiredAllowGuest' => false],
+        methods: ['POST']
+    )]
+    public function selectSavedCard(Request $request, SalesChannelContext $context): BlueSnapApiResponse
+    {
+        $this->mergeJsonBody($request);
+
+        return $this->route->selectSavedCard($request, $context);
     }
 
     #[Route(path: '/payment-link-success', name: 'frontend.bluesnap.paymentLinkSuccessPage', methods: ['GET'])]
@@ -148,5 +196,17 @@ class BlueSnapController extends StorefrontController
     public function paymentLinkFailPage(Request $request, SalesChannelContext $context): Response
     {
         return $this->renderStorefront('@BlueSnap/storefront/page/paymentLinkFail.html.twig');
+    }
+
+    private function mergeJsonBody(Request $request): void
+    {
+        $content = json_decode($request->getContent(), true);
+        if (!is_array($content)) {
+            return;
+        }
+
+        foreach ($content as $key => $value) {
+            $request->request->set($key, $value);
+        }
     }
 }
