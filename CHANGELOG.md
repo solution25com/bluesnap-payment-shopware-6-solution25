@@ -1,5 +1,12 @@
 # Changelog
 
+# 2.0.0
+
+## Changed
+- Supported Shopware version narrowed to 6.7 (`~6.7.0`). Shopware 6.6 remains supported on the `main` branch in the 1.x release line.
+- No functional plugin changes in this release. The major version bump reflects the supported-platform change only.
+
+
 # 1.3.0 - 28/09/2026
 
 ## Changed
